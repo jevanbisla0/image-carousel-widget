@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -7,11 +7,51 @@ import { Button } from '@/components/ui/button';
 interface NotionCarouselProps {
   images: string[];
   className?: string;
+  autoplay?: boolean;
+  interval?: number;
 }
 
-const NotionCarousel = ({ images, className }: NotionCarouselProps) => {
+const NotionCarousel = ({ 
+  images, 
+  className, 
+  autoplay = true, 
+  interval = 5000 
+}: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  // Handle responsive sizing
+  useEffect(() => {
+    const updateDimensions = () => {
+      // Get the dimensions of the parent container or window
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      setContainerWidth(width);
+      setContainerHeight(height);
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, []);
+
+  // Autoplay functionality
+  useEffect(() => {
+    if (!autoplay) return;
+    
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+      setIsLoading(true);
+    }, interval);
+    
+    return () => clearInterval(timer);
+  }, [autoplay, interval, images.length]);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -23,9 +63,16 @@ const NotionCarousel = ({ images, className }: NotionCarouselProps) => {
     setIsLoading(true);
   };
 
+  // Calculate height based on container width to maintain aspect ratio
+  const carouselHeight = Math.min(500, containerHeight * 0.8);
+
   return (
-    <div className={cn("relative w-full max-w-4xl mx-auto group", className)}>
-      <div className="relative h-[500px] overflow-hidden rounded-lg bg-muted">
+    <div className={cn("relative w-full mx-auto", className)} 
+         style={{ maxWidth: '100%' }}>
+      <div 
+        className="relative overflow-hidden rounded-lg bg-muted"
+        style={{ height: `${carouselHeight}px` }}
+      >
         {/* Image */}
         <img
           src={images[currentIndex]}
@@ -37,34 +84,36 @@ const NotionCarousel = ({ images, className }: NotionCarouselProps) => {
           onLoad={() => setIsLoading(false)}
         />
 
-        {/* Navigation Buttons */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          onClick={prevSlide}
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </Button>
+        {/* Simplified Navigation Buttons - Always visible on small screens */}
+        <div className="absolute inset-0 flex items-center justify-between px-2 sm:px-4">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-8 w-8 opacity-70 hover:opacity-100 transition-opacity"
+            onClick={prevSlide}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          onClick={nextSlide}
-        >
-          <ChevronRight className="h-6 w-6" />
-        </Button>
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-8 w-8 opacity-70 hover:opacity-100 transition-opacity"
+            onClick={nextSlide}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
 
-        {/* Dots Indicator */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+        {/* Simplified Dots Indicator */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
           {images.map((_, index) => (
             <button
               key={index}
               className={cn(
-                "w-2 h-2 rounded-full transition-all duration-300",
+                "w-1.5 h-1.5 rounded-full transition-all duration-300",
                 currentIndex === index
-                  ? "bg-white w-4"
+                  ? "bg-white w-3"
                   : "bg-white/50 hover:bg-white/75"
               )}
               onClick={() => {
