@@ -1,26 +1,40 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { processGoogleDriveUrls } from '@/lib/googleDriveUtils';
 
 interface NotionCarouselProps {
   images: string[];
   className?: string;
   autoplay?: boolean;
   interval?: number;
+  isGoogleDrive?: boolean;
 }
 
 const NotionCarousel = ({ 
   images, 
   className, 
   autoplay = true, 
-  interval = 5000 
+  interval = 5000,
+  isGoogleDrive = false
 }: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
+  const [processedImages, setProcessedImages] = useState<string[]>(images);
+
+  // Process images if they're from Google Drive
+  useEffect(() => {
+    if (isGoogleDrive) {
+      setProcessedImages(processGoogleDriveUrls(images));
+    } else {
+      setProcessedImages(images);
+    }
+  }, [images, isGoogleDrive]);
 
   // Handle responsive sizing
   useEffect(() => {
@@ -43,28 +57,45 @@ const NotionCarousel = ({
 
   // Autoplay functionality
   useEffect(() => {
-    if (!autoplay) return;
+    if (!autoplay || processedImages.length === 0) return;
     
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
+      setCurrentIndex((prev) => (prev + 1) % processedImages.length);
       setIsLoading(true);
     }, interval);
     
     return () => clearInterval(timer);
-  }, [autoplay, interval, images.length]);
+  }, [autoplay, interval, processedImages.length]);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
+    if (processedImages.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % processedImages.length);
     setIsLoading(true);
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    if (processedImages.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + processedImages.length) % processedImages.length);
     setIsLoading(true);
   };
 
   // Calculate height based on container width to maintain aspect ratio
   const carouselHeight = Math.min(500, containerHeight * 0.8);
+
+  // Handle empty state
+  if (processedImages.length === 0) {
+    return (
+      <div 
+        className={cn("relative w-full mx-auto bg-muted flex items-center justify-center rounded-lg", className)}
+        style={{ height: `${carouselHeight}px`, maxWidth: '100%' }}
+      >
+        <div className="text-center p-4 space-y-2">
+          <Image className="mx-auto h-10 w-10 text-muted-foreground" />
+          <p className="text-muted-foreground">No images to display</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("relative w-full mx-auto", className)} 
@@ -74,17 +105,32 @@ const NotionCarousel = ({
         style={{ height: `${carouselHeight}px` }}
       >
         {/* Image */}
-        <img
-          src={images[currentIndex]}
-          alt={`Slide ${currentIndex + 1}`}
-          className={cn(
-            "absolute w-full h-full object-cover transition-all duration-500",
-            isLoading ? "scale-105 blur-sm" : "scale-100 blur-0"
-          )}
-          onLoad={() => setIsLoading(false)}
-        />
+        {error ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+            <AlertCircle className="h-10 w-10 text-destructive mb-2" />
+            <p className="text-destructive">Failed to load image</p>
+            <p className="text-xs text-muted-foreground mt-1">{error}</p>
+          </div>
+        ) : (
+          <img
+            src={processedImages[currentIndex]}
+            alt={`Slide ${currentIndex + 1}`}
+            className={cn(
+              "absolute w-full h-full object-cover transition-all duration-500",
+              isLoading ? "scale-105 blur-sm" : "scale-100 blur-0"
+            )}
+            onLoad={() => {
+              setIsLoading(false);
+              setError(null);
+            }}
+            onError={(e) => {
+              setError(`Error loading image: ${processedImages[currentIndex]}`);
+              setIsLoading(false);
+            }}
+          />
+        )}
 
-        {/* Simplified Navigation Buttons - Always visible on small screens */}
+        {/* Navigation Buttons - Always visible */}
         <div className="absolute inset-0 flex items-center justify-between px-2 sm:px-4">
           <Button
             variant="secondary"
@@ -105,9 +151,9 @@ const NotionCarousel = ({
           </Button>
         </div>
 
-        {/* Simplified Dots Indicator */}
+        {/* Dots Indicator */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-          {images.map((_, index) => (
+          {processedImages.map((_, index) => (
             <button
               key={index}
               className={cn(
