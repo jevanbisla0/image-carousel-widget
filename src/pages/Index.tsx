@@ -118,18 +118,12 @@ const Index = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <header className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Image Carousel Widget</h1>
-        <p className="text-muted-foreground">
-          A simple, responsive carousel for your Google Drive images
-        </p>
-      </header>
 
       <div className="space-y-8">
         {/* Preview and Controls section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Preview</h2>
+            <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
             <div className="flex gap-2">
               {!isConfiguring && (
                 <Button variant="outline" onClick={() => setIsConfiguring(true)}>
