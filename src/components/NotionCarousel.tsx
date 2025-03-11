@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Image, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,7 +29,9 @@ const NotionCarousel = ({
   // Process images if they're from Google Drive
   useEffect(() => {
     if (isGoogleDrive) {
-      setProcessedImages(processGoogleDriveUrls(images));
+      const processed = processGoogleDriveUrls(images);
+      console.log('Processed image URLs:', processed);
+      setProcessedImages(processed);
     } else {
       setProcessedImages(images);
     }
@@ -39,7 +40,6 @@ const NotionCarousel = ({
   // Handle responsive sizing
   useEffect(() => {
     const updateDimensions = () => {
-      // Get the dimensions of the parent container or window
       const width = window.innerWidth;
       const height = window.innerHeight;
       
@@ -116,21 +116,23 @@ const NotionCarousel = ({
             src={processedImages[currentIndex]}
             alt={`Slide ${currentIndex + 1}`}
             className={cn(
-              "absolute w-full h-full object-cover transition-all duration-500",
+              "absolute w-full h-full object-contain transition-all duration-500",
               isLoading ? "scale-105 blur-sm" : "scale-100 blur-0"
             )}
             onLoad={() => {
+              console.log('Image loaded successfully:', processedImages[currentIndex]);
               setIsLoading(false);
               setError(null);
             }}
             onError={(e) => {
+              console.error('Error loading image:', processedImages[currentIndex]);
               setError(`Error loading image: ${processedImages[currentIndex]}`);
               setIsLoading(false);
             }}
           />
         )}
 
-        {/* Navigation Buttons - Always visible */}
+        {/* Navigation Buttons and Dots */}
         <div className="absolute inset-0 flex items-center justify-between px-2 sm:px-4">
           <Button
             variant="secondary"
@@ -151,7 +153,6 @@ const NotionCarousel = ({
           </Button>
         </div>
 
-        {/* Dots Indicator */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
           {processedImages.map((_, index) => (
             <button

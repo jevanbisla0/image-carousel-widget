@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import {
   fetchImagesFromFolder,
   clearStoredImagesForFolder
 } from "@/lib/googleDriveUtils";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
@@ -19,6 +19,7 @@ const Index = () => {
   const [tempImageId, setTempImageId] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [folderUrl, setFolderUrl] = useState("");
+  const { toast } = useToast();
 
   // Load images on first render
   useEffect(() => {
@@ -43,6 +44,15 @@ const Index = () => {
   }, []);
 
   const handleSaveConfig = () => {
+    if (imageIds.length === 0) {
+      toast({
+        title: "No images added",
+        description: "Please add at least one image before saving.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Store the folder ID
     localStorage.setItem("google_drive_folder_id", folderId);
     
@@ -55,6 +65,11 @@ const Index = () => {
     
     // Exit configuration mode
     setIsConfiguring(false);
+    
+    toast({
+      title: "Configuration saved",
+      description: `${imageIds.length} images configured successfully.`
+    });
   };
 
   const handleAddImage = () => {
@@ -73,6 +88,16 @@ const Index = () => {
     if (id && !imageIds.includes(id)) {
       setImageIds([...imageIds, id]);
       setTempImageId("");
+      toast({
+        title: "Image added",
+        description: "Image added to carousel"
+      });
+    } else if (imageIds.includes(id)) {
+      toast({
+        title: "Duplicate image",
+        description: "This image is already in the carousel",
+        variant: "destructive"
+      });
     }
   };
 
@@ -231,7 +256,7 @@ const Index = () => {
         <div className="bg-muted p-6 rounded-lg space-y-4">
           <h2 className="text-xl font-semibold">How to embed in Notion</h2>
           <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-            <li>Deploy this app to a hosting service (Netlify, Vercel, etc.)</li>
+            <li>Make sure your images in Google Drive are set to <strong>"Anyone with the link can view"</strong></li>
             <li>In your Notion page, type <code className="bg-background px-2 py-1 rounded text-sm">/embed</code></li>
             <li>Select "Embed" from the menu</li>
             <li>Paste your deployed app URL</li>
@@ -241,9 +266,14 @@ const Index = () => {
           <div className="bg-background p-4 rounded-md mt-2 border border-border">
             <h3 className="font-medium mb-2">Important Note</h3>
             <p className="text-sm text-muted-foreground mb-2">
-              To use your Google Drive images, make sure they are set to "Anyone with the link can view" 
-              for this to work.
+              For Google Drive images to work properly, you must:
             </p>
+            <ol className="list-decimal list-inside text-sm text-muted-foreground ml-2">
+              <li>Right-click on your image in Google Drive</li>
+              <li>Select "Share"</li>
+              <li>Change permissions to "Anyone with the link"</li>
+              <li>Copy the link and paste it into this app, or just copy the file ID</li>
+            </ol>
           </div>
           
           <div className="pt-2">

@@ -14,7 +14,8 @@ interface GoogleDriveImage {
  * Note: This only works for files that have been shared with "Anyone with the link"
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  // Using a more reliable format for Google Drive images
+  return `https://lh3.googleusercontent.com/d/${fileId}`;
 }
 
 /**
