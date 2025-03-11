@@ -122,7 +122,13 @@ const Index = () => {
       <div className="space-y-8">
         {/* Preview and Controls section */}
         <div className="space-y-4">
+      
           <div className="flex items-center justify-between mb-4">
+          <NotionCarousel 
+            images={images} 
+            isGoogleDrive={true}
+            className=""
+          />
             <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
             <div className="flex gap-2">
               <Button 
@@ -143,12 +149,6 @@ const Index = () => {
               </Button>
             </div>
           </div>
-          
-          <NotionCarousel 
-            images={images} 
-            isGoogleDrive={true}
-            className=""
-          />
         </div>
 
         {/* Usage section - Collapsible */}
