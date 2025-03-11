@@ -132,64 +132,33 @@ const Index = () => {
             className="notion-transparent"
           />
           
-          {isConfiguring && (
-            <div className="flex items-center justify-between mt-4 notion-transparent">
-              <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
-              <div className="flex gap-2">
-                <Button 
-                  variant={isConfiguring ? "default" : "outline"} 
-                  onClick={() => setIsConfiguring(!isConfiguring)}
-                  className="flex items-center gap-1"
-                >
-                  <span>Configure</span>
-                  {isConfiguring ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </Button>
-                <Button 
-                  variant={isUsageExpanded ? "default" : "outline"}
-                  onClick={toggleUsage}
-                  className="flex items-center gap-1"
-                >
-                  <span>Usage</span>
-                  {isUsageExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center justify-end gap-2 mt-4 notion-transparent">
+            <Button 
+              variant="outline"
+              onClick={() => setIsConfiguring(!isConfiguring)}
+              className="bg-white/80 hover:bg-white/90 text-gray-800 border-gray-300"
+            >
+              {isConfiguring ? (
+                <>
+                  <X className="h-4 w-4 mr-2" />
+                  Close
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4 mr-2" />
+                  Configure
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
-        {isUsageExpanded && (
-          <div className="space-y-4 bg-card p-4 rounded-lg border">
-            <h2 className="text-xl font-semibold">Usage</h2>
-            <p className="text-sm">
-              This widget allows you to display a carousel of images from your Google Drive.
-            </p>
-            <div className="space-y-2">
-              <h3 className="font-medium">How to use:</h3>
-              <ol className="list-decimal list-inside text-sm space-y-1">
-                <li>Click the "Configure" button to get started</li>
-                <li>Add Google Drive image IDs or sharing URLs</li>
-                <li>Save your configuration</li>
-                <li>The carousel will persist your settings for future visits</li>
-              </ol>
-              
-              <Alert className="mt-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Important</AlertTitle>
-                <AlertDescription>
-                  Make sure your Google Drive images are shared with <strong>"Anyone with the link can view"</strong> permission.
-                  Without this setting, images won't display in the carousel.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </div>
-        )}
-
         {isConfiguring && (
-          <div className="space-y-4 bg-card p-4 rounded-lg border">
+          <div className="space-y-4 bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-gray-200">
             <div className="space-y-4">
               <div>
-                <h2 className="text-xl font-semibold mb-4">Configuration</h2>
-                <Alert className="mb-4">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800">Configure Images</h2>
+                <Alert className="mb-4 bg-white/90">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Google Drive Sharing Settings</AlertTitle>
                   <AlertDescription>
@@ -197,8 +166,8 @@ const Index = () => {
                   </AlertDescription>
                 </Alert>
                 
-                <label className="text-sm font-medium mb-1 block">
-                  Google Drive Images
+                <label className="text-sm font-medium mb-1 block text-gray-700">
+                  Add Google Drive Images
                 </label>
                 <div className="flex gap-2">
                   <Input
@@ -206,31 +175,37 @@ const Index = () => {
                     value={tempImageId}
                     onChange={(e) => setTempImageId(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddImage()}
+                    className="bg-white"
                   />
-                  <Button size="icon" onClick={handleAddImage}>
+                  <Button 
+                    size="icon"
+                    onClick={handleAddImage}
+                    className="bg-purple-500 hover:bg-purple-600 text-white"
+                  >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className="text-sm font-medium flex justify-between items-center">
+                <div className="text-sm font-medium flex justify-between items-center text-gray-700">
                   <span>Selected Images ({imageIds.length})</span>
                   {imageIds.length > 0 && (
                     <Button 
-                      variant="ghost" 
+                      variant="outline"
                       size="sm" 
-                      className="h-8 text-destructive" 
+                      className="h-8 bg-red-500 hover:bg-red-600 text-white border-none" 
                       onClick={handleClearAllImages}
                     >
+                      <Trash2 className="h-4 w-4 mr-2" />
                       Clear All
                     </Button>
                   )}
                 </div>
 
-                <div className="border rounded-md divide-y max-h-[300px] overflow-y-auto">
+                <div className="border rounded-md divide-y bg-white">
                   {imageIds.length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground text-sm">
+                    <div className="p-4 text-center text-gray-500 text-sm">
                       No images added yet
                     </div>
                   ) : (
@@ -239,7 +214,7 @@ const Index = () => {
                         key={index} 
                         className="p-2 flex items-center justify-between"
                       >
-                        <div className="text-sm truncate max-w-[200px]">
+                        <div className="text-sm truncate max-w-[200px] text-gray-600">
                           {id}
                         </div>
                         <div className="flex gap-1">
@@ -247,17 +222,17 @@ const Index = () => {
                             href={`https://drive.google.com/uc?export=view&id=${id}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-muted-foreground hover:text-foreground"
+                            className="text-blue-500 hover:text-blue-600"
                           >
                             <ExternalLink className="h-4 w-4" />
                           </a>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-6 w-6 text-destructive"
+                            className="h-6 w-6 bg-red-500 hover:bg-red-600 text-white rounded-full"
                             onClick={() => handleRemoveImage(index)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -267,7 +242,7 @@ const Index = () => {
               </div>
 
               <Button 
-                className="w-full" 
+                className="w-full bg-green-500 hover:bg-green-600 text-white" 
                 onClick={handleSaveConfig}
                 disabled={imageIds.length === 0}
               >
