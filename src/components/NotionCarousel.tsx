@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { processGoogleDriveUrls } from '@/lib/googleDriveUtils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NotionCarouselProps {
@@ -28,7 +27,7 @@ const NotionCarousel = ({
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
 
-  // Process images and setup responsive sizing
+  // Setup images and responsive sizing
   useEffect(() => {
     if (!images || images.length === 0) {
       console.log('No images provided to carousel');
@@ -36,16 +35,10 @@ const NotionCarousel = ({
       return;
     }
 
-    // Process images if they're from Google Drive
-    console.log('Processing images with isGoogleDrive =', isGoogleDrive);
-    const newProcessedImages = isGoogleDrive ? processGoogleDriveUrls(images) : images;
-    console.log('Processed images:', newProcessedImages);
-    
-    if (newProcessedImages.length === 0) {
-      console.log('No valid processed images');
-    }
-    
-    setProcessedImages(newProcessedImages);
+    // Simply use the provided images - no extra processing needed
+    // The processing should be done before passing to this component
+    console.log('Setting up carousel images:', images);
+    setProcessedImages(images);
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
@@ -62,7 +55,7 @@ const NotionCarousel = ({
     window.addEventListener('resize', updateDimensions);
     
     return () => window.removeEventListener('resize', updateDimensions);
-  }, [images, isGoogleDrive]);
+  }, [images]);
 
   // Reset current index when images change
   useEffect(() => {
@@ -189,6 +182,7 @@ const NotionCarousel = ({
                 )}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
+                crossOrigin="anonymous"
               />
             )}
             

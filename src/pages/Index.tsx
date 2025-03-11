@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,8 @@ import {
   extractGoogleDriveFileId, 
   storeImagesForFolder,
   fetchImagesFromFolder,
-  clearStoredImagesForFolder
+  clearStoredImagesForFolder,
+  getGoogleDriveImageUrl
 } from "@/lib/googleDriveUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -42,10 +42,8 @@ const Index = () => {
           const parsedIds = JSON.parse(storedImageIds);
           setImageIds(parsedIds);
           
-          // Process image URLs
-          const processedUrls = parsedIds.map((id: string) => 
-            `https://drive.google.com/uc?export=view&id=${id}`
-          );
+          // Process image URLs - fixed to use direct image URLs
+          const processedUrls = parsedIds.map((id: string) => getGoogleDriveImageUrl(id));
           setImages(processedUrls);
           console.log("Loaded images:", processedUrls);
         } catch (error) {
@@ -72,10 +70,8 @@ const Index = () => {
     localStorage.setItem("google_drive_folder_id", finalFolderId);
     storeImagesForFolder(finalFolderId, imageIds);
     
-    // Generate direct URLs for the carousel
-    const processedUrls = imageIds.map(id => 
-      `https://drive.google.com/uc?export=view&id=${id}`
-    );
+    // Generate direct URLs for the carousel using the utility function
+    const processedUrls = imageIds.map(id => getGoogleDriveImageUrl(id));
     setImages(processedUrls);
     setIsConfiguring(false);
     
@@ -299,3 +295,4 @@ const Index = () => {
 };
 
 export default Index;
+

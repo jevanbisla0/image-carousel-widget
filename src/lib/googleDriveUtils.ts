@@ -11,9 +11,10 @@ interface GoogleDriveImage {
 
 /**
  * Convert a Google Drive file ID to a direct image URL
+ * Using the most reliable format that works for public files
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  // Direct link to the file content using Google's export URL
+  // Using the most reliable format for Google Drive images
   return `https://drive.google.com/uc?export=view&id=${fileId}`;
 }
 
