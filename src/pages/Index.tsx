@@ -147,7 +147,7 @@ const Index = () => {
           <NotionCarousel 
             images={images} 
             isGoogleDrive={true}
-            className="border rounded-lg shadow-sm"
+            className=""
           />
         </div>
 
