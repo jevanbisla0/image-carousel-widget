@@ -13,7 +13,6 @@ interface GoogleDriveImage {
  * Convert a Google Drive file ID to a direct image URL
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  // Using direct link format with export=view which is more reliable
   return `https://drive.google.com/uc?export=view&id=${fileId}`;
 }
 
@@ -21,12 +20,14 @@ export function getGoogleDriveImageUrl(fileId: string): string {
  * Extract the file ID from a Google Drive sharing URL
  */
 export function extractGoogleDriveFileId(url: string): string | null {
+  if (!url) return null;
+  
   // Different patterns for Google Drive URLs
   const patterns = [
     /\/file\/d\/([^\/\?]+)/,  // /file/d/ URLs
     /id=([^&]+)/,            // ?id= parameter
     /\/folders\/([^\/\?]+)/, // folder URLs
-    /^([a-zA-Z0-9_-]{25,}$)/ // Direct file ID (25+ chars of letters, numbers, hyphens, underscores)
+    /^([a-zA-Z0-9_-]{25,}$)/ // Direct file ID
   ];
   
   for (const pattern of patterns) {
@@ -48,7 +49,11 @@ export function extractGoogleDriveFileId(url: string): string | null {
  * Process a list of Google Drive URLs or IDs and convert them to direct image URLs
  */
 export function processGoogleDriveUrls(sources: string[]): string[] {
+  if (!sources || !Array.isArray(sources)) return [];
+  
   return sources.map(source => {
+    if (!source) return '';
+    
     // Check if it's already a full URL
     if (source.startsWith('http')) {
       const fileId = extractGoogleDriveFileId(source);
@@ -57,7 +62,7 @@ export function processGoogleDriveUrls(sources: string[]): string[] {
     
     // Assume it's a file ID directly
     return getGoogleDriveImageUrl(source);
-  });
+  }).filter(url => url !== '');
 }
 
 /**
@@ -83,6 +88,7 @@ export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<stri
     
     if (storedImages) {
       const imageIds = JSON.parse(storedImages);
+      console.log('Found stored images:', imageIds);
       return processGoogleDriveUrls(imageIds);
     }
     
@@ -97,11 +103,17 @@ export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<stri
  * Store image IDs for a folder in localStorage
  */
 export function storeImagesForFolder(folderId: string, imageIds: string[]): void {
-  if (!folderId || folderId.trim() === '') {
-    console.error('Cannot store images: No folder ID provided');
+  if (!folderId || !imageIds || !Array.isArray(imageIds)) {
+    console.error('Cannot store images: Invalid input');
     return;
   }
-  localStorage.setItem(`drive_folder_${folderId}`, JSON.stringify(imageIds));
+  
+  try {
+    localStorage.setItem(`drive_folder_${folderId}`, JSON.stringify(imageIds));
+    console.log('Stored images for folder:', folderId, imageIds);
+  } catch (error) {
+    console.error('Error storing images:', error);
+  }
 }
 
 /**
