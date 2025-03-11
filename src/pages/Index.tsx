@@ -120,15 +120,14 @@ const Index = () => {
     <div className="container mx-auto px-4 py-8 max-w-5xl">
 
       <div className="space-y-8">
-        {/* Preview and Controls section */}
-        <div className="space-y-4">
-      
-          <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4">
           <NotionCarousel 
             images={images} 
             isGoogleDrive={true}
             className=""
           />
+        {/* Preview and Controls section */}
+        <div className="space-y-4">
             <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
             <div className="flex gap-2">
               <Button 
