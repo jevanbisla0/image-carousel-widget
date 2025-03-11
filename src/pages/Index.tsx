@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
@@ -16,19 +15,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
-  const [folderId, setFolderId] = useState("google_drive_images");  // Default folder ID
+  const [folderId, setFolderId] = useState("google_drive_images");
   const [imageIds, setImageIds] = useState<string[]>([]);
   const [tempImageId, setTempImageId] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [isUsageExpanded, setIsUsageExpanded] = useState(false);
   const { toast } = useToast();
 
-  // Load images on first render
   useEffect(() => {
     const loadImages = async () => {
       let storedFolderId = localStorage.getItem("google_drive_folder_id");
       
-      // Use default folder ID if none is stored
       if (!storedFolderId) {
         storedFolderId = "google_drive_images";
         localStorage.setItem("google_drive_folder_id", storedFolderId);
@@ -36,14 +33,12 @@ const Index = () => {
       
       setFolderId(storedFolderId);
       
-      // Try to load images
       const storedImageIds = localStorage.getItem(`drive_folder_${storedFolderId}`);
       if (storedImageIds) {
         try {
           const parsedIds = JSON.parse(storedImageIds);
           setImageIds(parsedIds);
           
-          // Process image URLs using the updated utility function
           const processedUrls = parsedIds.map((id: string) => getGoogleDriveImageUrl(id));
           setImages(processedUrls);
           console.log("Loaded images:", processedUrls);
@@ -66,12 +61,10 @@ const Index = () => {
       return;
     }
 
-    // Store configuration with the default folder ID if empty
     const finalFolderId = folderId || "google_drive_images";
     localStorage.setItem("google_drive_folder_id", finalFolderId);
     storeImagesForFolder(finalFolderId, imageIds);
     
-    // Generate direct URLs for the carousel using the updated utility function
     const processedUrls = imageIds.map(id => getGoogleDriveImageUrl(id));
     setImages(processedUrls);
     setIsConfiguring(false);
@@ -85,12 +78,10 @@ const Index = () => {
   const handleAddImage = () => {
     if (!tempImageId) return;
     
-    // If it's a URL, extract the ID
     const id = tempImageId.startsWith('http') 
       ? extractGoogleDriveFileId(tempImageId) || ""
       : tempImageId;
     
-    // Add to list if not already there and valid
     if (id && !imageIds.includes(id)) {
       setImageIds([...imageIds, id]);
       setTempImageId("");
@@ -132,42 +123,40 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl bg-transparent">
-      <div className="space-y-8 bg-transparent">
-        {/* Preview section */}
-        <div className="space-y-4 bg-transparent">
-          {/* Carousel now placed above the heading and buttons */}
+    <div className="mx-auto px-4 py-8 max-w-5xl notion-transparent">
+      <div className="space-y-8 notion-transparent">
+        <div className="space-y-4 notion-transparent">
           <NotionCarousel 
             images={images} 
-            isGoogleDrive={false}  // Changed to false as we're now providing direct URLs
-            className="bg-transparent"
+            isGoogleDrive={false}
+            className="notion-transparent"
           />
           
-          {/* Heading and controls moved below the carousel */}
-          <div className="flex items-center justify-between mt-4 bg-transparent">
-            <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
-            <div className="flex gap-2">
-              <Button 
-                variant={isConfiguring ? "default" : "outline"} 
-                onClick={() => setIsConfiguring(!isConfiguring)}
-                className="flex items-center gap-1"
-              >
-                <span>Configure</span>
-                {isConfiguring ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-              <Button 
-                variant={isUsageExpanded ? "default" : "outline"}
-                onClick={toggleUsage}
-                className="flex items-center gap-1"
-              >
-                <span>Usage</span>
-                {isUsageExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
+          {isConfiguring && (
+            <div className="flex items-center justify-between mt-4 notion-transparent">
+              <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
+              <div className="flex gap-2">
+                <Button 
+                  variant={isConfiguring ? "default" : "outline"} 
+                  onClick={() => setIsConfiguring(!isConfiguring)}
+                  className="flex items-center gap-1"
+                >
+                  <span>Configure</span>
+                  {isConfiguring ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+                <Button 
+                  variant={isUsageExpanded ? "default" : "outline"}
+                  onClick={toggleUsage}
+                  className="flex items-center gap-1"
+                >
+                  <span>Usage</span>
+                  {isUsageExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Usage section - Collapsible */}
         {isUsageExpanded && (
           <div className="space-y-4 bg-card p-4 rounded-lg border">
             <h2 className="text-xl font-semibold">Usage</h2>
@@ -195,7 +184,6 @@ const Index = () => {
           </div>
         )}
 
-        {/* Configuration section */}
         {isConfiguring && (
           <div className="space-y-4 bg-card p-4 rounded-lg border">
             <div className="space-y-4">
@@ -225,7 +213,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Image list */}
               <div className="space-y-2">
                 <div className="text-sm font-medium flex justify-between items-center">
                   <span>Selected Images ({imageIds.length})</span>

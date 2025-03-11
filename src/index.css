@@ -96,15 +96,25 @@
   }
 
   body {
-    @apply bg-transparent text-foreground;
+    background: none !important;
+    background-color: transparent !important;
+  }
+
+  #root,
+  [class*="bg-"],
+  [class*="background"] {
+    background: none !important;
+    background-color: transparent !important;
   }
 }
 
-.notion-embed {
+.notion-embed,
+.notion-transparent {
+  background: none !important;
   background-color: transparent !important;
 }
 
-.notion-transparent {
-  background: transparent !important;
+[class*="bg-"] {
+  background: none !important;
   background-color: transparent !important;
 }

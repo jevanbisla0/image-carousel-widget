@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -27,7 +26,6 @@ const NotionCarousel = ({
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
 
-  // Setup images and responsive sizing
   useEffect(() => {
     if (!images || images.length === 0) {
       console.log('No images provided to carousel');
@@ -35,14 +33,12 @@ const NotionCarousel = ({
       return;
     }
 
-    // Simply use the provided images - processing is done before passing to component
     console.log('Setting up carousel images:', images);
     setProcessedImages(images);
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
     
-    // Handle responsive sizing
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
@@ -56,12 +52,10 @@ const NotionCarousel = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, [images]);
 
-  // Reset current index when images change
   useEffect(() => {
     setCurrentIndex(0);
   }, [processedImages]);
 
-  // Autoplay functionality
   useEffect(() => {
     if (!autoplay || processedImages.length === 0) return;
     
@@ -91,7 +85,6 @@ const NotionCarousel = ({
     setLoadAttempts(0);
   };
 
-  // Calculate height based on container width to maintain aspect ratio
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
 
   const handleImageLoad = useCallback(() => {
@@ -105,9 +98,7 @@ const NotionCarousel = ({
     console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[currentIndex]);
     
     if (currentAttempts < 3) {
-      // Try with a different cache-busting parameter
       setLoadAttempts(currentAttempts);
-      // Force a reload by updating the state
       setIsLoading(true);
     } else {
       setIsLoading(false);
@@ -115,51 +106,48 @@ const NotionCarousel = ({
     }
   }, [processedImages, currentIndex, loadAttempts]);
 
-  // Handle empty state
   if (processedImages.length === 0) {
     return (
-      <div className={cn("relative w-full mx-auto bg-transparent", className)}>
-        <div className="flex items-center bg-transparent">
-          <div className="h-8 w-8 mr-2 flex-shrink-0 bg-transparent" /> {/* Spacer for alignment */}
+      <div className={cn("relative w-full mx-auto notion-transparent", className)}>
+        <div className="flex items-center notion-transparent">
+          <div className="h-8 w-8 mr-2 flex-shrink-0 notion-transparent" />
           
           <div 
-            className="relative w-full bg-transparent flex items-center justify-center rounded-lg"
+            className="relative w-full notion-transparent flex items-center justify-center rounded-lg"
             style={{ height: `${carouselHeight}px` }}
           >
-            <div className="text-center p-4 space-y-2 bg-transparent rounded-md">
+            <div className="text-center p-4 space-y-2 notion-transparent rounded-md">
               <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground/50" />
               <p className="text-muted-foreground/50">No images to display</p>
             </div>
           </div>
           
-          <div className="h-8 w-8 ml-2 flex-shrink-0 bg-transparent" /> {/* Spacer for alignment */}
+          <div className="h-8 w-8 ml-2 flex-shrink-0 notion-transparent" />
         </div>
-        <div className="mt-2 h-1.5 bg-transparent"></div> {/* Empty space for pagination dots alignment */}
+        <div className="mt-2 h-1.5 notion-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className={cn("relative w-full mx-auto bg-transparent", className)}>
-      {/* Navigation arrows - positioned outside */}
-      <div className="flex items-center bg-transparent">
+    <div className={cn("relative w-full mx-auto notion-transparent", className)}>
+      <div className="flex items-center notion-transparent">
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 rounded-full bg-transparent hover:bg-background/10 mr-2 flex-shrink-0"
+          className="h-8 w-8 rounded-full notion-transparent hover:bg-white/10 mr-2 flex-shrink-0"
           onClick={() => handleSlideChange('prev')}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        {/* Image slider container */}
         <div 
-          className="relative overflow-hidden rounded-lg w-full bg-transparent"
+          className="relative overflow-hidden rounded-lg w-full notion-transparent"
           style={{ height: `${carouselHeight}px` }}
         >
-          <div className="h-full w-full relative bg-transparent flex items-center justify-center">
+          <div className="h-full w-full relative notion-transparent flex items-center justify-center">
             {imageError ? (
-              <div className="text-center p-4 space-y-2 bg-transparent">
+              <div className="text-center p-4 space-y-2 notion-transparent">
                 <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
@@ -181,11 +169,12 @@ const NotionCarousel = ({
                 )}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
+                style={{ background: 'none' }}
               />
             )}
             
             {isLoading && !imageError && (
-              <div className="absolute inset-0 flex items-center justify-center bg-transparent">
+              <div className="absolute inset-0 flex items-center justify-center notion-transparent">
                 <div className="animate-pulse flex flex-col items-center">
                   <ImageIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
                   <span className="text-sm text-muted-foreground/50">Loading image...</span>
@@ -198,22 +187,21 @@ const NotionCarousel = ({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 rounded-full bg-transparent hover:bg-background/10 ml-2 flex-shrink-0"
+          className="h-8 w-8 rounded-full notion-transparent hover:bg-white/10 ml-2 flex-shrink-0"
           onClick={() => handleSlideChange('next')}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
       
-      {/* Pagination dots - moved outside */}
-      <div className="mt-2 flex justify-center bg-transparent">
-        <div className="flex items-center justify-center gap-1.5 bg-transparent">
+      <div className="mt-2 flex justify-center notion-transparent">
+        <div className="flex items-center justify-center gap-1.5 notion-transparent">
           {processedImages.map((_, index) => (
             <button
               key={index}
               className={cn(
-                "h-1.5 rounded-full transition-all bg-transparent",
-                index === currentIndex ? "w-4 bg-primary/70" : "w-1.5 bg-primary/30"
+                "h-1.5 rounded-full transition-all notion-transparent",
+                index === currentIndex ? "w-4 bg-white/70" : "w-1.5 bg-white/30"
               )}
               onClick={() => {
                 setCurrentIndex(index);

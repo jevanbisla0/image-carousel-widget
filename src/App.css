@@ -4,7 +4,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  background-color: transparent;
+  background: none !important;
 }
 
 .logo {
@@ -37,13 +37,20 @@
 
 .card {
   padding: 2em;
+  background: none !important;
 }
 
 .read-the-docs {
   color: #888;
 }
 
-.notion-transparent {
+.notion-transparent,
+.notion-embed,
+body,
+#root,
+[class*="bg-"],
+[class*="background"] {
+  background: none !important;
   background-color: transparent !important;
-  background: transparent !important;
 }
+
