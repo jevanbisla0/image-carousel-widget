@@ -75,15 +75,15 @@ const NotionCarousel = ({
   // Handle empty state
   if (processedImages.length === 0) {
     return (
-      <div className={cn("relative w-full mx-auto", className)}>
-        <div className="flex items-center">
+      <div className={cn("relative w-full mx-auto bg-transparent", className)}>
+        <div className="flex items-center bg-transparent">
           <div className="h-8 w-8 mr-2 flex-shrink-0" /> {/* Spacer for alignment */}
           
           <div 
-            className="relative w-full bg-muted flex items-center justify-center rounded-lg"
+            className="relative w-full bg-transparent flex items-center justify-center rounded-lg"
             style={{ height: `${carouselHeight}px` }}
           >
-            <div className="text-center p-4 space-y-2">
+            <div className="text-center p-4 space-y-2 bg-muted/20 rounded-md">
               <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
               <p className="text-muted-foreground">No images to display</p>
             </div>
@@ -97,13 +97,13 @@ const NotionCarousel = ({
   }
 
   return (
-    <div className={cn("relative w-full mx-auto", className)}>
+    <div className={cn("relative w-full mx-auto bg-transparent", className)}>
       {/* Navigation arrows - positioned outside */}
-      <div className="flex items-center">
+      <div className="flex items-center bg-transparent">
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 rounded-full bg-background/80 hover:bg-background/90 mr-2 flex-shrink-0"
+          className="h-8 w-8 rounded-full bg-transparent hover:bg-background/10 mr-2 flex-shrink-0"
           onClick={() => handleSlideChange('prev')}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -111,10 +111,10 @@ const NotionCarousel = ({
         
         {/* Image slider container */}
         <div 
-          className="relative overflow-hidden rounded-lg w-full"
+          className="relative overflow-hidden rounded-lg w-full bg-transparent"
           style={{ height: `${carouselHeight}px` }}
         >
-          <div className="h-full w-full relative">
+          <div className="h-full w-full relative bg-transparent">
             <img
               src={processedImages[currentIndex]}
               alt={`Slide ${currentIndex + 1}`}
@@ -131,7 +131,7 @@ const NotionCarousel = ({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 rounded-full bg-background/80 hover:bg-background/90 ml-2 flex-shrink-0"
+          className="h-8 w-8 rounded-full bg-transparent hover:bg-background/10 ml-2 flex-shrink-0"
           onClick={() => handleSlideChange('next')}
         >
           <ChevronRight className="h-4 w-4" />
@@ -139,8 +139,8 @@ const NotionCarousel = ({
       </div>
       
       {/* Pagination dots - moved outside */}
-      <div className="mt-2 flex justify-center">
-        <div className="flex items-center justify-center gap-1.5">
+      <div className="mt-2 flex justify-center bg-transparent">
+        <div className="flex items-center justify-center gap-1.5 bg-transparent">
           {processedImages.map((_, index) => (
             <button
               key={index}
