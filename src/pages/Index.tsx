@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X, Copy } from "lucide-react";
+import { ExternalLink, Plus, Save, Trash2, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
   extractGoogleDriveFileId, 
@@ -21,13 +21,6 @@ const Index = () => {
   const [images, setImages] = useState<string[]>([]);
   const [folderUrl, setFolderUrl] = useState("");
   const { toast } = useToast();
-  
-  // Get the embed URL for this site
-  const getEmbedUrl = () => {
-    const baseUrl = window.location.origin;
-    const path = window.location.pathname.split('/').slice(0, -1).join('/');
-    return `${baseUrl}${path}/embed`;
-  };
 
   // Load images on first render
   useEffect(() => {
@@ -128,16 +121,6 @@ const Index = () => {
     if (id) {
       setFolderId(id);
     }
-  };
-
-  const handleCopyEmbedUrl = () => {
-    const embedUrl = getEmbedUrl();
-    navigator.clipboard.writeText(embedUrl);
-    
-    toast({
-      title: "Copied to clipboard",
-      description: "Embed URL copied to clipboard"
-    });
   };
 
   return (
@@ -274,23 +257,11 @@ const Index = () => {
         <div className="bg-muted p-6 rounded-lg space-y-4">
           <h2 className="text-xl font-semibold">How to embed in Notion</h2>
           
-          <div className="flex gap-2 items-center p-3 bg-background rounded-md border">
-            <Input 
-              value={getEmbedUrl()} 
-              readOnly 
-              className="flex-1 border-none pl-3 focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-            <Button variant="outline" size="sm" className="shrink-0" onClick={handleCopyEmbedUrl}>
-              <Copy className="h-3.5 w-3.5 mr-1" />
-              Copy
-            </Button>
-          </div>
-          
           <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
             <li>Make sure your images in Google Drive are set to <strong>"Anyone with the link can view"</strong></li>
             <li>In your Notion page, type <code className="bg-background px-2 py-1 rounded text-sm">/embed</code></li>
             <li>Select "Embed" from the menu</li>
-            <li>Paste the above embed URL</li>
+            <li>Paste the URL of this page</li>
             <li>Click "Embed link"</li>
           </ol>
           
