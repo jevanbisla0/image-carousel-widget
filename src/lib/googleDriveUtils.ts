@@ -14,8 +14,8 @@ interface GoogleDriveImage {
  * Note: This only works for files that have been shared with "Anyone with the link"
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  // Using a more reliable format for Google Drive images
-  return `https://lh3.googleusercontent.com/d/${fileId}`;
+  // Using the most reliable format for Google Drive images
+  return `https://drive.google.com/uc?export=view&id=${fileId}`;
 }
 
 /**
@@ -95,7 +95,9 @@ export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<stri
     const storedImages = localStorage.getItem(`drive_folder_${folderId}`);
     
     if (storedImages) {
-      return JSON.parse(storedImages).map((id: string) => getGoogleDriveImageUrl(id));
+      const imageIds = JSON.parse(storedImages);
+      console.log('Fetched stored images:', imageIds);
+      return imageIds.map((id: string) => getGoogleDriveImageUrl(id));
     }
     
     // If no stored images, return an empty array (user will need to configure them)
