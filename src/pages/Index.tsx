@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X } from "lucide-react";
+import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
   extractGoogleDriveFileId, 
@@ -17,6 +17,7 @@ const Index = () => {
   const [imageIds, setImageIds] = useState<string[]>([]);
   const [tempImageId, setTempImageId] = useState("");
   const [images, setImages] = useState<string[]>([]);
+  const [isUsageExpanded, setIsUsageExpanded] = useState(false);
   const { toast } = useToast();
 
   // Load images on first render
@@ -111,8 +112,12 @@ const Index = () => {
     });
   };
 
+  const toggleUsage = () => {
+    setIsUsageExpanded(!isUsageExpanded);
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
       <header className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Image Carousel Widget</h1>
         <p className="text-muted-foreground">
@@ -120,16 +125,26 @@ const Index = () => {
         </p>
       </header>
 
-      <div className="grid gap-8 md:grid-cols-2 items-start">
-        {/* Preview section */}
+      <div className="space-y-8">
+        {/* Preview and Controls section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Preview</h2>
-            {!isConfiguring && (
-              <Button variant="outline" onClick={() => setIsConfiguring(true)}>
-                Configure
+            <div className="flex gap-2">
+              {!isConfiguring && (
+                <Button variant="outline" onClick={() => setIsConfiguring(true)}>
+                  Configure
+                </Button>
+              )}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleUsage}
+                className="h-9 w-9"
+              >
+                {isUsageExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
-            )}
+            </div>
           </div>
           
           <NotionCarousel 
@@ -139,8 +154,27 @@ const Index = () => {
           />
         </div>
 
+        {/* Usage section - Collapsible */}
+        {isUsageExpanded && (
+          <div className="space-y-4 bg-card p-4 rounded-lg border">
+            <h2 className="text-xl font-semibold">Usage</h2>
+            <p className="text-sm">
+              This widget allows you to display a carousel of images from your Google Drive.
+            </p>
+            <div className="space-y-2">
+              <h3 className="font-medium">How to use:</h3>
+              <ol className="list-decimal list-inside text-sm space-y-1">
+                <li>Click the "Configure" button to get started</li>
+                <li>Add Google Drive image IDs or sharing URLs</li>
+                <li>Save your configuration</li>
+                <li>The carousel will persist your settings for future visits</li>
+              </ol>
+            </div>
+          </div>
+        )}
+
         {/* Configuration section */}
-        {isConfiguring ? (
+        {isConfiguring && (
           <div className="space-y-4 bg-card p-4 rounded-lg border">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Configuration</h2>
@@ -233,24 +267,6 @@ const Index = () => {
                 <Save className="h-4 w-4 mr-2" />
                 Save Configuration
               </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Usage</h2>
-            <div className="bg-card p-4 rounded-lg border space-y-4">
-              <p className="text-sm">
-                This widget allows you to display a carousel of images from your Google Drive.
-              </p>
-              <div className="space-y-2">
-                <h3 className="font-medium">How to use:</h3>
-                <ol className="list-decimal list-inside text-sm space-y-1">
-                  <li>Click the "Configure" button to get started</li>
-                  <li>Add Google Drive image IDs or sharing URLs</li>
-                  <li>Save your configuration</li>
-                  <li>The carousel will persist your settings for future visits</li>
-                </ol>
-              </div>
             </div>
           </div>
         )}
