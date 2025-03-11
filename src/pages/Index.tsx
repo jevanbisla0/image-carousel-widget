@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
-  const [folderId, setFolderId] = useState("");
+  const [folderId, setFolderId] = useState("google_drive_images");  // Default folder ID
   const [imageIds, setImageIds] = useState<string[]>([]);
   const [tempImageId, setTempImageId] = useState("");
   const [images, setImages] = useState<string[]>([]);
@@ -25,17 +25,31 @@ const Index = () => {
   // Load images on first render
   useEffect(() => {
     const loadImages = async () => {
-      const storedFolderId = localStorage.getItem("google_drive_folder_id");
+      let storedFolderId = localStorage.getItem("google_drive_folder_id");
       
-      if (storedFolderId) {
-        setFolderId(storedFolderId);
-        const loadedImages = await fetchImagesFromFolder(storedFolderId);
-        setImages(loadedImages);
-        
-        // Also populate the imageIds for configuration
-        const storedImageIds = localStorage.getItem(`drive_folder_${storedFolderId}`);
-        if (storedImageIds) {
-          setImageIds(JSON.parse(storedImageIds));
+      // Use default folder ID if none is stored
+      if (!storedFolderId) {
+        storedFolderId = "google_drive_images";
+        localStorage.setItem("google_drive_folder_id", storedFolderId);
+      }
+      
+      setFolderId(storedFolderId);
+      
+      // Try to load images
+      const storedImageIds = localStorage.getItem(`drive_folder_${storedFolderId}`);
+      if (storedImageIds) {
+        try {
+          const parsedIds = JSON.parse(storedImageIds);
+          setImageIds(parsedIds);
+          
+          // Process image URLs
+          const processedUrls = parsedIds.map((id: string) => 
+            `https://drive.google.com/uc?export=view&id=${id}`
+          );
+          setImages(processedUrls);
+          console.log("Loaded images:", processedUrls);
+        } catch (error) {
+          console.error("Error parsing stored image IDs:", error);
         }
       }
     };
@@ -53,19 +67,21 @@ const Index = () => {
       return;
     }
 
-    // Store configuration
-    localStorage.setItem("google_drive_folder_id", folderId);
-    storeImagesForFolder(folderId, imageIds);
+    // Store configuration with the default folder ID if empty
+    const finalFolderId = folderId || "google_drive_images";
+    localStorage.setItem("google_drive_folder_id", finalFolderId);
+    storeImagesForFolder(finalFolderId, imageIds);
     
-    // Update the UI and fetch images
-    fetchImagesFromFolder(folderId).then(loadedImages => {
-      setImages(loadedImages);
-      setIsConfiguring(false);
-      
-      toast({
-        title: "Configuration saved",
-        description: `${imageIds.length} images configured successfully.`
-      });
+    // Generate direct URLs for the carousel
+    const processedUrls = imageIds.map(id => 
+      `https://drive.google.com/uc?export=view&id=${id}`
+    );
+    setImages(processedUrls);
+    setIsConfiguring(false);
+    
+    toast({
+      title: "Configuration saved",
+      description: `${imageIds.length} images configured successfully.`
     });
   };
 
@@ -126,7 +142,7 @@ const Index = () => {
           {/* Carousel now placed above the heading and buttons */}
           <NotionCarousel 
             images={images} 
-            isGoogleDrive={true}
+            isGoogleDrive={false}  // Changed to false as we're now providing direct URLs
             className=""
           />
           
@@ -244,7 +260,7 @@ const Index = () => {
                         </div>
                         <div className="flex gap-1">
                           <a 
-                            href={`https://drive.google.com/file/d/${id}/view`} 
+                            href={`https://drive.google.com/uc?export=view&id=${id}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-muted-foreground hover:text-foreground"

@@ -102,20 +102,6 @@ const NotionCarousel = ({
   // Calculate height based on container width to maintain aspect ratio
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
 
-  // Create an iframe for the Google Drive image when using view links
-  const renderGoogleDriveImage = (url: string) => {
-    return (
-      <iframe 
-        src={url}
-        className="w-full h-full border-0"
-        title={`Image ${currentIndex + 1}`}
-        allowFullScreen
-        onLoad={handleImageLoad}
-        onError={handleImageError}
-      />
-    );
-  };
-
   const handleImageLoad = useCallback(() => {
     console.log('Image loaded successfully:', processedImages[currentIndex]);
     setIsLoading(false);
@@ -192,9 +178,6 @@ const NotionCarousel = ({
                   Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
                 </div>
               </div>
-            ) : isGoogleDrive ? (
-              // Use iframe for Google Drive view links
-              renderGoogleDriveImage(processedImages[currentIndex])
             ) : (
               <img
                 key={`${processedImages[currentIndex]}?attempt=${loadAttempts}`}
@@ -206,7 +189,6 @@ const NotionCarousel = ({
                 )}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
-                crossOrigin="anonymous"
               />
             )}
             
