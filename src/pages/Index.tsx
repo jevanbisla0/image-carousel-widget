@@ -42,7 +42,7 @@ const Index = () => {
           const parsedIds = JSON.parse(storedImageIds);
           setImageIds(parsedIds);
           
-          // Process image URLs - fixed to use direct image URLs
+          // Process image URLs using the updated utility function
           const processedUrls = parsedIds.map((id: string) => getGoogleDriveImageUrl(id));
           setImages(processedUrls);
           console.log("Loaded images:", processedUrls);
@@ -70,7 +70,7 @@ const Index = () => {
     localStorage.setItem("google_drive_folder_id", finalFolderId);
     storeImagesForFolder(finalFolderId, imageIds);
     
-    // Generate direct URLs for the carousel using the utility function
+    // Generate direct URLs for the carousel using the updated utility function
     const processedUrls = imageIds.map(id => getGoogleDriveImageUrl(id));
     setImages(processedUrls);
     setIsConfiguring(false);
@@ -295,4 +295,3 @@ const Index = () => {
 };
 
 export default Index;
-

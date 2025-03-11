@@ -14,8 +14,8 @@ interface GoogleDriveImage {
  * Using the most reliable format that works for public files
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  // Using the most reliable format for Google Drive images
-  return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  // Use the direct download link which is often more reliable for images
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
 
 /**

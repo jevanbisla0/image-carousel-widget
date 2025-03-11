@@ -35,8 +35,7 @@ const NotionCarousel = ({
       return;
     }
 
-    // Simply use the provided images - no extra processing needed
-    // The processing should be done before passing to this component
+    // Simply use the provided images - processing is done before passing to component
     console.log('Setting up carousel images:', images);
     setProcessedImages(images);
     setIsLoading(true);
@@ -182,7 +181,6 @@ const NotionCarousel = ({
                 )}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
-                crossOrigin="anonymous"
               />
             )}
             
