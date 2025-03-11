@@ -13,8 +13,9 @@ interface GoogleDriveImage {
  * Convert a Google Drive file ID to a direct image URL
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  // Using a more reliable format with exportFormat=download
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
+  // Use the view URL format instead of export=download
+  // This is more reliable for images set to "Anyone with the link can view"
+  return `https://drive.google.com/file/d/${fileId}/view`;
 }
 
 /**
@@ -25,6 +26,7 @@ export function extractGoogleDriveFileId(url: string): string | null {
   
   // Clean the URL (remove trailing spaces, etc)
   const cleanUrl = url.trim();
+  console.log('Extracting file ID from URL:', cleanUrl);
   
   // Different patterns for Google Drive URLs
   const patterns = [
@@ -37,6 +39,7 @@ export function extractGoogleDriveFileId(url: string): string | null {
   for (const pattern of patterns) {
     const match = cleanUrl.match(pattern);
     if (match && match[1]) {
+      console.log('Extracted file ID:', match[1], 'using pattern:', pattern);
       return match[1];
     }
   }
@@ -44,6 +47,7 @@ export function extractGoogleDriveFileId(url: string): string | null {
   // Additional check for direct file ID format 
   // (outside the loop to avoid duplicate check)
   if (/^[a-zA-Z0-9_-]{25,}$/.test(cleanUrl)) {
+    console.log('Extracted direct file ID:', cleanUrl);
     return cleanUrl;
   }
   
