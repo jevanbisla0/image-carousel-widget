@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -23,11 +24,16 @@ const NotionCarousel = ({
   const [isLoading, setIsLoading] = useState(true);
   const [processedImages, setProcessedImages] = useState<string[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [imageError, setImageError] = useState(false);
 
   // Process images and setup responsive sizing
   useEffect(() => {
     // Process images if they're from Google Drive
-    setProcessedImages(isGoogleDrive ? processGoogleDriveUrls(images) : images);
+    const newProcessedImages = isGoogleDrive ? processGoogleDriveUrls(images) : images;
+    console.log('Processed images:', newProcessedImages);
+    setProcessedImages(newProcessedImages);
+    setIsLoading(true);
+    setImageError(false);
     
     // Handle responsive sizing
     const updateDimensions = () => {
@@ -50,6 +56,7 @@ const NotionCarousel = ({
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % processedImages.length);
       setIsLoading(true);
+      setImageError(false);
     }, interval);
     
     return () => clearInterval(timer);
@@ -67,10 +74,17 @@ const NotionCarousel = ({
     });
     
     setIsLoading(true);
+    setImageError(false);
   };
 
   // Calculate height based on container width to maintain aspect ratio
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
+
+  const handleImageError = () => {
+    console.error(`Failed to load image: ${processedImages[currentIndex]}`);
+    setIsLoading(false);
+    setImageError(true);
+  };
 
   // Handle empty state
   if (processedImages.length === 0) {
@@ -114,17 +128,28 @@ const NotionCarousel = ({
           className="relative overflow-hidden rounded-lg w-full bg-transparent"
           style={{ height: `${carouselHeight}px` }}
         >
-          <div className="h-full w-full relative bg-transparent">
-            <img
-              src={processedImages[currentIndex]}
-              alt={`Slide ${currentIndex + 1}`}
-              className={cn(
-                "h-full w-full object-contain transition-opacity duration-500",
-                isLoading ? "opacity-0" : "opacity-100"
-              )}
-              onLoad={() => setIsLoading(false)}
-              onError={() => setIsLoading(false)}
-            />
+          <div className="h-full w-full relative bg-transparent flex items-center justify-center">
+            {imageError ? (
+              <div className="text-center p-4 space-y-2">
+                <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
+                <p className="text-muted-foreground text-sm">Failed to load image</p>
+                <p className="text-muted-foreground text-xs">
+                  Make sure the Google Drive file is shared with "Anyone with the link can view"
+                </p>
+              </div>
+            ) : (
+              <img
+                src={processedImages[currentIndex]}
+                alt={`Slide ${currentIndex + 1}`}
+                className={cn(
+                  "h-full w-full object-contain transition-opacity duration-500",
+                  isLoading ? "opacity-0" : "opacity-100"
+                )}
+                onLoad={() => setIsLoading(false)}
+                onError={handleImageError}
+                crossOrigin="anonymous"
+              />
+            )}
           </div>
         </div>
         
@@ -151,6 +176,7 @@ const NotionCarousel = ({
               onClick={() => {
                 setCurrentIndex(index);
                 setIsLoading(true);
+                setImageError(false);
               }}
               aria-label={`Go to slide ${index + 1}`}
             />

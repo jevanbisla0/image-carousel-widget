@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
   extractGoogleDriveFileId, 
@@ -10,6 +11,7 @@ import {
   clearStoredImagesForFolder
 } from "@/lib/googleDriveUtils";
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
@@ -167,6 +169,15 @@ const Index = () => {
                 <li>Save your configuration</li>
                 <li>The carousel will persist your settings for future visits</li>
               </ol>
+              
+              <Alert className="mt-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Important</AlertTitle>
+                <AlertDescription>
+                  Make sure your Google Drive images are shared with <strong>"Anyone with the link can view"</strong> permission.
+                  Without this setting, images won't display in the carousel.
+                </AlertDescription>
+              </Alert>
             </div>
           </div>
         )}
@@ -177,6 +188,14 @@ const Index = () => {
             <div className="space-y-4">
               <div>
                 <h2 className="text-xl font-semibold mb-4">Configuration</h2>
+                <Alert className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Google Drive Sharing Settings</AlertTitle>
+                  <AlertDescription>
+                    Make sure your Google Drive images are shared with <strong>"Anyone with the link can view"</strong> permission.
+                  </AlertDescription>
+                </Alert>
+                
                 <label className="text-sm font-medium mb-1 block">
                   Google Drive Images
                 </label>
