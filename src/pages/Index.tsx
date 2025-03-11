@@ -125,17 +125,20 @@ const Index = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
             <div className="flex gap-2">
-              {!isConfiguring && (
-                <Button variant="outline" onClick={() => setIsConfiguring(true)}>
-                  Configure
-                </Button>
-              )}
               <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleUsage}
-                className="h-9 w-9"
+                variant={isConfiguring ? "default" : "outline"} 
+                onClick={() => setIsConfiguring(!isConfiguring)}
+                className="flex items-center gap-1"
               >
+                <span>Configure</span>
+                {isConfiguring ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={toggleUsage}
+                className="flex items-center gap-1"
+              >
+                <span>Usage</span>
                 {isUsageExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </div>
@@ -170,19 +173,9 @@ const Index = () => {
         {/* Configuration section */}
         {isConfiguring && (
           <div className="space-y-4 bg-card p-4 rounded-lg border">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Configuration</h2>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setIsConfiguring(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
             <div className="space-y-4">
               <div>
+                <h2 className="text-xl font-semibold mb-4">Configuration</h2>
                 <label className="text-sm font-medium mb-1 block">
                   Google Drive Images
                 </label>
