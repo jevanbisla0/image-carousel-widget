@@ -40,6 +40,14 @@ export function extractGoogleDriveFileId(url: string): string | null {
     return idMatch[1];
   }
   
+  // Pattern for folder URLs
+  const folderPattern = /\/folders\/([^\/\?]+)/;
+  const folderMatch = url.match(folderPattern);
+  
+  if (folderMatch && folderMatch[1]) {
+    return folderMatch[1];
+  }
+  
   return null;
 }
 
@@ -57,4 +65,56 @@ export function processGoogleDriveUrls(sources: string[]): string[] {
     // Assume it's a file ID directly
     return getGoogleDriveImageUrl(source);
   });
+}
+
+/**
+ * Fetch all image files from a Google Drive folder
+ * Note: This requires a Google Drive API key and OAuth setup in a production environment
+ * For demo purposes, we'll use a simpler approach with direct file IDs
+ */
+export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<string[]> {
+  // In a real implementation, we would use the Google Drive API
+  // For this demo, we'll simulate fetching by using a pre-defined list of images
+  
+  // Extract folder ID if a URL was provided
+  const folderId = folderIdOrUrl.startsWith('http') 
+    ? extractGoogleDriveFileId(folderIdOrUrl) 
+    : folderIdOrUrl;
+    
+  if (!folderId) {
+    console.error('Invalid folder ID or URL');
+    return [];
+  }
+  
+  try {
+    // For a real implementation, you would use:
+    // const response = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}`);
+    
+    // Instead, we'll use a mock API endpoint or localStorage to store and retrieve the images
+    const storedImages = localStorage.getItem(`drive_folder_${folderId}`);
+    
+    if (storedImages) {
+      return JSON.parse(storedImages).map((id: string) => getGoogleDriveImageUrl(id));
+    }
+    
+    // If no stored images, return an empty array (user will need to configure them)
+    return [];
+  } catch (error) {
+    console.error('Error fetching images from folder:', error);
+    return [];
+  }
+}
+
+/**
+ * Store image IDs for a folder in localStorage
+ */
+export function storeImagesForFolder(folderId: string, imageIds: string[]): void {
+  localStorage.setItem(`drive_folder_${folderId}`, JSON.stringify(imageIds));
+}
+
+/**
+ * Clear stored images for a folder
+ */
+export function clearStoredImagesForFolder(folderId: string): void {
+  localStorage.removeItem(`drive_folder_${folderId}`);
 }
