@@ -75,58 +75,71 @@ const NotionCarousel = ({
   // Handle empty state
   if (processedImages.length === 0) {
     return (
-      <div 
-        className={cn("relative w-full mx-auto bg-muted flex items-center justify-center rounded-lg", className)}
-        style={{ height: `${carouselHeight}px`, maxWidth: '100%' }}
-      >
-        <div className="text-center p-4 space-y-2">
-          <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="text-muted-foreground">No images to display</p>
+      <div className={cn("relative w-full mx-auto", className)}>
+        <div className="flex items-center">
+          <div className="h-8 w-8 mr-2 flex-shrink-0" /> {/* Spacer for alignment */}
+          
+          <div 
+            className="relative w-full bg-muted flex items-center justify-center rounded-lg"
+            style={{ height: `${carouselHeight}px` }}
+          >
+            <div className="text-center p-4 space-y-2">
+              <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
+              <p className="text-muted-foreground">No images to display</p>
+            </div>
+          </div>
+          
+          <div className="h-8 w-8 ml-2 flex-shrink-0" /> {/* Spacer for alignment */}
         </div>
+        <div className="mt-2 h-1.5"></div> {/* Empty space for pagination dots alignment */}
       </div>
     );
   }
 
   return (
-    <div 
-      className={cn("relative overflow-hidden rounded-lg w-full mx-auto", className)}
-      style={{ height: `${carouselHeight}px`, maxWidth: '100%' }}
-    >
-      {/* Image slider */}
-      <div className="h-full w-full relative">
-        <img
-          src={processedImages[currentIndex]}
-          alt={`Slide ${currentIndex + 1}`}
-          className={cn(
-            "h-full w-full object-contain transition-opacity duration-500",
-            isLoading ? "opacity-0" : "opacity-100"
-          )}
-          onLoad={() => setIsLoading(false)}
-          onError={() => setIsLoading(false)}
-        />
+    <div className={cn("relative w-full mx-auto", className)}>
+      {/* Navigation arrows - positioned outside */}
+      <div className="flex items-center">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 rounded-full bg-background/80 hover:bg-background/90 mr-2 flex-shrink-0"
+          onClick={() => handleSlideChange('prev')}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        
+        {/* Image slider container */}
+        <div 
+          className="relative overflow-hidden rounded-lg w-full"
+          style={{ height: `${carouselHeight}px` }}
+        >
+          <div className="h-full w-full relative">
+            <img
+              src={processedImages[currentIndex]}
+              alt={`Slide ${currentIndex + 1}`}
+              className={cn(
+                "h-full w-full object-contain transition-opacity duration-500",
+                isLoading ? "opacity-0" : "opacity-100"
+              )}
+              onLoad={() => setIsLoading(false)}
+              onError={() => setIsLoading(false)}
+            />
+          </div>
+        </div>
+        
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 rounded-full bg-background/80 hover:bg-background/90 ml-2 flex-shrink-0"
+          onClick={() => handleSlideChange('next')}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
       
-      {/* Navigation arrows */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 hover:bg-background/90"
-        onClick={() => handleSlideChange('prev')}
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="icon"
-        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 hover:bg-background/90"
-        onClick={() => handleSlideChange('next')}
-      >
-        <ChevronRight className="h-4 w-4" />
-      </Button>
-      
-      {/* Pagination dots */}
-      <div className="absolute bottom-2 left-0 right-0">
+      {/* Pagination dots - moved outside */}
+      <div className="mt-2 flex justify-center">
         <div className="flex items-center justify-center gap-1.5">
           {processedImages.map((_, index) => (
             <button
