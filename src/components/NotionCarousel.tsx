@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { processGoogleDriveUrls } from '@/lib/googleDriveUtils';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NotionCarouselProps {
   images: string[];
@@ -25,15 +26,29 @@ const NotionCarousel = ({
   const [processedImages, setProcessedImages] = useState<string[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [imageError, setImageError] = useState(false);
+  const [loadAttempts, setLoadAttempts] = useState(0);
 
   // Process images and setup responsive sizing
   useEffect(() => {
+    if (!images || images.length === 0) {
+      console.log('No images provided to carousel');
+      setProcessedImages([]);
+      return;
+    }
+
     // Process images if they're from Google Drive
+    console.log('Processing images with isGoogleDrive =', isGoogleDrive);
     const newProcessedImages = isGoogleDrive ? processGoogleDriveUrls(images) : images;
     console.log('Processed images:', newProcessedImages);
+    
+    if (newProcessedImages.length === 0) {
+      console.log('No valid processed images');
+    }
+    
     setProcessedImages(newProcessedImages);
     setIsLoading(true);
     setImageError(false);
+    setLoadAttempts(0);
     
     // Handle responsive sizing
     const updateDimensions = () => {
@@ -49,6 +64,11 @@ const NotionCarousel = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, [images, isGoogleDrive]);
 
+  // Reset current index when images change
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [processedImages]);
+
   // Autoplay functionality
   useEffect(() => {
     if (!autoplay || processedImages.length === 0) return;
@@ -57,6 +77,7 @@ const NotionCarousel = ({
       setCurrentIndex((prev) => (prev + 1) % processedImages.length);
       setIsLoading(true);
       setImageError(false);
+      setLoadAttempts(0);
     }, interval);
     
     return () => clearInterval(timer);
@@ -75,16 +96,32 @@ const NotionCarousel = ({
     
     setIsLoading(true);
     setImageError(false);
+    setLoadAttempts(0);
   };
 
   // Calculate height based on container width to maintain aspect ratio
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
 
-  const handleImageError = () => {
-    console.error(`Failed to load image: ${processedImages[currentIndex]}`);
+  const handleImageLoad = useCallback(() => {
+    console.log('Image loaded successfully:', processedImages[currentIndex]);
     setIsLoading(false);
-    setImageError(true);
-  };
+    setImageError(false);
+  }, [processedImages, currentIndex]);
+
+  const handleImageError = useCallback(() => {
+    const currentAttempts = loadAttempts + 1;
+    console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[currentIndex]);
+    
+    if (currentAttempts < 3) {
+      // Try with a different cache-busting parameter
+      setLoadAttempts(currentAttempts);
+      // Force a reload by updating the state
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+      setImageError(true);
+    }
+  }, [processedImages, currentIndex, loadAttempts]);
 
   // Handle empty state
   if (processedImages.length === 0) {
@@ -131,24 +168,38 @@ const NotionCarousel = ({
           <div className="h-full w-full relative bg-transparent flex items-center justify-center">
             {imageError ? (
               <div className="text-center p-4 space-y-2">
-                <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
-                <p className="text-muted-foreground text-sm">Failed to load image</p>
-                <p className="text-muted-foreground text-xs">
-                  Make sure the Google Drive file is shared with "Anyone with the link can view"
-                </p>
+                <Alert variant="destructive" className="mb-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Failed to load image. Make sure Google Drive sharing is set to "Anyone with the link can view".
+                  </AlertDescription>
+                </Alert>
+                <div className="text-xs text-muted-foreground mt-2">
+                  Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
+                </div>
               </div>
             ) : (
               <img
-                src={processedImages[currentIndex]}
+                key={`${processedImages[currentIndex]}?attempt=${loadAttempts}`}
+                src={`${processedImages[currentIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
                 alt={`Slide ${currentIndex + 1}`}
                 className={cn(
                   "h-full w-full object-contain transition-opacity duration-500",
                   isLoading ? "opacity-0" : "opacity-100"
                 )}
-                onLoad={() => setIsLoading(false)}
+                onLoad={handleImageLoad}
                 onError={handleImageError}
                 crossOrigin="anonymous"
               />
+            )}
+            
+            {isLoading && !imageError && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="animate-pulse flex flex-col items-center">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
+                  <span className="text-sm text-muted-foreground">Loading image...</span>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -177,6 +228,7 @@ const NotionCarousel = ({
                 setCurrentIndex(index);
                 setIsLoading(true);
                 setImageError(false);
+                setLoadAttempts(0);
               }}
               aria-label={`Go to slide ${index + 1}`}
             />

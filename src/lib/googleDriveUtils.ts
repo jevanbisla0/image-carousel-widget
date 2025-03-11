@@ -13,35 +13,41 @@ interface GoogleDriveImage {
  * Convert a Google Drive file ID to a direct image URL
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  // Using a more reliable format with exportFormat=download
+  return `https://drive.google.com/uc?export=download&id=${fileId}`;
 }
 
 /**
  * Extract the file ID from a Google Drive sharing URL
  */
 export function extractGoogleDriveFileId(url: string): string | null {
-  if (!url) return null;
+  if (!url || typeof url !== 'string') return null;
+  
+  // Clean the URL (remove trailing spaces, etc)
+  const cleanUrl = url.trim();
   
   // Different patterns for Google Drive URLs
   const patterns = [
     /\/file\/d\/([^\/\?]+)/,  // /file/d/ URLs
     /id=([^&]+)/,            // ?id= parameter
     /\/folders\/([^\/\?]+)/, // folder URLs
-    /^([a-zA-Z0-9_-]{25,}$)/ // Direct file ID
+    /^([a-zA-Z0-9_-]{25,})$/ // Direct file ID
   ];
   
   for (const pattern of patterns) {
-    const match = url.match(pattern);
+    const match = cleanUrl.match(pattern);
     if (match && match[1]) {
       return match[1];
     }
   }
   
-  // Additional check for direct file ID format
-  if (/^[a-zA-Z0-9_-]{25,}$/.test(url)) {
-    return url;
+  // Additional check for direct file ID format 
+  // (outside the loop to avoid duplicate check)
+  if (/^[a-zA-Z0-9_-]{25,}$/.test(cleanUrl)) {
+    return cleanUrl;
   }
   
+  console.log('Could not extract file ID from:', cleanUrl);
   return null;
 }
 
@@ -49,20 +55,39 @@ export function extractGoogleDriveFileId(url: string): string | null {
  * Process a list of Google Drive URLs or IDs and convert them to direct image URLs
  */
 export function processGoogleDriveUrls(sources: string[]): string[] {
-  if (!sources || !Array.isArray(sources)) return [];
+  if (!sources || !Array.isArray(sources)) {
+    console.log('Invalid sources provided to processGoogleDriveUrls:', sources);
+    return [];
+  }
   
-  return sources.map(source => {
-    if (!source) return '';
+  console.log('Processing URLs:', sources);
+  
+  const processed = sources.map(source => {
+    if (!source || typeof source !== 'string') {
+      console.log('Skipping invalid source:', source);
+      return '';
+    }
+    
+    const cleanSource = source.trim();
     
     // Check if it's already a full URL
-    if (source.startsWith('http')) {
-      const fileId = extractGoogleDriveFileId(source);
-      return fileId ? getGoogleDriveImageUrl(fileId) : source;
+    if (cleanSource.startsWith('http')) {
+      const fileId = extractGoogleDriveFileId(cleanSource);
+      if (!fileId) {
+        console.log('Could not extract file ID from URL:', cleanSource);
+        return '';
+      }
+      console.log('Extracted file ID:', fileId, 'from URL:', cleanSource);
+      return getGoogleDriveImageUrl(fileId);
     }
     
     // Assume it's a file ID directly
-    return getGoogleDriveImageUrl(source);
+    console.log('Using direct file ID:', cleanSource);
+    return getGoogleDriveImageUrl(cleanSource);
   }).filter(url => url !== '');
+  
+  console.log('Processed URLs:', processed);
+  return processed;
 }
 
 /**
@@ -83,13 +108,28 @@ export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<stri
     return [];
   }
   
+  console.log('Fetching images for folder ID:', folderId);
+  
   try {
-    const storedImages = localStorage.getItem(`drive_folder_${folderId}`);
+    const storedImagesKey = `drive_folder_${folderId}`;
+    const storedImages = localStorage.getItem(storedImagesKey);
     
     if (storedImages) {
-      const imageIds = JSON.parse(storedImages);
-      console.log('Found stored images:', imageIds);
-      return processGoogleDriveUrls(imageIds);
+      try {
+        const imageIds = JSON.parse(storedImages);
+        if (Array.isArray(imageIds) && imageIds.length > 0) {
+          console.log('Found stored images:', imageIds);
+          return processGoogleDriveUrls(imageIds);
+        } else {
+          console.log('Stored images array is empty or invalid');
+        }
+      } catch (parseError) {
+        console.error('Error parsing stored images:', parseError);
+        // Clear invalid data
+        localStorage.removeItem(storedImagesKey);
+      }
+    } else {
+      console.log('No stored images found for folder ID:', folderId);
     }
     
     return [];
@@ -103,14 +143,30 @@ export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<stri
  * Store image IDs for a folder in localStorage
  */
 export function storeImagesForFolder(folderId: string, imageIds: string[]): void {
-  if (!folderId || !imageIds || !Array.isArray(imageIds)) {
-    console.error('Cannot store images: Invalid input');
+  if (!folderId || typeof folderId !== 'string' || folderId.trim() === '') {
+    console.error('Cannot store images: Invalid folder ID');
+    return;
+  }
+  
+  if (!imageIds || !Array.isArray(imageIds) || imageIds.length === 0) {
+    console.error('Cannot store images: Invalid or empty image IDs array');
+    return;
+  }
+  
+  // Clean the image IDs (trim whitespace, remove empty strings)
+  const cleanedIds = imageIds
+    .map(id => typeof id === 'string' ? id.trim() : '')
+    .filter(id => id !== '');
+  
+  if (cleanedIds.length === 0) {
+    console.error('All image IDs were invalid or empty');
     return;
   }
   
   try {
-    localStorage.setItem(`drive_folder_${folderId}`, JSON.stringify(imageIds));
-    console.log('Stored images for folder:', folderId, imageIds);
+    const storageKey = `drive_folder_${folderId.trim()}`;
+    localStorage.setItem(storageKey, JSON.stringify(cleanedIds));
+    console.log('Stored images for folder:', folderId, cleanedIds);
   } catch (error) {
     console.error('Error storing images:', error);
   }
@@ -123,5 +179,6 @@ export function clearStoredImagesForFolder(folderId: string): void {
   if (!folderId || folderId.trim() === '') {
     return;
   }
-  localStorage.removeItem(`drive_folder_${folderId}`);
+  localStorage.removeItem(`drive_folder_${folderId.trim()}`);
+  console.log('Cleared stored images for folder:', folderId);
 }
