@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
@@ -131,19 +132,19 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="space-y-8">
+    <div className="container mx-auto px-4 py-8 max-w-5xl bg-transparent">
+      <div className="space-y-8 bg-transparent">
         {/* Preview section */}
-        <div className="space-y-4">
+        <div className="space-y-4 bg-transparent">
           {/* Carousel now placed above the heading and buttons */}
           <NotionCarousel 
             images={images} 
             isGoogleDrive={false}  // Changed to false as we're now providing direct URLs
-            className=""
+            className="bg-transparent"
           />
           
           {/* Heading and controls moved below the carousel */}
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-between mt-4 bg-transparent">
             <h2 className="text-xl font-semibold">Image Carousel Widget</h2>
             <div className="flex gap-2">
               <Button 

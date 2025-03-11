@@ -96,6 +96,15 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-transparent text-foreground;
   }
+}
+
+.notion-embed {
+  background-color: transparent !important;
+}
+
+.notion-transparent {
+  background: transparent !important;
+  background-color: transparent !important;
 }

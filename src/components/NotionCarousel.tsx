@@ -120,21 +120,21 @@ const NotionCarousel = ({
     return (
       <div className={cn("relative w-full mx-auto bg-transparent", className)}>
         <div className="flex items-center bg-transparent">
-          <div className="h-8 w-8 mr-2 flex-shrink-0" /> {/* Spacer for alignment */}
+          <div className="h-8 w-8 mr-2 flex-shrink-0 bg-transparent" /> {/* Spacer for alignment */}
           
           <div 
             className="relative w-full bg-transparent flex items-center justify-center rounded-lg"
             style={{ height: `${carouselHeight}px` }}
           >
-            <div className="text-center p-4 space-y-2 bg-muted/20 rounded-md">
-              <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
-              <p className="text-muted-foreground">No images to display</p>
+            <div className="text-center p-4 space-y-2 bg-transparent rounded-md">
+              <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground/50" />
+              <p className="text-muted-foreground/50">No images to display</p>
             </div>
           </div>
           
-          <div className="h-8 w-8 ml-2 flex-shrink-0" /> {/* Spacer for alignment */}
+          <div className="h-8 w-8 ml-2 flex-shrink-0 bg-transparent" /> {/* Spacer for alignment */}
         </div>
-        <div className="mt-2 h-1.5"></div> {/* Empty space for pagination dots alignment */}
+        <div className="mt-2 h-1.5 bg-transparent"></div> {/* Empty space for pagination dots alignment */}
       </div>
     );
   }
@@ -159,14 +159,14 @@ const NotionCarousel = ({
         >
           <div className="h-full w-full relative bg-transparent flex items-center justify-center">
             {imageError ? (
-              <div className="text-center p-4 space-y-2">
-                <Alert variant="destructive" className="mb-2">
+              <div className="text-center p-4 space-y-2 bg-transparent">
+                <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     Failed to load image. Make sure Google Drive sharing is set to "Anyone with the link can view".
                   </AlertDescription>
                 </Alert>
-                <div className="text-xs text-muted-foreground mt-2">
+                <div className="text-xs text-muted-foreground/70 mt-2">
                   Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
                 </div>
               </div>
@@ -185,10 +185,10 @@ const NotionCarousel = ({
             )}
             
             {isLoading && !imageError && (
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center bg-transparent">
                 <div className="animate-pulse flex flex-col items-center">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                  <span className="text-sm text-muted-foreground">Loading image...</span>
+                  <ImageIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                  <span className="text-sm text-muted-foreground/50">Loading image...</span>
                 </div>
               </div>
             )}
@@ -212,8 +212,8 @@ const NotionCarousel = ({
             <button
               key={index}
               className={cn(
-                "h-1.5 rounded-full transition-all",
-                index === currentIndex ? "w-4 bg-primary" : "w-1.5 bg-primary/50"
+                "h-1.5 rounded-full transition-all bg-transparent",
+                index === currentIndex ? "w-4 bg-primary/70" : "w-1.5 bg-primary/30"
               )}
               onClick={() => {
                 setCurrentIndex(index);
