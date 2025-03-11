@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, ChevronUp, AlertCircle, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
   extractGoogleDriveFileId, 
@@ -12,6 +13,11 @@ import {
 } from "@/lib/googleDriveUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
@@ -133,6 +139,34 @@ const Index = () => {
           />
           
           <div className="flex items-center justify-end gap-2 mt-4 notion-transparent">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline"
+                  className="bg-white/80 hover:bg-white/90 text-gray-800 border-gray-300"
+                >
+                  <Info className="h-4 w-4 mr-2" />
+                  Details
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 bg-white/90 backdrop-blur-sm border border-gray-200">
+                <div className="space-y-2">
+                  <h3 className="font-medium text-lg">Carousel Details</h3>
+                  <p className="text-sm text-gray-700">
+                    This carousel displays images from Google Drive. Make sure your images are set to "Anyone with the link can view".
+                  </p>
+                  <div className="pt-2 border-t border-gray-200">
+                    <h4 className="font-medium text-sm mb-1">Usage:</h4>
+                    <ul className="text-xs text-gray-600 space-y-1 list-disc pl-4">
+                      <li>Add Google Drive image IDs or sharing URLs</li>
+                      <li>Configure button allows you to add/remove images</li>
+                      <li>Your settings are saved locally</li>
+                    </ul>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
             <Button 
               variant="outline"
               onClick={() => setIsConfiguring(!isConfiguring)}
