@@ -134,7 +134,7 @@ const Index = () => {
                 {isConfiguring ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
               <Button 
-                variant="outline" 
+                variant={isUsageExpanded ? "default" : "outline"}
                 onClick={toggleUsage}
                 className="flex items-center gap-1"
               >
