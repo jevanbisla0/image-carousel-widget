@@ -180,6 +180,8 @@ const Index = () => {
             renderControls={false}
             controlledIndex={currentIndex}
             onIndexChange={handleImageIndexChange}
+            autoplay={true}
+            interval={5000}
           />
           
           <div className="flex items-center mt-4 justify-between px-2 notion-transparent">
