@@ -31,7 +31,7 @@ export const CarouselDots = ({
   if (!images || images.length <= 1) return null;
   
   return (
-    <div className={cn("flex items-center justify-center gap-3 bg-black/70 backdrop-blur-sm rounded-full px-5 py-2.5", className)}>
+    <div className={cn("flex items-center justify-center gap-3 bg-black/70 backdrop-blur-sm rounded-full px-5 py-3", className)}>
       {images.map((_, index) => (
         <button
           key={`dot-${index}`}
@@ -39,17 +39,17 @@ export const CarouselDots = ({
             "flex items-center justify-center transition-all notion-transparent",
             index === currentIndex 
               ? "opacity-100 scale-110" 
-              : "opacity-70 hover:opacity-90"
+              : "opacity-80 hover:opacity-100"
           )}
           onClick={() => onDotClick(index)}
           aria-label={`Go to slide ${index + 1}`}
         >
           <div 
             className={cn(
-              "rounded-full transition-all",
+              "rounded-full transition-all shadow-[0_0_4px_rgba(255,255,255,0.5)]",
               index === currentIndex
-                ? "bg-white shadow-glow w-2.5 h-2.5" 
-                : "bg-white/80 w-2 h-2 hover:bg-white"
+                ? "bg-white w-3.5 h-3.5 shadow-glow border border-white/80" 
+                : "bg-white/80 w-3 h-3 hover:bg-white border border-white/60"
             )}
           />
         </button>

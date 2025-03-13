@@ -183,13 +183,14 @@ const Index = () => {
           />
           
           <div className="flex items-center mt-4 justify-between px-2 notion-transparent">
-            {/* Dots on the left */}
-            <div className="notion-transparent">
+            {/* Dots with improved visibility */}
+            <div className="notion-transparent z-10">
               {shouldShowDots && (
                 <CarouselDots 
                   images={images} 
                   currentIndex={currentIndex} 
-                  onDotClick={handleImageIndexChange} 
+                  onDotClick={handleImageIndexChange}
+                  className="border border-white/20 shadow-lg" 
                 />
               )}
             </div>
