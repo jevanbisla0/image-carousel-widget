@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -196,15 +196,15 @@ const NotionCarousel = ({
       </div>
       
       <div className="mt-4 flex justify-center notion-transparent">
-        <div className="flex items-center justify-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg notion-transparent">
+        <div className="flex items-center justify-center gap-3 bg-black/70 backdrop-blur-sm rounded-full px-5 py-2.5 shadow-lg notion-transparent">
           {processedImages.map((_, index) => (
             <button
               key={index}
               className={cn(
-                "rounded-full transition-all shadow-md notion-transparent",
+                "flex items-center justify-center transition-all notion-transparent",
                 index === currentIndex 
-                  ? "w-5 h-5 bg-white" 
-                  : "w-3 h-3 bg-white/60 hover:bg-white/80"
+                  ? "opacity-100 scale-110" 
+                  : "opacity-70 hover:opacity-90"
               )}
               onClick={() => {
                 setCurrentIndex(index);
@@ -213,7 +213,16 @@ const NotionCarousel = ({
                 setLoadAttempts(0);
               }}
               aria-label={`Go to slide ${index + 1}`}
-            />
+            >
+              <div 
+                className={cn(
+                  "rounded-full transition-all",
+                  index === currentIndex
+                    ? "bg-white shadow-glow w-2.5 h-2.5" 
+                    : "bg-white/80 w-2 h-2 hover:bg-white"
+                )}
+              />
+            </button>
           ))}
         </div>
       </div>
