@@ -132,9 +132,9 @@ const Index = () => {
   };
 
   return (
-    <div className="mx-auto px-4 py-8 max-w-5xl notion-transparent">
-      <div className={cn("notion-transparent", UI_STYLES.space.lg)}>
-        <div className={cn("notion-transparent", UI_STYLES.space.md)}>
+    <div className="notion-transparent">
+      <div className={cn("notion-transparent")}>
+        <div className={cn("notion-transparent")}>
           <NotionCarousel 
             images={images} 
             isGoogleDrive={false}
