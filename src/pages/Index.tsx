@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import NotionCarousel from "@/components/NotionCarousel";
+import NotionCarousel, { CarouselDots } from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, AlertCircle, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ const Index = () => {
   const [tempImageId, setTempImageId] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [isUsageExpanded, setIsUsageExpanded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -130,9 +132,24 @@ const Index = () => {
             images={images} 
             isGoogleDrive={false}
             className="notion-transparent"
+            renderControls={false}
+            controlledIndex={currentIndex}
+            onIndexChange={setCurrentIndex}
           />
           
-          <div className="flex items-center justify-end gap-2 mt-4 notion-transparent">
+          <div className="flex items-center mt-4 justify-between px-2 notion-transparent">
+            {/* Dots on the left */}
+            <div className="notion-transparent">
+              {images.length > 0 && (
+                <CarouselDots 
+                  images={images} 
+                  currentIndex={currentIndex} 
+                  onDotClick={setCurrentIndex} 
+                />
+              )}
+            </div>
+            
+            {/* Configure button on the right */}
             <Button 
               variant="outline"
               onClick={() => setIsConfiguring(!isConfiguring)}

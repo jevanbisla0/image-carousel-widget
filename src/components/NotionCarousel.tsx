@@ -11,14 +11,61 @@ interface NotionCarouselProps {
   autoplay?: boolean;
   interval?: number;
   isGoogleDrive?: boolean;
+  renderControls?: boolean;
+  onIndexChange?: (index: number) => void;
+  controlledIndex?: number;
 }
+
+export const CarouselDots = ({ 
+  images, 
+  currentIndex, 
+  onDotClick,
+  className 
+}: { 
+  images: string[], 
+  currentIndex: number, 
+  onDotClick: (index: number) => void,
+  className?: string
+}) => {
+  if (!images || images.length <= 1) return null;
+  
+  return (
+    <div className={cn("flex items-center justify-center gap-3 bg-black/70 backdrop-blur-sm rounded-full px-5 py-2.5", className)}>
+      {images.map((_, index) => (
+        <button
+          key={index}
+          className={cn(
+            "flex items-center justify-center transition-all notion-transparent",
+            index === currentIndex 
+              ? "opacity-100 scale-110" 
+              : "opacity-70 hover:opacity-90"
+          )}
+          onClick={() => onDotClick(index)}
+          aria-label={`Go to slide ${index + 1}`}
+        >
+          <div 
+            className={cn(
+              "rounded-full transition-all",
+              index === currentIndex
+                ? "bg-white shadow-glow w-2.5 h-2.5" 
+                : "bg-white/80 w-2 h-2 hover:bg-white"
+            )}
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
 
 const NotionCarousel = ({ 
   images, 
   className, 
   autoplay = true, 
   interval = 5000,
-  isGoogleDrive = false
+  isGoogleDrive = false,
+  renderControls = true,
+  onIndexChange,
+  controlledIndex
 }: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +73,16 @@ const NotionCarousel = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
+
+  // Use controlled index if provided
+  const activeIndex = controlledIndex !== undefined ? controlledIndex : currentIndex;
+
+  // Update the parent component when index changes internally
+  useEffect(() => {
+    if (onIndexChange && controlledIndex === undefined) {
+      onIndexChange(currentIndex);
+    }
+  }, [currentIndex, onIndexChange, controlledIndex]);
 
   useEffect(() => {
     if (!images || images.length === 0) {
@@ -86,17 +143,24 @@ const NotionCarousel = ({
     setLoadAttempts(0);
   };
 
+  const handleDotClick = (index: number) => {
+    setCurrentIndex(index);
+    setIsLoading(true);
+    setImageError(false);
+    setLoadAttempts(0);
+  };
+
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
 
   const handleImageLoad = useCallback(() => {
-    console.log('Image loaded successfully:', processedImages[currentIndex]);
+    console.log('Image loaded successfully:', processedImages[activeIndex]);
     setIsLoading(false);
     setImageError(false);
-  }, [processedImages, currentIndex]);
+  }, [processedImages, activeIndex]);
 
   const handleImageError = useCallback(() => {
     const currentAttempts = loadAttempts + 1;
-    console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[currentIndex]);
+    console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[activeIndex]);
     
     if (currentAttempts < 3) {
       setLoadAttempts(currentAttempts);
@@ -105,7 +169,7 @@ const NotionCarousel = ({
       setIsLoading(false);
       setImageError(true);
     }
-  }, [processedImages, currentIndex, loadAttempts]);
+  }, [processedImages, activeIndex, loadAttempts]);
 
   if (processedImages.length === 0) {
     return (
@@ -125,7 +189,6 @@ const NotionCarousel = ({
           
           <div className="h-8 w-8 ml-2 flex-shrink-0 notion-transparent" />
         </div>
-        <div className="mt-2 h-1.5 notion-transparent"></div>
       </div>
     );
   }
@@ -156,14 +219,14 @@ const NotionCarousel = ({
                   </AlertDescription>
                 </Alert>
                 <div className="text-xs text-muted-foreground/70 mt-2">
-                  Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
+                  Current URL: <span className="font-mono break-all">{processedImages[activeIndex]}</span>
                 </div>
               </div>
             ) : (
               <img
-                key={`${processedImages[currentIndex]}?attempt=${loadAttempts}`}
-                src={`${processedImages[currentIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
-                alt={`Slide ${currentIndex + 1}`}
+                key={`${processedImages[activeIndex]}?attempt=${loadAttempts}`}
+                src={`${processedImages[activeIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+                alt={`Slide ${activeIndex + 1}`}
                 className={cn(
                   "h-full w-full object-contain transition-opacity duration-500",
                   isLoading ? "opacity-0" : "opacity-100"
@@ -195,37 +258,15 @@ const NotionCarousel = ({
         </Button>
       </div>
       
-      <div className="mt-4 flex justify-center notion-transparent">
-        <div className="flex items-center justify-center gap-3 bg-black/70 backdrop-blur-sm rounded-full px-5 py-2.5 shadow-lg notion-transparent">
-          {processedImages.map((_, index) => (
-            <button
-              key={index}
-              className={cn(
-                "flex items-center justify-center transition-all notion-transparent",
-                index === currentIndex 
-                  ? "opacity-100 scale-110" 
-                  : "opacity-70 hover:opacity-90"
-              )}
-              onClick={() => {
-                setCurrentIndex(index);
-                setIsLoading(true);
-                setImageError(false);
-                setLoadAttempts(0);
-              }}
-              aria-label={`Go to slide ${index + 1}`}
-            >
-              <div 
-                className={cn(
-                  "rounded-full transition-all",
-                  index === currentIndex
-                    ? "bg-white shadow-glow w-2.5 h-2.5" 
-                    : "bg-white/80 w-2 h-2 hover:bg-white"
-                )}
-              />
-            </button>
-          ))}
+      {renderControls && (
+        <div className="mt-4 flex justify-center notion-transparent">
+          <CarouselDots 
+            images={processedImages} 
+            currentIndex={activeIndex} 
+            onDotClick={handleDotClick} 
+          />
         </div>
-      </div>
+      )}
     </div>
   );
 };
