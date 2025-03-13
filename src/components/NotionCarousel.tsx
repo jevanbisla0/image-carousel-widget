@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -68,22 +69,38 @@ const NotionCarousel = ({
   controlledIndex
 }: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean[]>([]);
   const [processedImages, setProcessedImages] = useState<string[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [imageError, setImageError] = useState(false);
-  const [loadAttempts, setLoadAttempts] = useState(0);
-  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
+  const [imageErrors, setImageErrors] = useState<boolean[]>([]);
+  const [loadAttempts, setLoadAttempts] = useState<number[]>([]);
   const imageCacheRef = useRef<Map<string, boolean>>(new Map());
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const activeIndex = controlledIndex !== undefined ? controlledIndex : currentIndex;
 
+  // Effect for handling controlled index changes
+  useEffect(() => {
+    if (controlledIndex !== undefined && processedImages.length > 0) {
+      // Reset loading state only for the current image if not already loading
+      setIsLoading(prev => {
+        const newLoadingState = [...prev];
+        if (controlledIndex < newLoadingState.length && !imageCacheRef.current.get(processedImages[controlledIndex])) {
+          newLoadingState[controlledIndex] = true;
+        }
+        return newLoadingState;
+      });
+    }
+  }, [controlledIndex, processedImages]);
+
+  // Notify parent of index change when current index changes internally
   useEffect(() => {
     if (onIndexChange && controlledIndex === undefined) {
       onIndexChange(currentIndex);
     }
   }, [currentIndex, onIndexChange, controlledIndex]);
 
+  // Set up images and initialize state arrays
   useEffect(() => {
     if (!images || images.length === 0) {
       console.log('No images provided to carousel');
@@ -101,11 +118,11 @@ const NotionCarousel = ({
     
     setProcessedImages(filteredImages);
     
-    setIsLoading(true);
-    setImageError(false);
-    setLoadAttempts(0);
-    
-    setImagesLoaded(new Array(filteredImages.length).fill(false));
+    // Initialize state arrays for all images
+    setIsLoading(new Array(filteredImages.length).fill(true));
+    setImageErrors(new Array(filteredImages.length).fill(false));
+    setLoadAttempts(new Array(filteredImages.length).fill(0));
+    setInitialLoad(true);
     
     const updateDimensions = () => {
       setDimensions({
@@ -120,66 +137,126 @@ const NotionCarousel = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, [images]);
 
+  // Reset current index if the number of images changes
   useEffect(() => {
     if (processedImages.length > 0 && currentIndex >= processedImages.length) {
       setCurrentIndex(0);
-      if (onIndexChange) {
+      if (onIndexChange && controlledIndex === undefined) {
         onIndexChange(0);
       }
     }
-  }, [processedImages, currentIndex, onIndexChange]);
+  }, [processedImages, currentIndex, onIndexChange, controlledIndex]);
 
+  // Handle autoplay
   useEffect(() => {
     if (!autoplay || processedImages.length <= 1) return;
     
     const timer = setInterval(() => {
       if (processedImages.length === 0) return;
       
-      const nextIndex = (currentIndex + 1) % processedImages.length;
-      setCurrentIndex(nextIndex);
+      const nextIndex = (activeIndex + 1) % processedImages.length;
       
-      if (onIndexChange && controlledIndex === undefined) {
-        onIndexChange(nextIndex);
+      if (controlledIndex === undefined) {
+        setCurrentIndex(nextIndex);
+        
+        if (onIndexChange) {
+          onIndexChange(nextIndex);
+        }
       }
       
-      setIsLoading(true);
-      setImageError(false);
-      setLoadAttempts(0);
+      // Don't reset loading state if the image is already cached
+      if (!imageCacheRef.current.get(processedImages[nextIndex])) {
+        setIsLoading(prev => {
+          const newState = [...prev];
+          newState[nextIndex] = true;
+          return newState;
+        });
+        
+        setLoadAttempts(prev => {
+          const newState = [...prev];
+          newState[nextIndex] = 0;
+          return newState;
+        });
+        
+        setImageErrors(prev => {
+          const newState = [...prev];
+          newState[nextIndex] = false;
+          return newState;
+        });
+      }
     }, interval);
     
     return () => clearInterval(timer);
-  }, [autoplay, interval, processedImages.length, currentIndex, onIndexChange, controlledIndex]);
+  }, [autoplay, interval, processedImages.length, activeIndex, onIndexChange, controlledIndex]);
 
   const handleSlideChange = (direction: 'next' | 'prev') => {
     if (processedImages.length === 0) return;
     
     const newIndex = direction === 'next' 
-      ? (currentIndex + 1) % processedImages.length
-      : (currentIndex - 1 + processedImages.length) % processedImages.length;
+      ? (activeIndex + 1) % processedImages.length
+      : (activeIndex - 1 + processedImages.length) % processedImages.length;
       
-    setCurrentIndex(newIndex);
-    
-    if (onIndexChange && controlledIndex === undefined) {
-      onIndexChange(newIndex);
+    if (controlledIndex === undefined) {
+      setCurrentIndex(newIndex);
+      
+      if (onIndexChange) {
+        onIndexChange(newIndex);
+      }
     }
     
-    setIsLoading(true);
-    setImageError(false);
-    setLoadAttempts(0);
+    // Only set loading if the image isn't cached
+    if (!imageCacheRef.current.get(processedImages[newIndex])) {
+      setIsLoading(prev => {
+        const newState = [...prev];
+        newState[newIndex] = true;
+        return newState;
+      });
+      
+      setLoadAttempts(prev => {
+        const newState = [...prev];
+        newState[newIndex] = 0;
+        return newState;
+      });
+      
+      setImageErrors(prev => {
+        const newState = [...prev];
+        newState[newIndex] = false;
+        return newState;
+      });
+    }
   };
 
   const handleDotClick = (index: number) => {
-    if (index === currentIndex) return;
+    if (index === activeIndex) return;
     
-    setCurrentIndex(index);
-    
-    if (onIndexChange && controlledIndex === undefined) {
-      onIndexChange(index);
+    if (controlledIndex === undefined) {
+      setCurrentIndex(index);
+      
+      if (onIndexChange) {
+        onIndexChange(index);
+      }
     }
     
-    setIsLoading(true);
-    setImageError(false);
-    setLoadAttempts(0);
+    // Only set loading if the image isn't cached
+    if (!imageCacheRef.current.get(processedImages[index])) {
+      setIsLoading(prev => {
+        const newState = [...prev];
+        newState[index] = true;
+        return newState;
+      });
+      
+      setLoadAttempts(prev => {
+        const newState = [...prev];
+        newState[index] = 0;
+        return newState;
+      });
+      
+      setImageErrors(prev => {
+        const newState = [...prev];
+        newState[index] = false;
+        return newState;
+      });
+    }
   };
 
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
@@ -187,39 +264,74 @@ const NotionCarousel = ({
   const handleImageLoad = useCallback(() => {
     console.log('Image loaded successfully:', processedImages[activeIndex]);
     
-    setIsLoading(false);
-    setImageError(false);
+    // Update loading state for the current image
+    setIsLoading(prev => {
+      const newState = [...prev];
+      newState[activeIndex] = false;
+      return newState;
+    });
     
+    // Update error state
+    setImageErrors(prev => {
+      const newState = [...prev];
+      newState[activeIndex] = false;
+      return newState;
+    });
+    
+    // Add to cache
     if (processedImages[activeIndex]) {
       imageCacheRef.current.set(processedImages[activeIndex], true);
     }
     
-    setImagesLoaded(prev => {
-      const newLoaded = [...prev];
-      if (activeIndex < newLoaded.length) {
-        newLoaded[activeIndex] = true;
-      }
-      return newLoaded;
-    });
+    // No longer initial load
+    setInitialLoad(false);
   }, [processedImages, activeIndex]);
 
   const handleImageError = useCallback(() => {
-    const currentAttempts = loadAttempts + 1;
+    // Update load attempts for the current image
+    setLoadAttempts(prev => {
+      const newState = [...prev];
+      newState[activeIndex] = (newState[activeIndex] || 0) + 1;
+      return newState;
+    });
+    
+    const currentAttempts = loadAttempts[activeIndex] ? loadAttempts[activeIndex] + 1 : 1;
     console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[activeIndex]);
     
-    if (currentAttempts < 3) {
-      setLoadAttempts(currentAttempts);
-    } else {
-      setIsLoading(false);
-      setImageError(true);
+    if (currentAttempts >= 3) {
+      // Update loading state after max attempts
+      setIsLoading(prev => {
+        const newState = [...prev];
+        newState[activeIndex] = false;
+        return newState;
+      });
+      
+      // Update error state
+      setImageErrors(prev => {
+        const newState = [...prev];
+        newState[activeIndex] = true;
+        return newState;
+      });
       
       toast({
         title: "Image failed to load",
         description: "Make sure Google Drive sharing is set to 'Anyone with the link can view'",
         variant: "destructive"
       });
+    } else {
+      // Try again with a new timestamp
+      const imgElement = document.getElementById(`carousel-img-${activeIndex}`) as HTMLImageElement;
+      if (imgElement) {
+        const newSrc = `${processedImages[activeIndex]}&cb=${Date.now()}`;
+        imgElement.src = newSrc;
+      }
     }
-  }, [processedImages, activeIndex, loadAttempts]);
+  }, [processedImages, activeIndex, loadAttempts, toast]);
+
+  const getImageSource = (url: string, attempts: number) => {
+    if (!url) return '';
+    return `${url}${attempts > 0 ? `&cb=${Date.now()}` : ''}`;
+  };
 
   if (processedImages.length === 0) {
     return (
@@ -243,10 +355,9 @@ const NotionCarousel = ({
     );
   }
 
-  const getImageSource = (url: string, attempts: number) => {
-    if (!url) return '';
-    return `${url}${attempts > 0 ? `&cb=${Date.now()}` : ''}`;
-  };
+  // Determine if the current image is loading
+  const isCurrentImageLoading = isLoading[activeIndex];
+  const hasCurrentImageError = imageErrors[activeIndex];
 
   return (
     <div className={cn("relative w-full mx-auto notion-transparent", className)}>
@@ -265,7 +376,7 @@ const NotionCarousel = ({
           style={{ height: `${carouselHeight}px` }}
         >
           <div className="h-full w-full relative notion-transparent flex items-center justify-center">
-            {imageError ? (
+            {hasCurrentImageError ? (
               <div className="text-center p-4 space-y-2 notion-transparent">
                 <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
                   <AlertCircle className="h-4 w-4" />
@@ -278,22 +389,30 @@ const NotionCarousel = ({
                 </div>
               </div>
             ) : (
-              <img
-                key={`carousel-img-${activeIndex}-${loadAttempts}-${processedImages[activeIndex]}`}
-                src={getImageSource(processedImages[activeIndex], loadAttempts)}
-                alt={`Slide ${activeIndex + 1}`}
-                className={cn(
-                  "h-full w-full object-contain transition-opacity duration-500",
-                  isLoading ? "opacity-0" : "opacity-100"
-                )}
-                onLoad={handleImageLoad}
-                onError={handleImageError}
-                style={{ background: 'none' }}
-              />
+              <>
+                {processedImages.map((img, idx) => (
+                  <img
+                    key={`carousel-img-${idx}`}
+                    id={`carousel-img-${idx}`}
+                    src={getImageSource(img, loadAttempts[idx] || 0)}
+                    alt={`Slide ${idx + 1}`}
+                    className={cn(
+                      "h-full w-full object-contain transition-opacity duration-500 absolute inset-0",
+                      idx === activeIndex ? "z-10" : "z-0",
+                      idx === activeIndex && isCurrentImageLoading ? "opacity-0" : "opacity-100",
+                      idx !== activeIndex ? "hidden" : "block"
+                    )}
+                    onLoad={idx === activeIndex ? handleImageLoad : undefined}
+                    onError={idx === activeIndex ? handleImageError : undefined}
+                    style={{ background: 'none' }}
+                    loading={idx === activeIndex ? "eager" : "lazy"}
+                  />
+                ))}
+              </>
             )}
             
-            {isLoading && !imageError && (
-              <div className="absolute inset-0 flex items-center justify-center notion-transparent">
+            {isCurrentImageLoading && !hasCurrentImageError && (
+              <div className="absolute inset-0 flex items-center justify-center notion-transparent z-20">
                 <div className="animate-pulse flex flex-col items-center">
                   <ImageIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
                   <span className="text-sm text-muted-foreground/50">Loading image...</span>
