@@ -195,14 +195,16 @@ const NotionCarousel = ({
         </Button>
       </div>
       
-      <div className="mt-2 flex justify-center notion-transparent">
-        <div className="flex items-center justify-center gap-1.5 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 notion-transparent">
+      <div className="mt-4 flex justify-center notion-transparent">
+        <div className="flex items-center justify-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg notion-transparent">
           {processedImages.map((_, index) => (
             <button
               key={index}
               className={cn(
-                "h-1.5 rounded-full transition-all notion-transparent",
-                index === currentIndex ? "w-4 bg-white/90" : "w-1.5 bg-white/50 hover:bg-white/70"
+                "rounded-full transition-all shadow-md notion-transparent",
+                index === currentIndex 
+                  ? "w-5 h-5 bg-white" 
+                  : "w-3 h-3 bg-white/60 hover:bg-white/80"
               )}
               onClick={() => {
                 setCurrentIndex(index);
