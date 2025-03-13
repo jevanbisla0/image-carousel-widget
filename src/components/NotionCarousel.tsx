@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,9 @@ interface NotionCarouselProps {
   autoplay?: boolean;
   interval?: number;
   isGoogleDrive?: boolean;
+  renderControls?: boolean;
+  controlledIndex?: number;
+  onIndexChange?: (index: number) => void;
 }
 
 const NotionCarousel = ({ 
@@ -18,7 +21,10 @@ const NotionCarousel = ({
   className, 
   autoplay = true, 
   interval = 5000,
-  isGoogleDrive = false
+  isGoogleDrive = false,
+  renderControls = true,
+  controlledIndex,
+  onIndexChange
 }: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -196,7 +202,7 @@ const NotionCarousel = ({
       </div>
       
       <div className="mt-4 flex justify-center notion-transparent">
-        <div className="flex items-center justify-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg notion-transparent">
+        <div className="flex items-center justify-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg notion-transparent border border-gray-300/50">
           {processedImages.map((_, index) => (
             <button
               key={index}
@@ -211,6 +217,9 @@ const NotionCarousel = ({
                 setIsLoading(true);
                 setImageError(false);
                 setLoadAttempts(0);
+                if (onIndexChange) {
+                  onIndexChange(index);
+                }
               }}
               aria-label={`Go to slide ${index + 1}`}
             />
