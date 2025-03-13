@@ -41,11 +41,17 @@ const Index = () => {
           const parsedIds = JSON.parse(storedImageIds);
           setImageIds(parsedIds);
           
+          // Ensure the image IDs are processed into proper URLs
           const processedUrls = parsedIds.map((id: string) => getGoogleDriveImageUrl(id));
+          console.log("Processed URLs:", processedUrls);
           setImages(processedUrls);
-          console.log("Loaded images:", processedUrls);
         } catch (error) {
           console.error("Error parsing stored image IDs:", error);
+          toast({
+            title: "Error loading images",
+            description: "There was a problem loading your saved images.",
+            variant: "destructive",
+          });
         }
       }
     };
@@ -130,7 +136,7 @@ const Index = () => {
         <div className="space-y-4 notion-transparent">
           <NotionCarousel 
             images={images} 
-            isGoogleDrive={false}
+            isGoogleDrive={true}
             className="notion-transparent"
             renderControls={false}
             controlledIndex={currentIndex}

@@ -73,6 +73,7 @@ const NotionCarousel = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
+  const [imagesInitialized, setImagesInitialized] = useState(false);
 
   // Use controlled index if provided
   const activeIndex = controlledIndex !== undefined ? controlledIndex : currentIndex;
@@ -88,6 +89,7 @@ const NotionCarousel = ({
     if (!images || images.length === 0) {
       console.log('No images provided to carousel');
       setProcessedImages([]);
+      setImagesInitialized(false);
       return;
     }
 
@@ -96,6 +98,7 @@ const NotionCarousel = ({
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
+    setImagesInitialized(true);
     
     const updateDimensions = () => {
       setDimensions({
@@ -111,11 +114,13 @@ const NotionCarousel = ({
   }, [images]);
 
   useEffect(() => {
-    setCurrentIndex(0);
+    if (processedImages.length > 0) {
+      setCurrentIndex(0);
+    }
   }, [processedImages]);
 
   useEffect(() => {
-    if (!autoplay || processedImages.length === 0) return;
+    if (!autoplay || processedImages.length <= 1) return;
     
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % processedImages.length);
@@ -258,7 +263,7 @@ const NotionCarousel = ({
         </Button>
       </div>
       
-      {renderControls && (
+      {renderControls && processedImages.length > 1 && imagesInitialized && (
         <div className="mt-4 flex justify-center notion-transparent">
           <CarouselDots 
             images={processedImages} 

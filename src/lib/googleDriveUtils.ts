@@ -1,4 +1,3 @@
-
 /**
  * Utilities for fetching images from Google Drive
  */
@@ -14,8 +13,16 @@ interface GoogleDriveImage {
  * Using the most reliable format that works for public files
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
+  // Make sure we have a valid file ID
+  if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
+    console.error('Invalid Google Drive file ID provided:', fileId);
+    return '';
+  }
+  
   // Use the direct download link which is often more reliable for images
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+  const url = `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=w1000`;
+  console.log('Generated Google Drive URL:', url);
+  return url;
 }
 
 /**
