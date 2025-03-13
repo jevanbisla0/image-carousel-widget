@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, AlertCircle, Info } from "lucide-react";
+import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, AlertCircle, Info } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { 
   extractGoogleDriveFileId, 
@@ -41,9 +41,8 @@ const Index = () => {
           
           const processedUrls = parsedIds.map((id: string) => getGoogleDriveImageUrl(id));
           setImages(processedUrls);
-          console.log("Loaded images:", processedUrls);
         } catch (error) {
-          console.error("Error parsing stored image IDs:", error);
+          // Error handling for invalid JSON
         }
       }
     };
@@ -128,10 +127,6 @@ const Index = () => {
       title: "All images cleared",
       description: "The configuration has been reset."
     });
-  };
-
-  const toggleUsage = () => {
-    setIsUsageExpanded(!isUsageExpanded);
   };
 
   return (
@@ -254,14 +249,22 @@ const Index = () => {
                 </div>
               </div>
 
-              <Button 
-                className="w-full bg-green-500 hover:bg-green-600 text-white" 
-                onClick={handleSaveConfig}
-                disabled={imageIds.length === 0}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Configuration
-              </Button>
+              <div className="flex justify-end pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsConfiguring(false)}
+                  className="mr-2"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSaveConfig}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Configuration
+                </Button>
+              </div>
             </div>
           </div>
         )}

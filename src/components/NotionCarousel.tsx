@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, ChevronDown, X } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,9 +10,6 @@ interface NotionCarouselProps {
   autoplay?: boolean;
   interval?: number;
   isGoogleDrive?: boolean;
-  renderControls?: boolean;
-  controlledIndex?: number;
-  onIndexChange?: (index: number) => void;
 }
 
 const NotionCarousel = ({ 
@@ -21,9 +18,6 @@ const NotionCarousel = ({
   autoplay = true, 
   interval = 5000,
   isGoogleDrive = false,
-  renderControls = true,
-  controlledIndex,
-  onIndexChange
 }: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,16 +25,13 @@ const NotionCarousel = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
-  const [isConfiguring, setIsConfiguring] = useState(false);
 
   useEffect(() => {
     if (!images || images.length === 0) {
-      console.log('No images provided to carousel');
       setProcessedImages([]);
       return;
     }
 
-    console.log('Setting up carousel images:', images);
     setProcessedImages(images);
     setIsLoading(true);
     setImageError(false);
@@ -95,14 +86,12 @@ const NotionCarousel = ({
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
 
   const handleImageLoad = useCallback(() => {
-    console.log('Image loaded successfully:', processedImages[currentIndex]);
     setIsLoading(false);
     setImageError(false);
-  }, [processedImages, currentIndex]);
+  }, []);
 
   const handleImageError = useCallback(() => {
     const currentAttempts = loadAttempts + 1;
-    console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[currentIndex]);
     
     if (currentAttempts < 3) {
       setLoadAttempts(currentAttempts);
@@ -111,7 +100,7 @@ const NotionCarousel = ({
       setIsLoading(false);
       setImageError(true);
     }
-  }, [processedImages, currentIndex, loadAttempts]);
+  }, [loadAttempts]);
 
   if (processedImages.length === 0) {
     return (
@@ -131,7 +120,6 @@ const NotionCarousel = ({
           
           <div className="h-8 w-8 ml-2 flex-shrink-0 notion-transparent" />
         </div>
-        <div className="mt-2 h-1.5 notion-transparent"></div>
       </div>
     );
   }
@@ -215,9 +203,6 @@ const NotionCarousel = ({
                 setIsLoading(true);
                 setImageError(false);
                 setLoadAttempts(0);
-                if (onIndexChange) {
-                  onIndexChange(index);
-                }
               }}
               aria-label={`Go to slide ${index + 1}`}
             />
