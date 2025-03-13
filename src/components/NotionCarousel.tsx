@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -46,10 +45,10 @@ export const CarouselDots = ({
         >
           <div 
             className={cn(
-              "rounded-full transition-all shadow-[0_0_4px_rgba(255,255,255,0.5)]",
+              "rounded-full transition-all shadow-[0_0_4px_rgba(0,0,0,0.5)]",
               index === currentIndex
-                ? "bg-white w-3.5 h-3.5 shadow-glow border border-white/80" 
-                : "bg-white/80 w-3 h-3 hover:bg-white border border-white/60"
+                ? "bg-purple-500 w-3.5 h-3.5 shadow-glow border border-purple-400" 
+                : "bg-purple-400 w-3 h-3 hover:bg-purple-500 border border-purple-300"
             )}
           />
         </button>
@@ -77,17 +76,14 @@ const NotionCarousel = ({
   const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
   const imageCacheRef = useRef<Map<string, boolean>>(new Map());
 
-  // Use controlled index if provided
   const activeIndex = controlledIndex !== undefined ? controlledIndex : currentIndex;
 
-  // Update the parent component when index changes internally
   useEffect(() => {
     if (onIndexChange && controlledIndex === undefined) {
       onIndexChange(currentIndex);
     }
   }, [currentIndex, onIndexChange, controlledIndex]);
 
-  // Initialize images when they change
   useEffect(() => {
     if (!images || images.length === 0) {
       console.log('No images provided to carousel');
@@ -95,7 +91,6 @@ const NotionCarousel = ({
       return;
     }
 
-    // Filter out empty images and set to state
     const filteredImages = images.filter(img => img && img.trim() !== '');
     console.log('Setting up carousel images:', filteredImages);
     
@@ -106,15 +101,12 @@ const NotionCarousel = ({
     
     setProcessedImages(filteredImages);
     
-    // Reset loading states
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
     
-    // Initialize image loaded state array
     setImagesLoaded(new Array(filteredImages.length).fill(false));
     
-    // Update dimensions
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
@@ -128,7 +120,6 @@ const NotionCarousel = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, [images]);
 
-  // Reset current index when images change
   useEffect(() => {
     if (processedImages.length > 0 && currentIndex >= processedImages.length) {
       setCurrentIndex(0);
@@ -138,7 +129,6 @@ const NotionCarousel = ({
     }
   }, [processedImages, currentIndex, onIndexChange]);
 
-  // Handle autoplay
   useEffect(() => {
     if (!autoplay || processedImages.length <= 1) return;
     
@@ -169,12 +159,10 @@ const NotionCarousel = ({
       
     setCurrentIndex(newIndex);
     
-    // Notify parent of index change if we're not in controlled mode
     if (onIndexChange && controlledIndex === undefined) {
       onIndexChange(newIndex);
     }
     
-    // Clear image load states when changing slides
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
@@ -185,12 +173,10 @@ const NotionCarousel = ({
     
     setCurrentIndex(index);
     
-    // Notify parent of index change if we're not in controlled mode
     if (onIndexChange && controlledIndex === undefined) {
       onIndexChange(index);
     }
     
-    // Clear image load states when changing slides
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
@@ -201,16 +187,13 @@ const NotionCarousel = ({
   const handleImageLoad = useCallback(() => {
     console.log('Image loaded successfully:', processedImages[activeIndex]);
     
-    // Update the loaded state for this image
     setIsLoading(false);
     setImageError(false);
     
-    // Cache this image as successfully loaded
     if (processedImages[activeIndex]) {
       imageCacheRef.current.set(processedImages[activeIndex], true);
     }
     
-    // Update loaded state array
     setImagesLoaded(prev => {
       const newLoaded = [...prev];
       if (activeIndex < newLoaded.length) {
@@ -225,14 +208,11 @@ const NotionCarousel = ({
     console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[activeIndex]);
     
     if (currentAttempts < 3) {
-      // Try loading again with cache-busting param
       setLoadAttempts(currentAttempts);
     } else {
-      // After 3 attempts, show the error UI
       setIsLoading(false);
       setImageError(true);
       
-      // Show a toast for better user feedback
       toast({
         title: "Image failed to load",
         description: "Make sure Google Drive sharing is set to 'Anyone with the link can view'",
@@ -241,7 +221,6 @@ const NotionCarousel = ({
     }
   }, [processedImages, activeIndex, loadAttempts]);
 
-  // Empty state
   if (processedImages.length === 0) {
     return (
       <div className={cn("relative w-full mx-auto notion-transparent", className)}>
@@ -264,7 +243,6 @@ const NotionCarousel = ({
     );
   }
 
-  // Generate a unique image source with cache-busting if needed
   const getImageSource = (url: string, attempts: number) => {
     if (!url) return '';
     return `${url}${attempts > 0 ? `&cb=${Date.now()}` : ''}`;

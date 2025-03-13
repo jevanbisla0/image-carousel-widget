@@ -190,7 +190,7 @@ const Index = () => {
                   images={images} 
                   currentIndex={currentIndex} 
                   onDotClick={handleImageIndexChange}
-                  className="border border-white/20 shadow-lg" 
+                  className="border border-gray-300 shadow-md" 
                 />
               )}
             </div>
