@@ -94,7 +94,7 @@ const NotionCarousel = ({
     }
 
     console.log('Setting up carousel images:', images);
-    setProcessedImages(images);
+    setProcessedImages(images.filter(img => img && img.trim() !== ''));
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
@@ -136,11 +136,16 @@ const NotionCarousel = ({
     if (processedImages.length === 0) return;
     
     setCurrentIndex((prev) => {
-      if (direction === 'next') {
-        return (prev + 1) % processedImages.length;
-      } else {
-        return (prev - 1 + processedImages.length) % processedImages.length;
+      const newIndex = direction === 'next' 
+        ? (prev + 1) % processedImages.length
+        : (prev - 1 + processedImages.length) % processedImages.length;
+      
+      // Notify parent of index change if we're not in controlled mode
+      if (onIndexChange && controlledIndex === undefined) {
+        onIndexChange(newIndex);
       }
+      
+      return newIndex;
     });
     
     setIsLoading(true);
@@ -150,6 +155,12 @@ const NotionCarousel = ({
 
   const handleDotClick = (index: number) => {
     setCurrentIndex(index);
+    
+    // Notify parent of index change if we're not in controlled mode
+    if (onIndexChange && controlledIndex === undefined) {
+      onIndexChange(index);
+    }
+    
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
@@ -169,7 +180,7 @@ const NotionCarousel = ({
     
     if (currentAttempts < 3) {
       setLoadAttempts(currentAttempts);
-      setIsLoading(true);
+      // Don't set isLoading to true here as it creates an infinite loop
     } else {
       setIsLoading(false);
       setImageError(true);
@@ -229,7 +240,7 @@ const NotionCarousel = ({
               </div>
             ) : (
               <img
-                key={`${processedImages[activeIndex]}?attempt=${loadAttempts}`}
+                key={`carousel-img-${activeIndex}-${loadAttempts}`}
                 src={`${processedImages[activeIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
                 alt={`Slide ${activeIndex + 1}`}
                 className={cn(
@@ -263,7 +274,7 @@ const NotionCarousel = ({
         </Button>
       </div>
       
-      {renderControls && processedImages.length > 1 && imagesInitialized && (
+      {renderControls && processedImages.length > 1 && (
         <div className="mt-4 flex justify-center notion-transparent">
           <CarouselDots 
             images={processedImages} 

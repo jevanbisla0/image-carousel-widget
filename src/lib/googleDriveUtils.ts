@@ -1,3 +1,4 @@
+
 /**
  * Utilities for fetching images from Google Drive
  */
@@ -19,8 +20,11 @@ export function getGoogleDriveImageUrl(fileId: string): string {
     return '';
   }
   
-  // Use the direct download link which is often more reliable for images
-  const url = `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=w1000`;
+  // Make sure the ID is clean (no spaces)
+  const cleanId = fileId.trim();
+  
+  // Use the thumbnail parameter which is more reliable for previews
+  const url = `https://drive.google.com/thumbnail?id=${cleanId}&sz=w1000`;
   console.log('Generated Google Drive URL:', url);
   return url;
 }

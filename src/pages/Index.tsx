@@ -44,7 +44,7 @@ const Index = () => {
           // Ensure the image IDs are processed into proper URLs
           const processedUrls = parsedIds.map((id: string) => getGoogleDriveImageUrl(id));
           console.log("Processed URLs:", processedUrls);
-          setImages(processedUrls);
+          setImages(processedUrls.filter(url => url && url.trim() !== ''));
         } catch (error) {
           console.error("Error parsing stored image IDs:", error);
           toast({
@@ -74,7 +74,7 @@ const Index = () => {
     storeImagesForFolder(finalFolderId, imageIds);
     
     const processedUrls = imageIds.map(id => getGoogleDriveImageUrl(id));
-    setImages(processedUrls);
+    setImages(processedUrls.filter(url => url && url.trim() !== ''));
     setIsConfiguring(false);
     
     toast({
@@ -126,6 +126,10 @@ const Index = () => {
     });
   };
 
+  const handleImageIndexChange = (index: number) => {
+    setCurrentIndex(index);
+  };
+
   const toggleUsage = () => {
     setIsUsageExpanded(!isUsageExpanded);
   };
@@ -140,17 +144,17 @@ const Index = () => {
             className="notion-transparent"
             renderControls={false}
             controlledIndex={currentIndex}
-            onIndexChange={setCurrentIndex}
+            onIndexChange={handleImageIndexChange}
           />
           
           <div className="flex items-center mt-4 justify-between px-2 notion-transparent">
             {/* Dots on the left */}
             <div className="notion-transparent">
-              {images.length > 0 && (
+              {images.length > 1 && (
                 <CarouselDots 
                   images={images} 
                   currentIndex={currentIndex} 
-                  onDotClick={setCurrentIndex} 
+                  onDotClick={handleImageIndexChange} 
                 />
               )}
             </div>
