@@ -160,7 +160,7 @@ const NotionCarousel = ({
               src={`${processedImages[currentIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
               alt={`Slide ${currentIndex + 1}`}
               className={cn(
-                "h-full w-full object-contain transition-opacity duration-500",
+                "h-full w-full object-cover transition-opacity duration-500",
                 isLoading ? "opacity-0" : "opacity-100"
               )}
               onLoad={handleImageLoad}
