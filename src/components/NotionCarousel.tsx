@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from '@/components/ui/use-toast';
 
 interface NotionCarouselProps {
   images: string[];
@@ -33,7 +34,7 @@ export const CarouselDots = ({
     <div className={cn("flex items-center justify-center gap-3 bg-black/70 backdrop-blur-sm rounded-full px-5 py-2.5", className)}>
       {images.map((_, index) => (
         <button
-          key={index}
+          key={`dot-${index}`}
           className={cn(
             "flex items-center justify-center transition-all notion-transparent",
             index === currentIndex 
@@ -73,7 +74,8 @@ const NotionCarousel = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
-  const [imagesInitialized, setImagesInitialized] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
+  const imageCacheRef = useRef<Map<string, boolean>>(new Map());
 
   // Use controlled index if provided
   const activeIndex = controlledIndex !== undefined ? controlledIndex : currentIndex;
@@ -85,21 +87,34 @@ const NotionCarousel = ({
     }
   }, [currentIndex, onIndexChange, controlledIndex]);
 
+  // Initialize images when they change
   useEffect(() => {
     if (!images || images.length === 0) {
       console.log('No images provided to carousel');
       setProcessedImages([]);
-      setImagesInitialized(false);
       return;
     }
 
-    console.log('Setting up carousel images:', images);
-    setProcessedImages(images.filter(img => img && img.trim() !== ''));
+    // Filter out empty images and set to state
+    const filteredImages = images.filter(img => img && img.trim() !== '');
+    console.log('Setting up carousel images:', filteredImages);
+    
+    if (filteredImages.length === 0) {
+      console.log('All images were filtered out as invalid');
+      return;
+    }
+    
+    setProcessedImages(filteredImages);
+    
+    // Reset loading states
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
-    setImagesInitialized(true);
     
+    // Initialize image loaded state array
+    setImagesLoaded(new Array(filteredImages.length).fill(false));
+    
+    // Update dimensions
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
@@ -113,47 +128,61 @@ const NotionCarousel = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, [images]);
 
+  // Reset current index when images change
   useEffect(() => {
-    if (processedImages.length > 0) {
+    if (processedImages.length > 0 && currentIndex >= processedImages.length) {
       setCurrentIndex(0);
+      if (onIndexChange) {
+        onIndexChange(0);
+      }
     }
-  }, [processedImages]);
+  }, [processedImages, currentIndex, onIndexChange]);
 
+  // Handle autoplay
   useEffect(() => {
     if (!autoplay || processedImages.length <= 1) return;
     
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % processedImages.length);
+      if (processedImages.length === 0) return;
+      
+      const nextIndex = (currentIndex + 1) % processedImages.length;
+      setCurrentIndex(nextIndex);
+      
+      if (onIndexChange && controlledIndex === undefined) {
+        onIndexChange(nextIndex);
+      }
+      
       setIsLoading(true);
       setImageError(false);
       setLoadAttempts(0);
     }, interval);
     
     return () => clearInterval(timer);
-  }, [autoplay, interval, processedImages.length]);
+  }, [autoplay, interval, processedImages.length, currentIndex, onIndexChange, controlledIndex]);
 
   const handleSlideChange = (direction: 'next' | 'prev') => {
     if (processedImages.length === 0) return;
     
-    setCurrentIndex((prev) => {
-      const newIndex = direction === 'next' 
-        ? (prev + 1) % processedImages.length
-        : (prev - 1 + processedImages.length) % processedImages.length;
+    const newIndex = direction === 'next' 
+      ? (currentIndex + 1) % processedImages.length
+      : (currentIndex - 1 + processedImages.length) % processedImages.length;
       
-      // Notify parent of index change if we're not in controlled mode
-      if (onIndexChange && controlledIndex === undefined) {
-        onIndexChange(newIndex);
-      }
-      
-      return newIndex;
-    });
+    setCurrentIndex(newIndex);
     
+    // Notify parent of index change if we're not in controlled mode
+    if (onIndexChange && controlledIndex === undefined) {
+      onIndexChange(newIndex);
+    }
+    
+    // Clear image load states when changing slides
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
   };
 
   const handleDotClick = (index: number) => {
+    if (index === currentIndex) return;
+    
     setCurrentIndex(index);
     
     // Notify parent of index change if we're not in controlled mode
@@ -161,6 +190,7 @@ const NotionCarousel = ({
       onIndexChange(index);
     }
     
+    // Clear image load states when changing slides
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
@@ -170,8 +200,24 @@ const NotionCarousel = ({
 
   const handleImageLoad = useCallback(() => {
     console.log('Image loaded successfully:', processedImages[activeIndex]);
+    
+    // Update the loaded state for this image
     setIsLoading(false);
     setImageError(false);
+    
+    // Cache this image as successfully loaded
+    if (processedImages[activeIndex]) {
+      imageCacheRef.current.set(processedImages[activeIndex], true);
+    }
+    
+    // Update loaded state array
+    setImagesLoaded(prev => {
+      const newLoaded = [...prev];
+      if (activeIndex < newLoaded.length) {
+        newLoaded[activeIndex] = true;
+      }
+      return newLoaded;
+    });
   }, [processedImages, activeIndex]);
 
   const handleImageError = useCallback(() => {
@@ -179,14 +225,23 @@ const NotionCarousel = ({
     console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[activeIndex]);
     
     if (currentAttempts < 3) {
+      // Try loading again with cache-busting param
       setLoadAttempts(currentAttempts);
-      // Don't set isLoading to true here as it creates an infinite loop
     } else {
+      // After 3 attempts, show the error UI
       setIsLoading(false);
       setImageError(true);
+      
+      // Show a toast for better user feedback
+      toast({
+        title: "Image failed to load",
+        description: "Make sure Google Drive sharing is set to 'Anyone with the link can view'",
+        variant: "destructive"
+      });
     }
   }, [processedImages, activeIndex, loadAttempts]);
 
+  // Empty state
   if (processedImages.length === 0) {
     return (
       <div className={cn("relative w-full mx-auto notion-transparent", className)}>
@@ -208,6 +263,12 @@ const NotionCarousel = ({
       </div>
     );
   }
+
+  // Generate a unique image source with cache-busting if needed
+  const getImageSource = (url: string, attempts: number) => {
+    if (!url) return '';
+    return `${url}${attempts > 0 ? `&cb=${Date.now()}` : ''}`;
+  };
 
   return (
     <div className={cn("relative w-full mx-auto notion-transparent", className)}>
@@ -240,8 +301,8 @@ const NotionCarousel = ({
               </div>
             ) : (
               <img
-                key={`carousel-img-${activeIndex}-${loadAttempts}`}
-                src={`${processedImages[activeIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+                key={`carousel-img-${activeIndex}-${loadAttempts}-${processedImages[activeIndex]}`}
+                src={getImageSource(processedImages[activeIndex], loadAttempts)}
                 alt={`Slide ${activeIndex + 1}`}
                 className={cn(
                   "h-full w-full object-contain transition-opacity duration-500",

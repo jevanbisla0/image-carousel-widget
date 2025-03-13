@@ -24,6 +24,7 @@ const Index = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { toast } = useToast();
 
+  // Load images from localStorage on mount
   useEffect(() => {
     const loadImages = async () => {
       let storedFolderId = localStorage.getItem("google_drive_folder_id");
@@ -39,12 +40,24 @@ const Index = () => {
       if (storedImageIds) {
         try {
           const parsedIds = JSON.parse(storedImageIds);
-          setImageIds(parsedIds);
-          
-          // Ensure the image IDs are processed into proper URLs
-          const processedUrls = parsedIds.map((id: string) => getGoogleDriveImageUrl(id));
-          console.log("Processed URLs:", processedUrls);
-          setImages(processedUrls.filter(url => url && url.trim() !== ''));
+          if (Array.isArray(parsedIds) && parsedIds.length > 0) {
+            setImageIds(parsedIds);
+            
+            // Ensure the image IDs are processed into proper URLs
+            const processedUrls = parsedIds
+              .map((id: string) => getGoogleDriveImageUrl(id))
+              .filter(url => url && url.trim() !== '');
+              
+            console.log("Processed URLs:", processedUrls);
+            
+            if (processedUrls.length > 0) {
+              setImages(processedUrls);
+            } else {
+              console.error("No valid URLs were generated from the stored IDs");
+            }
+          } else {
+            console.log("No stored image IDs found or array is empty");
+          }
         } catch (error) {
           console.error("Error parsing stored image IDs:", error);
           toast({
@@ -73,14 +86,31 @@ const Index = () => {
     localStorage.setItem("google_drive_folder_id", finalFolderId);
     storeImagesForFolder(finalFolderId, imageIds);
     
-    const processedUrls = imageIds.map(id => getGoogleDriveImageUrl(id));
-    setImages(processedUrls.filter(url => url && url.trim() !== ''));
-    setIsConfiguring(false);
+    // Filter out empty URLs
+    const processedUrls = imageIds
+      .map(id => getGoogleDriveImageUrl(id))
+      .filter(url => url && url.trim() !== '');
+      
+    console.log("Processed URLs for save:", processedUrls);
     
-    toast({
-      title: "Configuration saved",
-      description: `${imageIds.length} images configured successfully.`
-    });
+    if (processedUrls.length > 0) {
+      setImages(processedUrls);
+      setIsConfiguring(false);
+      
+      toast({
+        title: "Configuration saved",
+        description: `${imageIds.length} images configured successfully.`
+      });
+      
+      // Reset to first image
+      setCurrentIndex(0);
+    } else {
+      toast({
+        title: "Error processing images",
+        description: "No valid image URLs were generated. Please check your image IDs.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAddImage = () => {
@@ -119,6 +149,7 @@ const Index = () => {
     setImageIds([]);
     clearStoredImagesForFolder(folderId);
     setImages([]);
+    setCurrentIndex(0);
     
     toast({
       title: "All images cleared",
@@ -127,12 +158,16 @@ const Index = () => {
   };
 
   const handleImageIndexChange = (index: number) => {
+    console.log("Image index changed to:", index);
     setCurrentIndex(index);
   };
 
   const toggleUsage = () => {
     setIsUsageExpanded(!isUsageExpanded);
   };
+
+  // Only show dots if there are multiple images
+  const shouldShowDots = images.length > 1;
 
   return (
     <div className="mx-auto px-4 py-8 max-w-5xl notion-transparent">
@@ -150,7 +185,7 @@ const Index = () => {
           <div className="flex items-center mt-4 justify-between px-2 notion-transparent">
             {/* Dots on the left */}
             <div className="notion-transparent">
-              {images.length > 1 && (
+              {shouldShowDots && (
                 <CarouselDots 
                   images={images} 
                   currentIndex={currentIndex} 

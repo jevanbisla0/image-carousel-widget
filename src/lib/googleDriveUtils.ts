@@ -20,11 +20,12 @@ export function getGoogleDriveImageUrl(fileId: string): string {
     return '';
   }
   
-  // Make sure the ID is clean (no spaces)
+  // Clean the ID
   const cleanId = fileId.trim();
   
-  // Use the thumbnail parameter which is more reliable for previews
-  const url = `https://drive.google.com/thumbnail?id=${cleanId}&sz=w1000`;
+  // Use both the export parameter and thumbnail for better compatibility
+  // The export=view parameter is important for direct viewing
+  const url = `https://drive.google.com/uc?export=view&id=${cleanId}`;
   console.log('Generated Google Drive URL:', url);
   return url;
 }
