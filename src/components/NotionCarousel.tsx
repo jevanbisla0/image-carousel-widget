@@ -114,7 +114,7 @@ const NotionCarousel = ({
           <div className="h-8 w-8 mr-2 flex-shrink-0 notion-transparent" />
           
           <div 
-            className="relative w-full notion-transparent flex items-center justify-center rounded-lg"
+            className="relative w-full notion-transparent flex items-center justify-center rounded-lg border border-gray-300/30"
             style={{ height: `${carouselHeight}px` }}
           >
             <div className="text-center p-4 space-y-2 notion-transparent rounded-md">
@@ -143,7 +143,7 @@ const NotionCarousel = ({
         </Button>
         
         <div 
-          className="relative overflow-hidden rounded-lg w-full notion-transparent"
+          className="relative overflow-hidden rounded-lg w-full notion-transparent border border-gray-300/50 shadow-md"
           style={{ height: `${carouselHeight}px` }}
         >
           <div className="h-full w-full relative notion-transparent flex items-center justify-center">
