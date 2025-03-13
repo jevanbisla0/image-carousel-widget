@@ -113,7 +113,7 @@ const NotionCarousel = ({
 
   if (processedImages.length === 0) {
     return (
-      <div className={cn("relative w-full mx-auto notion-transparent", className)}>
+      <div className={cn("relative w-4/5 mx-auto notion-transparent", className)}>
         <div className="flex items-center notion-transparent">
           <div className="h-8 w-8 mr-2 flex-shrink-0 notion-transparent" />
           
@@ -134,7 +134,7 @@ const NotionCarousel = ({
   }
 
   return (
-    <div className={cn("relative w-full mx-auto notion-transparent", className)}>
+    <div className={cn("relative w-4/5 mx-auto notion-transparent", className)}>
       <div className="flex items-center notion-transparent">
         <NavButton direction="prev" />
         
@@ -182,7 +182,7 @@ const NotionCarousel = ({
         <NavButton direction="next" />
       </div>
       
-      <div className="mt-4 flex justify-center notion-transparent">
+      <div className="mt-4 flex justify-center w-full notion-transparent">
         <div className={cn("flex items-center justify-center gap-2 notion-transparent", UI_STYLES.actionBar)}>
           {processedImages.map((_, index) => (
             <button
