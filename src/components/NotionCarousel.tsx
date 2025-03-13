@@ -158,28 +158,51 @@ const NotionCarousel = ({
     };
   }, []);
 
-  // Handle autoplay
+  // Handle autoplay - FIX: Properly restart interval and ensure the timer is running
   useEffect(() => {
-    if (!autoplay || processedImages.length <= 1) return;
+    // Debug logs to help trace the autoplay execution
+    console.log('Autoplay effect triggered', { 
+      autoplay, 
+      processedImagesLength: processedImages.length,
+      activeIndex, 
+      interval
+    });
+    
+    if (!autoplay || processedImages.length <= 1) {
+      console.log('Autoplay skipped: autoplay disabled or not enough images');
+      return;
+    }
     
     // Clear any existing timer
     if (autoplayTimerRef.current) {
+      console.log('Clearing existing timer');
       clearInterval(autoplayTimerRef.current);
       autoplayTimerRef.current = null;
     }
     
     // Set up new timer
-    autoplayTimerRef.current = setInterval(() => {
-      if (processedImages.length === 0) return;
+    console.log('Setting up new autoplay timer with interval:', interval);
+    
+    const timer = setInterval(() => {
+      if (processedImages.length === 0) {
+        console.log('No images to cycle through');
+        return;
+      }
       
+      console.log('Autoplay timer fired, current index:', activeIndex);
       const nextIndex = (activeIndex + 1) % processedImages.length;
+      console.log('Calculated next index:', nextIndex);
       
       if (controlledIndex === undefined) {
+        console.log('Setting current index to:', nextIndex);
         setCurrentIndex(nextIndex);
         
         if (onIndexChange) {
+          console.log('Notifying parent of index change');
           onIndexChange(nextIndex);
         }
+      } else {
+        console.log('Component is controlled, not changing index internally');
       }
       
       // Don't reset loading state if the image is already cached
@@ -204,25 +227,32 @@ const NotionCarousel = ({
       }
     }, interval);
     
+    autoplayTimerRef.current = timer;
+    
     return () => {
-      if (autoplayTimerRef.current) {
-        clearInterval(autoplayTimerRef.current);
-        autoplayTimerRef.current = null;
-      }
+      console.log('Cleaning up autoplay timer');
+      clearInterval(timer);
+      autoplayTimerRef.current = null;
     };
   }, [autoplay, interval, processedImages.length, activeIndex, onIndexChange, controlledIndex]);
 
   const handleSlideChange = (direction: 'next' | 'prev') => {
+    console.log('Manual slide change:', direction);
+    
     if (processedImages.length === 0) return;
     
     const newIndex = direction === 'next' 
       ? (activeIndex + 1) % processedImages.length
       : (activeIndex - 1 + processedImages.length) % processedImages.length;
       
+    console.log('New calculated index:', newIndex);
+    
     if (controlledIndex === undefined) {
+      console.log('Setting current index to:', newIndex);
       setCurrentIndex(newIndex);
       
       if (onIndexChange) {
+        console.log('Notifying parent of index change');
         onIndexChange(newIndex);
       }
     }
