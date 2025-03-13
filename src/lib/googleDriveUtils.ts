@@ -14,18 +14,8 @@ interface GoogleDriveImage {
  * Using the most reliable format that works for public files
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  // Make sure we have a valid file ID
-  if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
-    console.error('Invalid Google Drive file ID provided:', fileId);
-    return '';
-  }
-  
-  // Clean the ID
-  const cleanId = fileId.trim();
-  
-  // Use a more reliable direct access URL format
-  // This format has better success with publicly shared files
-  return `https://drive.google.com/thumbnail?id=${cleanId}&sz=w1000`;
+  // Use the direct download link which is often more reliable for images
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
 
 /**

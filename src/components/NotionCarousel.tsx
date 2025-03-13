@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, Circle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { toast } from '@/components/ui/use-toast';
 
 interface NotionCarouselProps {
   images: string[];
@@ -12,96 +11,22 @@ interface NotionCarouselProps {
   autoplay?: boolean;
   interval?: number;
   isGoogleDrive?: boolean;
-  renderControls?: boolean;
-  onIndexChange?: (index: number) => void;
-  controlledIndex?: number;
 }
-
-export const CarouselDots = ({ 
-  images, 
-  currentIndex, 
-  onDotClick,
-  className 
-}: { 
-  images: string[], 
-  currentIndex: number, 
-  onDotClick: (index: number) => void,
-  className?: string
-}) => {
-  if (!images || images.length <= 1) return null;
-  
-  return (
-    <div className={cn("flex items-center justify-center gap-3 bg-black/70 backdrop-blur-sm rounded-full px-5 py-3", className)}>
-      {images.map((_, index) => (
-        <button
-          key={`dot-${index}`}
-          className={cn(
-            "flex items-center justify-center transition-all notion-transparent",
-            index === currentIndex 
-              ? "opacity-100 scale-110" 
-              : "opacity-80 hover:opacity-100"
-          )}
-          onClick={() => onDotClick(index)}
-          aria-label={`Go to slide ${index + 1}`}
-        >
-          <div 
-            className={cn(
-              "rounded-full transition-all shadow-[0_0_4px_rgba(0,0,0,0.5)]",
-              index === currentIndex
-                ? "bg-purple-500 w-3.5 h-3.5 shadow-glow border border-purple-400" 
-                : "bg-purple-400 w-3 h-3 hover:bg-purple-500 border border-purple-300"
-            )}
-          />
-        </button>
-      ))}
-    </div>
-  );
-};
 
 const NotionCarousel = ({ 
   images, 
   className, 
   autoplay = true, 
   interval = 5000,
-  isGoogleDrive = false,
-  renderControls = true,
-  onIndexChange,
-  controlledIndex
+  isGoogleDrive = false
 }: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState<boolean[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [processedImages, setProcessedImages] = useState<string[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [imageErrors, setImageErrors] = useState<boolean[]>([]);
-  const [loadAttempts, setLoadAttempts] = useState<number[]>([]);
-  const imageCacheRef = useRef<Map<string, boolean>>(new Map());
-  const [initialLoad, setInitialLoad] = useState(true);
-  const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [imageError, setImageError] = useState(false);
+  const [loadAttempts, setLoadAttempts] = useState(0);
 
-  const activeIndex = controlledIndex !== undefined ? controlledIndex : currentIndex;
-
-  // Effect for handling controlled index changes
-  useEffect(() => {
-    if (controlledIndex !== undefined && processedImages.length > 0) {
-      // Reset loading state only for the current image if not already loading
-      setIsLoading(prev => {
-        const newLoadingState = [...prev];
-        if (controlledIndex < newLoadingState.length && !imageCacheRef.current.get(processedImages[controlledIndex])) {
-          newLoadingState[controlledIndex] = true;
-        }
-        return newLoadingState;
-      });
-    }
-  }, [controlledIndex, processedImages]);
-
-  // Notify parent of index change when current index changes internally
-  useEffect(() => {
-    if (onIndexChange && controlledIndex === undefined) {
-      onIndexChange(currentIndex);
-    }
-  }, [currentIndex, onIndexChange, controlledIndex]);
-
-  // Set up images and initialize state arrays
   useEffect(() => {
     if (!images || images.length === 0) {
       console.log('No images provided to carousel');
@@ -109,21 +34,11 @@ const NotionCarousel = ({
       return;
     }
 
-    const filteredImages = images.filter(img => img && img.trim() !== '');
-    console.log('Setting up carousel images:', filteredImages);
-    
-    if (filteredImages.length === 0) {
-      console.log('All images were filtered out as invalid');
-      return;
-    }
-    
-    setProcessedImages(filteredImages);
-    
-    // Initialize state arrays for all images
-    setIsLoading(new Array(filteredImages.length).fill(true));
-    setImageErrors(new Array(filteredImages.length).fill(false));
-    setLoadAttempts(new Array(filteredImages.length).fill(0));
-    setInitialLoad(true);
+    console.log('Setting up carousel images:', images);
+    setProcessedImages(images);
+    setIsLoading(true);
+    setImageError(false);
+    setLoadAttempts(0);
     
     const updateDimensions = () => {
       setDimensions({
@@ -138,257 +53,59 @@ const NotionCarousel = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, [images]);
 
-  // Reset current index if the number of images changes
   useEffect(() => {
-    if (processedImages.length > 0 && currentIndex >= processedImages.length) {
-      setCurrentIndex(0);
-      if (onIndexChange && controlledIndex === undefined) {
-        onIndexChange(0);
-      }
-    }
-  }, [processedImages, currentIndex, onIndexChange, controlledIndex]);
+    setCurrentIndex(0);
+  }, [processedImages]);
 
-  // Clear existing timer when component unmounts or dependencies change
   useEffect(() => {
-    return () => {
-      if (autoplayTimerRef.current) {
-        clearInterval(autoplayTimerRef.current);
-        autoplayTimerRef.current = null;
-      }
-    };
-  }, []);
-
-  // Handle autoplay - FIX: Properly restart interval and ensure the timer is running
-  useEffect(() => {
-    // Debug logs to help trace the autoplay execution
-    console.log('Autoplay effect triggered', { 
-      autoplay, 
-      processedImagesLength: processedImages.length,
-      activeIndex, 
-      interval
-    });
-    
-    if (!autoplay || processedImages.length <= 1) {
-      console.log('Autoplay skipped: autoplay disabled or not enough images');
-      return;
-    }
-    
-    // Clear any existing timer
-    if (autoplayTimerRef.current) {
-      console.log('Clearing existing timer');
-      clearInterval(autoplayTimerRef.current);
-      autoplayTimerRef.current = null;
-    }
-    
-    // Set up new timer
-    console.log('Setting up new autoplay timer with interval:', interval);
+    if (!autoplay || processedImages.length === 0) return;
     
     const timer = setInterval(() => {
-      if (processedImages.length === 0) {
-        console.log('No images to cycle through');
-        return;
-      }
-      
-      console.log('Autoplay timer fired, current index:', activeIndex);
-      const nextIndex = (activeIndex + 1) % processedImages.length;
-      console.log('Calculated next index:', nextIndex);
-      
-      if (controlledIndex === undefined) {
-        console.log('Setting current index to:', nextIndex);
-        setCurrentIndex(nextIndex);
-        
-        if (onIndexChange) {
-          console.log('Notifying parent of index change');
-          onIndexChange(nextIndex);
-        }
-      } else {
-        console.log('Component is controlled, not changing index internally');
-      }
-      
-      // Don't reset loading state if the image is already cached
-      if (!imageCacheRef.current.get(processedImages[nextIndex])) {
-        setIsLoading(prev => {
-          const newState = [...prev];
-          newState[nextIndex] = true;
-          return newState;
-        });
-        
-        setLoadAttempts(prev => {
-          const newState = [...prev];
-          newState[nextIndex] = 0;
-          return newState;
-        });
-        
-        setImageErrors(prev => {
-          const newState = [...prev];
-          newState[nextIndex] = false;
-          return newState;
-        });
-      }
+      setCurrentIndex((prev) => (prev + 1) % processedImages.length);
+      setIsLoading(true);
+      setImageError(false);
+      setLoadAttempts(0);
     }, interval);
     
-    autoplayTimerRef.current = timer;
-    
-    return () => {
-      console.log('Cleaning up autoplay timer');
-      clearInterval(timer);
-      autoplayTimerRef.current = null;
-    };
-  }, [autoplay, interval, processedImages.length, activeIndex, onIndexChange, controlledIndex]);
+    return () => clearInterval(timer);
+  }, [autoplay, interval, processedImages.length]);
 
   const handleSlideChange = (direction: 'next' | 'prev') => {
-    console.log('Manual slide change:', direction);
-    
     if (processedImages.length === 0) return;
     
-    const newIndex = direction === 'next' 
-      ? (activeIndex + 1) % processedImages.length
-      : (activeIndex - 1 + processedImages.length) % processedImages.length;
-      
-    console.log('New calculated index:', newIndex);
-    
-    if (controlledIndex === undefined) {
-      console.log('Setting current index to:', newIndex);
-      setCurrentIndex(newIndex);
-      
-      if (onIndexChange) {
-        console.log('Notifying parent of index change');
-        onIndexChange(newIndex);
+    setCurrentIndex((prev) => {
+      if (direction === 'next') {
+        return (prev + 1) % processedImages.length;
+      } else {
+        return (prev - 1 + processedImages.length) % processedImages.length;
       }
-    }
+    });
     
-    // Only set loading if the image isn't cached
-    if (!imageCacheRef.current.get(processedImages[newIndex])) {
-      setIsLoading(prev => {
-        const newState = [...prev];
-        newState[newIndex] = true;
-        return newState;
-      });
-      
-      setLoadAttempts(prev => {
-        const newState = [...prev];
-        newState[newIndex] = 0;
-        return newState;
-      });
-      
-      setImageErrors(prev => {
-        const newState = [...prev];
-        newState[newIndex] = false;
-        return newState;
-      });
-    }
-  };
-
-  const handleDotClick = (index: number) => {
-    if (index === activeIndex) return;
-    
-    if (controlledIndex === undefined) {
-      setCurrentIndex(index);
-      
-      if (onIndexChange) {
-        onIndexChange(index);
-      }
-    }
-    
-    // Only set loading if the image isn't cached
-    if (!imageCacheRef.current.get(processedImages[index])) {
-      setIsLoading(prev => {
-        const newState = [...prev];
-        newState[index] = true;
-        return newState;
-      });
-      
-      setLoadAttempts(prev => {
-        const newState = [...prev];
-        newState[index] = 0;
-        return newState;
-      });
-      
-      setImageErrors(prev => {
-        const newState = [...prev];
-        newState[index] = false;
-        return newState;
-      });
-    }
+    setIsLoading(true);
+    setImageError(false);
+    setLoadAttempts(0);
   };
 
   const carouselHeight = Math.min(500, dimensions.height * 0.8);
 
-  const handleImageLoad = useCallback((index: number) => {
-    if (index === activeIndex) {
-      console.log('Image loaded successfully:', processedImages[activeIndex]);
-      
-      // Update loading state for the current image
-      setIsLoading(prev => {
-        const newState = [...prev];
-        newState[activeIndex] = false;
-        return newState;
-      });
-      
-      // Update error state
-      setImageErrors(prev => {
-        const newState = [...prev];
-        newState[activeIndex] = false;
-        return newState;
-      });
-      
-      // Add to cache
-      if (processedImages[activeIndex]) {
-        imageCacheRef.current.set(processedImages[activeIndex], true);
-      }
-      
-      // No longer initial load
-      setInitialLoad(false);
-    }
-  }, [processedImages, activeIndex]);
+  const handleImageLoad = useCallback(() => {
+    console.log('Image loaded successfully:', processedImages[currentIndex]);
+    setIsLoading(false);
+    setImageError(false);
+  }, [processedImages, currentIndex]);
 
-  const handleImageError = useCallback((index: number) => {
-    if (index === activeIndex) {
-      // Update load attempts for the current image
-      setLoadAttempts(prev => {
-        const newState = [...prev];
-        newState[activeIndex] = (newState[activeIndex] || 0) + 1;
-        return newState;
-      });
-      
-      const currentAttempts = loadAttempts[activeIndex] ? loadAttempts[activeIndex] + 1 : 1;
-      console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[activeIndex]);
-      
-      if (currentAttempts >= 3) {
-        // Update loading state after max attempts
-        setIsLoading(prev => {
-          const newState = [...prev];
-          newState[activeIndex] = false;
-          return newState;
-        });
-        
-        // Update error state
-        setImageErrors(prev => {
-          const newState = [...prev];
-          newState[activeIndex] = true;
-          return newState;
-        });
-        
-        toast({
-          title: "Image failed to load",
-          description: "Make sure Google Drive sharing is set to 'Anyone with the link can view'",
-          variant: "destructive"
-        });
-      } else {
-        // Try again with a new timestamp
-        const imgElement = document.getElementById(`carousel-img-${activeIndex}`) as HTMLImageElement;
-        if (imgElement) {
-          const newSrc = `${processedImages[activeIndex]}&cb=${Date.now()}`;
-          imgElement.src = newSrc;
-        }
-      }
+  const handleImageError = useCallback(() => {
+    const currentAttempts = loadAttempts + 1;
+    console.error(`Failed to load image (attempt ${currentAttempts}):`, processedImages[currentIndex]);
+    
+    if (currentAttempts < 3) {
+      setLoadAttempts(currentAttempts);
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+      setImageError(true);
     }
-  }, [processedImages, activeIndex, loadAttempts, toast]);
-
-  const getImageSource = (url: string, attempts: number) => {
-    if (!url) return '';
-    return `${url}${attempts > 0 ? `&cb=${Date.now()}` : ''}`;
-  };
+  }, [processedImages, currentIndex, loadAttempts]);
 
   if (processedImages.length === 0) {
     return (
@@ -408,13 +125,10 @@ const NotionCarousel = ({
           
           <div className="h-8 w-8 ml-2 flex-shrink-0 notion-transparent" />
         </div>
+        <div className="mt-2 h-1.5 notion-transparent"></div>
       </div>
     );
   }
-
-  // Determine if the current image is loading
-  const isCurrentImageLoading = isLoading[activeIndex];
-  const hasCurrentImageError = imageErrors[activeIndex];
 
   return (
     <div className={cn("relative w-full mx-auto notion-transparent", className)}>
@@ -433,7 +147,7 @@ const NotionCarousel = ({
           style={{ height: `${carouselHeight}px` }}
         >
           <div className="h-full w-full relative notion-transparent flex items-center justify-center">
-            {hasCurrentImageError ? (
+            {imageError ? (
               <div className="text-center p-4 space-y-2 notion-transparent">
                 <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
                   <AlertCircle className="h-4 w-4" />
@@ -442,34 +156,26 @@ const NotionCarousel = ({
                   </AlertDescription>
                 </Alert>
                 <div className="text-xs text-muted-foreground/70 mt-2">
-                  Current URL: <span className="font-mono break-all">{processedImages[activeIndex]}</span>
+                  Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
                 </div>
               </div>
             ) : (
-              <>
-                {processedImages.map((img, idx) => (
-                  <img
-                    key={`carousel-img-${idx}`}
-                    id={`carousel-img-${idx}`}
-                    src={getImageSource(img, loadAttempts[idx] || 0)}
-                    alt={`Slide ${idx + 1}`}
-                    className={cn(
-                      "h-full w-full object-contain transition-opacity duration-500 absolute inset-0",
-                      idx === activeIndex ? "z-10" : "z-0",
-                      idx === activeIndex && isCurrentImageLoading ? "opacity-0" : "opacity-100",
-                      idx !== activeIndex ? "hidden" : "block"
-                    )}
-                    onLoad={() => handleImageLoad(idx)}
-                    onError={() => handleImageError(idx)}
-                    style={{ background: 'none' }}
-                    loading={idx === activeIndex ? "eager" : "lazy"}
-                  />
-                ))}
-              </>
+              <img
+                key={`${processedImages[currentIndex]}?attempt=${loadAttempts}`}
+                src={`${processedImages[currentIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+                alt={`Slide ${currentIndex + 1}`}
+                className={cn(
+                  "h-full w-full object-contain transition-opacity duration-500",
+                  isLoading ? "opacity-0" : "opacity-100"
+                )}
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                style={{ background: 'none' }}
+              />
             )}
             
-            {isCurrentImageLoading && !hasCurrentImageError && (
-              <div className="absolute inset-0 flex items-center justify-center notion-transparent z-20">
+            {isLoading && !imageError && (
+              <div className="absolute inset-0 flex items-center justify-center notion-transparent">
                 <div className="animate-pulse flex flex-col items-center">
                   <ImageIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
                   <span className="text-sm text-muted-foreground/50">Loading image...</span>
@@ -489,15 +195,28 @@ const NotionCarousel = ({
         </Button>
       </div>
       
-      {renderControls && processedImages.length > 1 && (
-        <div className="mt-4 flex justify-center notion-transparent">
-          <CarouselDots 
-            images={processedImages} 
-            currentIndex={activeIndex} 
-            onDotClick={handleDotClick} 
-          />
+      <div className="mt-4 flex justify-center notion-transparent">
+        <div className="flex items-center justify-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg notion-transparent">
+          {processedImages.map((_, index) => (
+            <button
+              key={index}
+              className={cn(
+                "rounded-full transition-all shadow-md notion-transparent",
+                index === currentIndex 
+                  ? "w-5 h-5 bg-white" 
+                  : "w-3 h-3 bg-white/60 hover:bg-white/80"
+              )}
+              onClick={() => {
+                setCurrentIndex(index);
+                setIsLoading(true);
+                setImageError(false);
+                setLoadAttempts(0);
+              }}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
