@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, ChevronDown
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { UI_STYLES } from '@/lib/styles';
 
 interface NotionCarouselProps {
   images: string[];
@@ -102,6 +103,24 @@ const NotionCarousel = ({
     }
   }, [loadAttempts]);
 
+  const NavButton = ({ direction }: { direction: 'next' | 'prev' }) => (
+    <Button
+      variant="outline"
+      size="icon"
+      className={cn(
+        "h-8 w-8 rounded-full notion-transparent hover:bg-white/10 flex-shrink-0",
+        direction === 'prev' ? "mr-2" : "ml-2"
+      )}
+      onClick={() => handleSlideChange(direction)}
+    >
+      {direction === 'prev' ? (
+        <ChevronLeft className={UI_STYLES.iconSize} />
+      ) : (
+        <ChevronRight className={UI_STYLES.iconSize} />
+      )}
+    </Button>
+  );
+
   if (processedImages.length === 0) {
     return (
       <div className={cn("relative w-full mx-auto notion-transparent", className)}>
@@ -109,12 +128,12 @@ const NotionCarousel = ({
           <div className="h-8 w-8 mr-2 flex-shrink-0 notion-transparent" />
           
           <div 
-            className="relative w-full notion-transparent flex items-center justify-center rounded-lg border border-gray-300/30"
+            className={cn(`relative w-full notion-transparent flex items-center justify-center rounded-lg border ${UI_STYLES.border}`)}
             style={{ height: `${carouselHeight}px` }}
           >
             <div className="text-center p-4 space-y-2 notion-transparent rounded-md">
-              <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground/50" />
-              <p className="text-muted-foreground/50">No images to display</p>
+              <ImageIcon className={cn(`mx-auto h-10 w-10 ${UI_STYLES.textMuted}`)} />
+              <p className={UI_STYLES.textMuted}>No images to display</p>
             </div>
           </div>
           
@@ -127,23 +146,16 @@ const NotionCarousel = ({
   return (
     <div className={cn("relative w-full mx-auto notion-transparent", className)}>
       <div className="flex items-center notion-transparent">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8 rounded-full notion-transparent hover:bg-white/10 mr-2 flex-shrink-0"
-          onClick={() => handleSlideChange('prev')}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
+        <NavButton direction="prev" />
         
         <div 
-          className="relative overflow-hidden rounded-lg w-full notion-transparent border border-gray-300/50"
+          className={cn(`relative overflow-hidden rounded-lg w-full notion-transparent border ${UI_STYLES.border}`)}
           style={{ height: `${carouselHeight}px` }}
         >
           {imageError ? (
             <div className="text-center p-4 space-y-2 notion-transparent">
               <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className={UI_STYLES.iconSize} />
                 <AlertDescription>
                   Failed to load image. Make sure Google Drive sharing is set to "Anyone with the link can view".
                 </AlertDescription>
@@ -169,26 +181,19 @@ const NotionCarousel = ({
           
           {isLoading && !imageError && (
             <div className="absolute inset-0 flex items-center justify-center notion-transparent">
-              <div className="animate-pulse flex flex-col items-center">
-                <ImageIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
-                <span className="text-sm text-muted-foreground/50">Loading image...</span>
+              <div className={cn("flex flex-col items-center", UI_STYLES.animation.pulse)}>
+                <ImageIcon className={cn(`h-8 w-8 mb-2 ${UI_STYLES.textMuted}`)} />
+                <span className={cn(`text-sm ${UI_STYLES.textMuted}`)}>Loading image...</span>
               </div>
             </div>
           )}
         </div>
         
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8 rounded-full notion-transparent hover:bg-white/10 ml-2 flex-shrink-0"
-          onClick={() => handleSlideChange('next')}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+        <NavButton direction="next" />
       </div>
       
       <div className="mt-4 flex justify-center notion-transparent">
-        <div className="flex items-center justify-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg notion-transparent border border-gray-300/50">
+        <div className={cn("flex items-center justify-center gap-2 notion-transparent", UI_STYLES.actionBar)}>
           {processedImages.map((_, index) => (
             <button
               key={index}
@@ -208,14 +213,14 @@ const NotionCarousel = ({
             />
           ))}
           
-          <div className="ml-2 pl-2 border-l border-gray-400/30">
+          <div className={cn(`ml-2 pl-2 border-l ${UI_STYLES.border}`)}>
             <Button 
               variant="outline"
               onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
-              className="bg-white/10 hover:bg-white/20 text-white border-gray-400/30 h-7 px-2"
+              className={cn("h-7 px-2", UI_STYLES.button.subtle)}
               size="sm"
             >
-              <ChevronDown className="h-3 w-3 mr-1" />
+              <ChevronDown className={UI_STYLES.iconSizeSmall + " mr-1"} />
               Configure
             </Button>
           </div>
