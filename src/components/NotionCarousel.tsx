@@ -113,7 +113,7 @@ const NotionCarousel = ({
 
   if (processedImages.length === 0) {
     return (
-      <div className={cn("relative max-w-[800px] mx-auto notion-transparent", className)}>
+      <div className={cn("relative max-w-[880px] mx-auto notion-transparent", className)}>
         <div className="flex items-center notion-transparent">
           <div className="h-8 w-8 mr-2 flex-shrink-0 notion-transparent" />
           
@@ -134,7 +134,7 @@ const NotionCarousel = ({
   }
 
   return (
-    <div className={cn("relative max-w-[800px] mx-auto notion-transparent", className)}>
+    <div className={cn("relative max-w-[880px] mx-auto notion-transparent", className)}>
       <div className="flex items-center notion-transparent">
         <NavButton direction="prev" />
         
