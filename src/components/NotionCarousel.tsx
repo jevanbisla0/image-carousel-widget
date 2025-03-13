@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, ChevronDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -32,6 +31,7 @@ const NotionCarousel = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
+  const [isConfiguring, setIsConfiguring] = useState(false);
 
   useEffect(() => {
     if (!images || images.length === 0) {
@@ -152,43 +152,41 @@ const NotionCarousel = ({
           className="relative overflow-hidden rounded-lg w-full notion-transparent border border-gray-300/50"
           style={{ height: `${carouselHeight}px` }}
         >
-          <div className="h-full w-full relative notion-transparent flex items-center justify-center">
-            {imageError ? (
-              <div className="text-center p-4 space-y-2 notion-transparent">
-                <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Failed to load image. Make sure Google Drive sharing is set to "Anyone with the link can view".
-                  </AlertDescription>
-                </Alert>
-                <div className="text-xs text-muted-foreground/70 mt-2">
-                  Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
-                </div>
+          {imageError ? (
+            <div className="text-center p-4 space-y-2 notion-transparent">
+              <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Failed to load image. Make sure Google Drive sharing is set to "Anyone with the link can view".
+                </AlertDescription>
+              </Alert>
+              <div className="text-xs text-muted-foreground/70 mt-2">
+                Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
               </div>
-            ) : (
-              <img
-                key={`${processedImages[currentIndex]}?attempt=${loadAttempts}`}
-                src={`${processedImages[currentIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
-                alt={`Slide ${currentIndex + 1}`}
-                className={cn(
-                  "h-full w-full object-contain transition-opacity duration-500",
-                  isLoading ? "opacity-0" : "opacity-100"
-                )}
-                onLoad={handleImageLoad}
-                onError={handleImageError}
-                style={{ background: 'none' }}
-              />
-            )}
-            
-            {isLoading && !imageError && (
-              <div className="absolute inset-0 flex items-center justify-center notion-transparent">
-                <div className="animate-pulse flex flex-col items-center">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
-                  <span className="text-sm text-muted-foreground/50">Loading image...</span>
-                </div>
+            </div>
+          ) : (
+            <img
+              key={`${processedImages[currentIndex]}?attempt=${loadAttempts}`}
+              src={`${processedImages[currentIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+              alt={`Slide ${currentIndex + 1}`}
+              className={cn(
+                "h-full w-full object-contain transition-opacity duration-500",
+                isLoading ? "opacity-0" : "opacity-100"
+              )}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              style={{ background: 'none' }}
+            />
+          )}
+          
+          {isLoading && !imageError && (
+            <div className="absolute inset-0 flex items-center justify-center notion-transparent">
+              <div className="animate-pulse flex flex-col items-center">
+                <ImageIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                <span className="text-sm text-muted-foreground/50">Loading image...</span>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         
         <Button
@@ -224,6 +222,18 @@ const NotionCarousel = ({
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
+          
+          <div className="ml-2 pl-2 border-l border-gray-400/30">
+            <Button 
+              variant="outline"
+              onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
+              className="bg-white/10 hover:bg-white/20 text-white border-gray-400/30 h-7 px-2"
+              size="sm"
+            >
+              <ChevronDown className="h-3 w-3 mr-1" />
+              Configure
+            </Button>
+          </div>
         </div>
       </div>
     </div>

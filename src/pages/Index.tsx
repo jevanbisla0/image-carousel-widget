@@ -49,6 +49,18 @@ const Index = () => {
     };
     
     loadImages();
+    
+    // Add event listener for the custom event
+    const handleToggleConfig = () => {
+      setIsConfiguring(prevState => !prevState);
+    };
+    
+    window.addEventListener('toggleCarouselConfig', handleToggleConfig);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('toggleCarouselConfig', handleToggleConfig);
+    };
   }, []);
 
   const handleSaveConfig = () => {
@@ -131,26 +143,6 @@ const Index = () => {
             isGoogleDrive={false}
             className="notion-transparent"
           />
-          
-          <div className="flex items-center justify-end gap-2 mt-4 notion-transparent">
-            <Button 
-              variant="outline"
-              onClick={() => setIsConfiguring(!isConfiguring)}
-              className="bg-white/80 hover:bg-white/90 text-gray-800 border-gray-300"
-            >
-              {isConfiguring ? (
-                <>
-                  <X className="h-4 w-4 mr-2" />
-                  Close
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-4 w-4 mr-2" />
-                  Configure
-                </>
-              )}
-            </Button>
-          </div>
         </div>
 
         {isConfiguring && (
