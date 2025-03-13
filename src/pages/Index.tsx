@@ -232,7 +232,7 @@ const Index = () => {
                             href={`https://drive.google.com/uc?export=view&id=${id}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-blue-500 hover:text-blue-600"
+                            className="text-blue-500 hover:text-blue-600 p-1 rounded hover:bg-white/20"
                           >
                             <ExternalLink className={UI_STYLES.iconSize} />
                           </a>
@@ -255,7 +255,7 @@ const Index = () => {
                 <Button
                   variant="outline"
                   onClick={() => setIsConfiguring(false)}
-                  className="mr-2"
+                  className={cn("mr-2", UI_STYLES.button.transparent)}
                 >
                   Cancel
                 </Button>

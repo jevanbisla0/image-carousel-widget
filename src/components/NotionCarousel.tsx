@@ -108,7 +108,8 @@ const NotionCarousel = ({
       variant="outline"
       size="icon"
       className={cn(
-        "h-8 w-8 rounded-full notion-transparent hover:bg-white/10 flex-shrink-0",
+        "h-8 w-8 rounded-full notion-transparent flex-shrink-0",
+        UI_STYLES.button.icon,
         direction === 'prev' ? "mr-2" : "ml-2"
       )}
       onClick={() => handleSlideChange(direction)}
@@ -128,12 +129,12 @@ const NotionCarousel = ({
           <div className="h-8 w-8 mr-2 flex-shrink-0 notion-transparent" />
           
           <div 
-            className={cn(`relative w-full notion-transparent flex items-center justify-center rounded-lg border ${UI_STYLES.border}`)}
+            className={cn(`relative w-full notion-transparent flex items-center justify-center rounded-lg border backdrop-blur-sm bg-white/20 ${UI_STYLES.border}`)}
             style={{ height: `${carouselHeight}px` }}
           >
-            <div className="text-center p-4 space-y-2 notion-transparent rounded-md">
-              <ImageIcon className={cn(`mx-auto h-10 w-10 ${UI_STYLES.textMuted}`)} />
-              <p className={UI_STYLES.textMuted}>No images to display</p>
+            <div className="text-center p-4 space-y-2 notion-transparent rounded-md bg-black/20 backdrop-blur-sm border border-white/10 shadow-lg">
+              <ImageIcon className={cn(`mx-auto h-10 w-10 text-white/70`)} />
+              <p className="text-white/80 font-medium">No images to display</p>
             </div>
           </div>
           
@@ -153,14 +154,14 @@ const NotionCarousel = ({
           style={{ height: `${carouselHeight}px` }}
         >
           {imageError ? (
-            <div className="text-center p-4 space-y-2 notion-transparent">
-              <Alert variant="destructive" className="mb-2 bg-transparent border-destructive/50">
+            <div className="text-center p-6 space-y-3 notion-transparent">
+              <Alert variant="destructive" className="mb-2 bg-black/30 backdrop-blur-sm border-red-400/50 shadow-lg">
                 <AlertCircle className={UI_STYLES.iconSize} />
-                <AlertDescription>
+                <AlertDescription className="text-white/90">
                   Failed to load image. Make sure Google Drive sharing is set to "Anyone with the link can view".
                 </AlertDescription>
               </Alert>
-              <div className="text-xs text-muted-foreground/70 mt-2">
+              <div className="text-xs text-white/80 p-2 bg-black/20 backdrop-blur-sm rounded border border-white/10 shadow-sm">
                 Current URL: <span className="font-mono break-all">{processedImages[currentIndex]}</span>
               </div>
             </div>
@@ -181,9 +182,9 @@ const NotionCarousel = ({
           
           {isLoading && !imageError && (
             <div className="absolute inset-0 flex items-center justify-center notion-transparent">
-              <div className={cn("flex flex-col items-center", UI_STYLES.animation.pulse)}>
-                <ImageIcon className={cn(`h-8 w-8 mb-2 ${UI_STYLES.textMuted}`)} />
-                <span className={cn(`text-sm ${UI_STYLES.textMuted}`)}>Loading image...</span>
+              <div className={cn("flex flex-col items-center p-4 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 shadow-lg", UI_STYLES.animation.pulse)}>
+                <ImageIcon className={cn(`h-8 w-8 mb-2 text-white/80`)} />
+                <span className={cn(`text-sm text-white/80 font-medium`)}>Loading image...</span>
               </div>
             </div>
           )}

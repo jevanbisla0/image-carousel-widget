@@ -28,15 +28,30 @@ export const UI_STYLES = {
   // Containers
   panel: "bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200/50",
   card: "bg-white rounded-md border border-gray-200/50",
-  actionBar: "bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-gray-300/50",
+  actionBar: "bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-gray-200/30",
   
-  // Button styles
+  // Button styles for transparent backgrounds
   button: {
-    primary: "bg-blue-500 hover:bg-blue-600 text-white",
-    secondary: "bg-gray-500 hover:bg-gray-600 text-white",
-    danger: "bg-red-500 hover:bg-red-600 text-white border-none",
-    add: "bg-purple-500 hover:bg-purple-600 text-white",
-    subtle: "bg-white/10 hover:bg-white/20 text-white border-transparent",
+    // Primary button with higher opacity background and border
+    primary: "bg-blue-500/85 hover:bg-blue-600/90 text-white border border-blue-400/50 shadow-sm",
+    
+    // Secondary option that's visible on transparent
+    secondary: "bg-gray-500/75 hover:bg-gray-600/80 text-white border border-gray-400/50 shadow-sm",
+    
+    // Danger button with visible border
+    danger: "bg-red-500/85 hover:bg-red-600/90 text-white border border-red-400/50 shadow-sm",
+    
+    // Add button with visible border
+    add: "bg-purple-500/85 hover:bg-purple-600/90 text-white border border-purple-400/50 shadow-sm",
+    
+    // Subtle button with visible border and backdrop blur
+    subtle: "bg-white/25 hover:bg-white/35 text-gray-800 border border-gray-300/50 backdrop-blur-sm shadow-sm",
+    
+    // Transparent button with visible border
+    transparent: "bg-transparent hover:bg-black/10 border border-gray-300/50 text-gray-800 shadow-sm",
+    
+    // Icon button that's visible on any background
+    icon: "bg-white/30 hover:bg-white/40 border border-gray-300/50 backdrop-blur-sm shadow-sm",
   },
   
   // Spacing
