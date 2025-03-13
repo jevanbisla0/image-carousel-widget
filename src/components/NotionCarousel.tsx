@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -195,13 +196,13 @@ const NotionCarousel = ({
       </div>
       
       <div className="mt-2 flex justify-center notion-transparent">
-        <div className="flex items-center justify-center gap-1.5 notion-transparent">
+        <div className="flex items-center justify-center gap-1.5 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 notion-transparent">
           {processedImages.map((_, index) => (
             <button
               key={index}
               className={cn(
                 "h-1.5 rounded-full transition-all notion-transparent",
-                index === currentIndex ? "w-4 bg-white/70" : "w-1.5 bg-white/30"
+                index === currentIndex ? "w-4 bg-white/90" : "w-1.5 bg-white/50 hover:bg-white/70"
               )}
               onClick={() => {
                 setCurrentIndex(index);
