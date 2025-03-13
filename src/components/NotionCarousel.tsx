@@ -11,6 +11,7 @@ interface NotionCarouselProps {
   autoplay?: boolean;
   interval?: number;
   isGoogleDrive?: boolean;
+  height?: number; // Optional height in pixels
 }
 
 const NotionCarousel = ({ 
@@ -19,11 +20,11 @@ const NotionCarousel = ({
   autoplay = true, 
   interval = 5000,
   isGoogleDrive = false,
+  height = 400, // Default to 400px if not specified
 }: NotionCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [processedImages, setProcessedImages] = useState<string[]>([]);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
 
@@ -37,18 +38,6 @@ const NotionCarousel = ({
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
-    
-    const updateDimensions = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight
-      });
-    };
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    
-    return () => window.removeEventListener('resize', updateDimensions);
   }, [images]);
 
   useEffect(() => {
@@ -84,7 +73,7 @@ const NotionCarousel = ({
     setLoadAttempts(0);
   };
 
-  const carouselHeight = Math.min(500, dimensions.height * 0.8);
+  const carouselHeight = height;
 
   const handleImageLoad = useCallback(() => {
     setIsLoading(false);

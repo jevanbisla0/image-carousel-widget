@@ -139,6 +139,7 @@ const Index = () => {
             images={images} 
             isGoogleDrive={false}
             className="notion-transparent"
+            height={400}
           />
         </div>
 
