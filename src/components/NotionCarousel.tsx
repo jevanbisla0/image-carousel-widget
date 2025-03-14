@@ -85,7 +85,6 @@ const NotionCarousel = ({
     
     if (currentAttempts < 3) {
       setLoadAttempts(currentAttempts);
-      setIsLoading(true);
     } else {
       setIsLoading(false);
       setImageError(true);
@@ -162,28 +161,37 @@ const NotionCarousel = ({
                   className="absolute inset-0 transition-transform duration-500 ease-in-out w-full h-full"
                   style={{ 
                     transform: `translateX(${(index - currentIndex) * 100}%)`,
-                    zIndex: index === currentIndex ? 10 : 5
+                    zIndex: index === currentIndex ? 10 : 5,
+                    visibility: Math.abs(index - currentIndex) > 1 ? "hidden" : "visible"
                   }}
                 >
-                  <img
-                    key={`${image}?attempt=${index === currentIndex ? loadAttempts : 0}`}
-                    src={`${image}${index === currentIndex && loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
-                    alt={`Slide ${index + 1}`}
-                    className={cn(
-                      "h-full w-full object-cover transition-opacity duration-300",
-                      isLoading && index === currentIndex ? "opacity-0" : "opacity-100"
-                    )}
-                    onLoad={index === currentIndex ? handleImageLoad : undefined}
-                    onError={index === currentIndex ? handleImageError : undefined}
-                    style={{ background: 'none' }}
-                  />
+                  {index === currentIndex && (
+                    <img
+                      key={`${image}?attempt=${loadAttempts}`}
+                      src={`${image}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+                      alt={`Slide ${index + 1}`}
+                      className="h-full w-full object-cover"
+                      onLoad={handleImageLoad}
+                      onError={handleImageError}
+                      style={{ background: 'none' }}
+                    />
+                  )}
+                  
+                  {index !== currentIndex && (
+                    <img
+                      src={image}
+                      alt={`Slide ${index + 1}`}
+                      className="h-full w-full object-cover"
+                      style={{ background: 'none' }}
+                    />
+                  )}
                 </div>
               ))}
             </div>
           )}
           
           {isLoading && !imageError && (
-            <div className="absolute inset-0 flex items-center justify-center notion-transparent">
+            <div className="absolute inset-0 flex items-center justify-center notion-transparent z-20">
               <div className={cn("flex flex-col items-center p-4 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 shadow-lg", UI_STYLES.animation.pulse)}>
                 <ImageIcon className={cn(`h-8 w-8 mb-2 text-white/80`)} />
                 <span className={cn(`text-sm text-white/80 font-medium`)}>Loading image...</span>
