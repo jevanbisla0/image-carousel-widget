@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, AlertCircle, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,11 @@ const NotionCarousel = ({
   const [loadAttempts, setLoadAttempts] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
   const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
+  // Track when we're in a special looping transition
+  const [isLooping, setIsLooping] = useState(false);
+  
+  // Reference to track transition end
+  const transitionEndTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!images || images.length === 0) {
@@ -47,20 +52,67 @@ const NotionCarousel = ({
   }, [processedImages]);
 
   useEffect(() => {
-    if (!autoplay || processedImages.length === 0) return;
+    if (!autoplay || processedImages.length <= 1) return;
     
     const timer = setInterval(() => {
-      handleSlideChange('next');
+      // Always use 'next' direction for autoplay
+      handleAutoplayAdvance();
     }, interval);
     
     return () => clearInterval(timer);
-  }, [autoplay, interval, processedImages.length]);
+  }, [autoplay, interval, processedImages.length, currentIndex]);
+
+  // Handle cleanup of any pending timeouts
+  useEffect(() => {
+    return () => {
+      if (transitionEndTimeoutRef.current) {
+        clearTimeout(transitionEndTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Special function for autoplay to ensure seamless looping
+  const handleAutoplayAdvance = () => {
+    if (processedImages.length <= 1) return;
+    
+    const isLastSlide = currentIndex === processedImages.length - 1;
+    
+    setDirection('next');
+    setTransitionEnabled(true);
+    
+    if (isLastSlide) {
+      // If we're on the last slide, we need special handling for looping
+      setIsLooping(true);
+    }
+    
+    // Always move forward for autoplay
+    setCurrentIndex((prev) => (prev + 1) % processedImages.length);
+    
+    setIsLoading(true);
+    setImageError(false);
+    setLoadAttempts(0);
+  };
 
   const handleSlideChange = (moveDirection: 'next' | 'prev') => {
-    if (processedImages.length === 0) return;
+    if (processedImages.length <= 1) return;
+    
+    // Clear any pending transition end handlers
+    if (transitionEndTimeoutRef.current) {
+      clearTimeout(transitionEndTimeoutRef.current);
+      transitionEndTimeoutRef.current = null;
+    }
     
     setDirection(moveDirection);
     setTransitionEnabled(true);
+    
+    const isLastSlideGoingNext = moveDirection === 'next' && currentIndex === processedImages.length - 1;
+    const isFirstSlideGoingPrev = moveDirection === 'prev' && currentIndex === 0;
+    
+    if (isLastSlideGoingNext || isFirstSlideGoingPrev) {
+      setIsLooping(true);
+    } else {
+      setIsLooping(false);
+    }
     
     setCurrentIndex((prev) => {
       if (moveDirection === 'next') {
@@ -76,23 +128,22 @@ const NotionCarousel = ({
   };
 
   const getSlideTransform = (index: number) => {
-    // Regular case - use the index difference
+    // Special looping case - the visual effect is what matters here
+    if (isLooping) {
+      if (direction === 'next' && index === 0) {
+        // When looping from last to first with next, first should come from right
+        return 100; 
+      }
+      if (direction === 'prev' && index === processedImages.length - 1) {
+        // When looping from first to last with prev, last should come from left
+        return -100;
+      }
+    }
+    
+    // Regular cases
     const indexDiff = index - currentIndex;
     
-    // Handle wrapping cases
-    if (processedImages.length <= 1) return 0;
-    
-    if (direction === 'next' && indexDiff === -(processedImages.length - 1)) {
-      // Going from last to first with next button
-      return 100; // Position to the right
-    }
-    
-    if (direction === 'prev' && indexDiff === processedImages.length - 1) {
-      // Going from first to last with prev button
-      return -100; // Position to the left
-    }
-    
-    // Normal case
+    // Normal case - position slides based on their index difference
     return indexDiff * 100;
   };
 
@@ -102,16 +153,31 @@ const NotionCarousel = ({
     // Current slide is always visible
     if (index === currentIndex) return true;
     
-    // Special cases for continuous scroll
-    const isLastToFirst = direction === 'next' && currentIndex === processedImages.length - 1 && index === 0;
-    const isFirstToLast = direction === 'prev' && currentIndex === 0 && index === processedImages.length - 1;
+    // Show first slide when looping from last to first
+    if (isLooping && direction === 'next' && index === 0) return true;
     
-    // Always show the slide that's being transitioned to/from in the wrapping cases
-    if (isLastToFirst || isFirstToLast) return true;
+    // Show last slide when looping from first to last
+    if (isLooping && direction === 'prev' && index === processedImages.length - 1) return true;
     
-    // Only render adjacent slides for better performance
+    // Only render adjacent slides for performance
     return Math.abs(index - currentIndex) <= 1;
   };
+
+  // Handle transition end to reset looping state
+  useEffect(() => {
+    if (isLooping) {
+      // Wait for transition to complete
+      transitionEndTimeoutRef.current = setTimeout(() => {
+        setIsLooping(false);
+      }, 500); // Match transition duration
+    }
+    
+    return () => {
+      if (transitionEndTimeoutRef.current) {
+        clearTimeout(transitionEndTimeoutRef.current);
+      }
+    };
+  }, [isLooping, currentIndex]);
 
   const carouselHeight = height;
 
