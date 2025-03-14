@@ -146,31 +146,11 @@ const Index = () => {
               <div>
                 <h2 className={cn("text-xl font-semibold mb-4", UI_STYLES.textHeading)}>Configure Images</h2>
                 
-                <div className={cn(`p-3 mb-4 rounded-md ${UI_STYLES.bgMuted} ${UI_STYLES.border}`)}>
-                  <div className="flex items-start gap-2">
-                    <Info className={cn(`text-blue-500 mt-0.5 flex-shrink-0`, UI_STYLES.iconSizeMedium)} />
-                    <div className={UI_STYLES.space.sm}>
-                      <h3 className="font-medium text-sm">Carousel Details</h3>
-                      <p className="text-sm text-gray-700">
-                        This carousel displays images from Google Drive. Make sure your images are set to "Anyone with the link can view".
-                      </p>
-                      <div className={cn(`pt-2 border-t`, UI_STYLES.border)}>
-                        <h4 className="font-medium text-xs mb-1">Usage:</h4>
-                        <ul className="text-xs text-gray-600 space-y-1 list-disc pl-4">
-                          <li>Add Google Drive image IDs or sharing URLs</li>
-                          <li>Configure button allows you to add/remove images</li>
-                          <li>Your settings are saved locally</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
                 <Alert className={cn("mb-4", UI_STYLES.bgPanel)}>
                   <AlertCircle className={UI_STYLES.iconSize} />
-                  <AlertTitle>Google Drive Sharing Settings</AlertTitle>
+                  <AlertTitle>Google Drive Images</AlertTitle>
                   <AlertDescription>
-                    Make sure your Google Drive images are shared with <strong>"Anyone with the link can view"</strong> permission.
+                    <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
                   </AlertDescription>
                 </Alert>
                 
