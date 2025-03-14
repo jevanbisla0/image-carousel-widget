@@ -143,12 +143,10 @@ const Index = () => {
         {isConfiguring && (
           <div className={cn("p-4 max-w-[800px] mx-auto", UI_STYLES.panel, UI_STYLES.space.md)}>
             <div className={UI_STYLES.space.md}>
-              <div>
-                <h2 className={cn("text-xl font-semibold mb-4", UI_STYLES.textHeading)}>Configure Images</h2>
-                
+              <div>                
                 <Alert className={cn("mb-4", UI_STYLES.bgPanel)}>
                   <AlertCircle className={UI_STYLES.iconSize} />
-                  <AlertTitle>Google Drive Images</AlertTitle>
+                  <AlertTitle>Configure Images</AlertTitle>
                   <AlertDescription>
                     <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
                   </AlertDescription>
