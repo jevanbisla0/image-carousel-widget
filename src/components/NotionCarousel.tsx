@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,7 @@ const NotionCarousel = ({
   // Real slide index (in the range of actual images)
   const [currentIndex, setCurrentIndex] = useState(0);
   // Offset index for the infinite scroll effect (includes clones)
-  const [offsetIndex, setOffsetIndex] = useState(1);
+  const [offsetIndex, setOffsetIndex] = useState(1); // Start at 1 (first real slide)
   // Track if transitions should be enabled
   const [enableTransition, setEnableTransition] = useState(true);
   // Reference to the interval for autoplay
@@ -34,16 +35,16 @@ const NotionCarousel = ({
   
   // Navigation functions
   const goToNext = useCallback(() => {
-    const nextIndex = (currentIndex + 1) % images.length;
-    setCurrentIndex(nextIndex);
+    // Always move forward (next slide)
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     setEnableTransition(true);
-  }, [currentIndex, images.length]);
+  }, [images.length]);
   
   const goToPrev = useCallback(() => {
-    const prevIndex = (currentIndex - 1 + images.length) % images.length;
-    setCurrentIndex(prevIndex);
+    // Always move backward (previous slide)
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
     setEnableTransition(true);
-  }, [currentIndex, images.length]);
+  }, [images.length]);
 
   // Clear any existing intervals and reset them if needed
   const resetAutoplay = useCallback(() => {
@@ -71,24 +72,24 @@ const NotionCarousel = ({
   
   // Update offsetIndex whenever currentIndex changes
   useEffect(() => {
-    setOffsetIndex(currentIndex + 1);
+    setOffsetIndex(currentIndex + 1); // +1 because we have a clone at the beginning
   }, [currentIndex]);
   
   // Handle the slide transition and infinite loop logic
   const handleTransitionEnd = useCallback(() => {
-    // If we're at the end clone (index images.length + 1), jump to the first slide without animation
+    // If we're at the end clone (after the last real slide)
     if (offsetIndex === images.length + 1) {
-      // We're at the clone of the first slide (index images.length)
+      // Instantly jump to the first real slide without animation
       setEnableTransition(false);
-      setOffsetIndex(1); // Jump to the real first slide
-      setCurrentIndex(0); // Update the current index to match
+      setOffsetIndex(1);
+      setCurrentIndex(0);
     }
-    // If we're at the start clone (index 0), jump to the last slide without animation
+    // If we're at the start clone (before the first real slide)
     else if (offsetIndex === 0) {
-      // We're at the clone of the last slide (index -1)
+      // Instantly jump to the last real slide without animation
       setEnableTransition(false);
-      setOffsetIndex(images.length); // Jump to the real last slide
-      setCurrentIndex(images.length - 1); // Update the current index to match
+      setOffsetIndex(images.length);
+      setCurrentIndex(images.length - 1);
     }
   }, [offsetIndex, images.length]);
   
