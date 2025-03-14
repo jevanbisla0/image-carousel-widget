@@ -27,6 +27,8 @@ const NotionCarousel = ({
   const [processedImages, setProcessedImages] = useState<string[]>([]);
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
+  const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
 
   useEffect(() => {
     if (!images || images.length === 0) {
@@ -48,20 +50,20 @@ const NotionCarousel = ({
     if (!autoplay || processedImages.length === 0) return;
     
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % processedImages.length);
-      setIsLoading(true);
-      setImageError(false);
-      setLoadAttempts(0);
+      handleSlideChange('next');
     }, interval);
     
     return () => clearInterval(timer);
   }, [autoplay, interval, processedImages.length]);
 
-  const handleSlideChange = (direction: 'next' | 'prev') => {
+  const handleSlideChange = (moveDirection: 'next' | 'prev') => {
     if (processedImages.length === 0) return;
     
+    setDirection(moveDirection);
+    setTransitionEnabled(true);
+    
     setCurrentIndex((prev) => {
-      if (direction === 'next') {
+      if (moveDirection === 'next') {
         return (prev + 1) % processedImages.length;
       } else {
         return (prev - 1 + processedImages.length) % processedImages.length;
@@ -71,6 +73,27 @@ const NotionCarousel = ({
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
+  };
+
+  const getSlideTransform = (index: number) => {
+    // Regular case - use the index difference
+    const indexDiff = index - currentIndex;
+    
+    // Handle wrapping cases
+    if (processedImages.length <= 1) return 0;
+    
+    if (direction === 'next' && indexDiff === -(processedImages.length - 1)) {
+      // Going from last to first with next button
+      return 100; // Position to the right
+    }
+    
+    if (direction === 'prev' && indexDiff === processedImages.length - 1) {
+      // Going from first to last with prev button
+      return -100; // Position to the left
+    }
+    
+    // Normal case
+    return indexDiff * 100;
   };
 
   const carouselHeight = height;
@@ -158,11 +181,16 @@ const NotionCarousel = ({
               {processedImages.map((image, index) => (
                 <div 
                   key={`slide-${index}`}
-                  className="absolute inset-0 transition-transform duration-500 ease-in-out w-full h-full"
+                  className={`absolute inset-0 w-full h-full ${transitionEnabled ? 'transition-transform duration-500 ease-in-out' : ''}`}
                   style={{ 
-                    transform: `translateX(${(index - currentIndex) * 100}%)`,
+                    transform: `translateX(${getSlideTransform(index)}%)`,
                     zIndex: index === currentIndex ? 10 : 5,
-                    visibility: Math.abs(index - currentIndex) > 1 ? "hidden" : "visible"
+                    visibility: Math.abs(index - currentIndex) > 1 && 
+                              !(
+                                (direction === 'next' && index === 0 && currentIndex === processedImages.length - 1) || 
+                                (direction === 'prev' && index === processedImages.length - 1 && currentIndex === 0)
+                              ) 
+                              ? "hidden" : "visible"
                   }}
                 >
                   {index === currentIndex && (
