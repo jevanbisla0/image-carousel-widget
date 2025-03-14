@@ -96,6 +96,23 @@ const NotionCarousel = ({
     return indexDiff * 100;
   };
 
+  const isSlideVisible = (index: number) => {
+    if (processedImages.length <= 1) return true;
+    
+    // Current slide is always visible
+    if (index === currentIndex) return true;
+    
+    // Special cases for continuous scroll
+    const isLastToFirst = direction === 'next' && currentIndex === processedImages.length - 1 && index === 0;
+    const isFirstToLast = direction === 'prev' && currentIndex === 0 && index === processedImages.length - 1;
+    
+    // Always show the slide that's being transitioned to/from in the wrapping cases
+    if (isLastToFirst || isFirstToLast) return true;
+    
+    // Only render adjacent slides for better performance
+    return Math.abs(index - currentIndex) <= 1;
+  };
+
   const carouselHeight = height;
 
   const handleImageLoad = useCallback(() => {
@@ -188,12 +205,7 @@ const NotionCarousel = ({
                     transform: `translateX(${getSlideTransform(index)}%)`,
                     opacity: index === currentIndex ? 1 : Math.abs(getSlideTransform(index)) <= 100 ? 0.5 : 0,
                     zIndex: index === currentIndex ? 10 : 5,
-                    visibility: Math.abs(index - currentIndex) > 1 && 
-                              !(
-                                (direction === 'next' && index === 0 && currentIndex === processedImages.length - 1) || 
-                                (direction === 'prev' && index === processedImages.length - 1 && currentIndex === 0)
-                              ) 
-                              ? "hidden" : "visible"
+                    visibility: isSlideVisible(index) ? "visible" : "hidden"
                   }}
                 >
                   {index === currentIndex && (
@@ -246,7 +258,30 @@ const NotionCarousel = ({
                   : "w-3 h-3 bg-white/60 hover:bg-white/80"
               )}
               onClick={() => {
-                setCurrentIndex(index);
+                // Determine the optimal direction for movement
+                const currentIdx = currentIndex;
+                const targetIdx = index;
+                const totalSlides = processedImages.length;
+                
+                // Calculate distances in both directions
+                const normalDistance = Math.abs(targetIdx - currentIdx);
+                const wrapDistance = totalSlides - normalDistance;
+                
+                // Determine whether moving forward or backward is shorter
+                let moveDirection: 'next' | 'prev';
+                
+                if (normalDistance <= wrapDistance) {
+                  // Normal path is shorter or equal
+                  moveDirection = targetIdx > currentIdx ? 'next' : 'prev';
+                } else {
+                  // Wrap-around path is shorter
+                  moveDirection = targetIdx > currentIdx ? 'prev' : 'next';
+                }
+                
+                // Set the target index directly
+                setDirection(moveDirection);
+                setTransitionEnabled(true);
+                setCurrentIndex(targetIdx);
                 setIsLoading(true);
                 setImageError(false);
                 setLoadAttempts(0);
