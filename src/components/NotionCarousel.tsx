@@ -181,9 +181,12 @@ const NotionCarousel = ({
               {processedImages.map((image, index) => (
                 <div 
                   key={`slide-${index}`}
-                  className={`absolute inset-0 w-full h-full ${transitionEnabled ? 'transition-transform duration-500 ease-in-out' : ''}`}
+                  className={`absolute inset-0 w-full h-full ${
+                    transitionEnabled ? 'transition-all duration-500 ease-in-out' : ''
+                  }`}
                   style={{ 
                     transform: `translateX(${getSlideTransform(index)}%)`,
+                    opacity: index === currentIndex ? 1 : Math.abs(getSlideTransform(index)) <= 100 ? 0.5 : 0,
                     zIndex: index === currentIndex ? 10 : 5,
                     visibility: Math.abs(index - currentIndex) > 1 && 
                               !(
