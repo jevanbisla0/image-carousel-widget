@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X, ChevronDown, AlertCircle, Info } from 'lucide-react';
+import { ExternalLink, Plus, Save, Trash2, X, AlertCircle, Info } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { 
   extractGoogleDriveFileId, 
   storeImagesForFolder,
-  fetchImagesFromFolder,
   clearStoredImagesForFolder,
   getGoogleDriveImageUrl
 } from "@/lib/googleDriveUtils";
@@ -21,7 +20,6 @@ const Index = () => {
   const [imageIds, setImageIds] = useState<string[]>([]);
   const [tempImageId, setTempImageId] = useState("");
   const [images, setImages] = useState<string[]>([]);
-  const [isUsageExpanded, setIsUsageExpanded] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -137,7 +135,6 @@ const Index = () => {
         <div className={cn("notion-transparent")}>
           <NotionCarousel 
             images={images} 
-            isGoogleDrive={false}
             className="notion-transparent"
             height={480}
           />

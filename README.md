@@ -1,4 +1,33 @@
-# Welcome to your Lovable project
+# Notion Image Carousel Widget
+
+A simple, elegant image carousel widget designed specifically for Notion embeds. Display your Google Drive images in a beautiful, automatically scrolling carousel directly in your Notion pages.
+
+## What is this app?
+
+This widget allows you to:
+- Display Google Drive images in a smooth, infinitely scrolling carousel
+- Configure which images to display through a simple interface
+- Easily embed the carousel in any Notion page via an embed block
+- Customize the height and appearance of the carousel
+
+## How to use this app
+
+1. **Setup your images in Google Drive**:
+   - Upload images to Google Drive
+   - Make sure your images are shared with **"Anyone with the link can view"** permission
+   - Copy either the image ID or sharing URL for each image
+
+2. **Configure the carousel**:
+   - Click the "Configure" button at the bottom of the carousel
+   - Paste Google Drive image IDs or URLs
+   - Use the buttons to add, remove, or preview images
+   - Click "Save Configuration" when done
+
+3. **Embed in Notion**:
+   - Copy the deployed URL of this widget
+   - Create an "Embed" block in Notion
+   - Paste the URL into the embed block
+   - Resize the embed to your preferred dimensions
 
 ## Project info
 
@@ -52,7 +81,7 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
 - Vite
 - TypeScript

@@ -2,12 +2,6 @@
  * Utilities for fetching images from Google Drive
  */
 
-interface GoogleDriveImage {
-  id: string;
-  name: string;
-  thumbnailLink?: string;
-}
-
 /**
  * Convert a Google Drive file ID to a direct image URL
  */
@@ -44,37 +38,6 @@ export function extractGoogleDriveFileId(url: string): string | null {
   }
   
   return null;
-}
-
-/**
- * Process a list of Google Drive URLs or IDs and convert them to direct image URLs
- */
-export function processGoogleDriveUrls(sources: string[]): string[] {
-  if (!sources || !Array.isArray(sources)) {
-    return [];
-  }
-  
-  const processed = sources.map(source => {
-    if (!source || typeof source !== 'string') {
-      return '';
-    }
-    
-    const cleanSource = source.trim();
-    
-    // Check if it's already a full URL
-    if (cleanSource.startsWith('http')) {
-      const fileId = extractGoogleDriveFileId(cleanSource);
-      if (!fileId) {
-        return '';
-      }
-      return getGoogleDriveImageUrl(fileId);
-    }
-    
-    // Assume it's a file ID directly
-    return getGoogleDriveImageUrl(cleanSource);
-  }).filter(url => url !== '');
-  
-  return processed;
 }
 
 /**
