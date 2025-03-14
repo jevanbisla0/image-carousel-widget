@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,6 +29,8 @@ const NotionCarousel = ({
   const autoplayRef = useRef<number | null>(null);
   // Reference to the carousel container
   const carouselRef = useRef<HTMLDivElement>(null);
+  // Flag to track if we should skip transition
+  const skipTransitionRef = useRef(false);
   
   // Total number of slides including clones
   const totalSlides = images.length + 2; // Original slides + 2 clones (one at each end)
@@ -52,38 +53,40 @@ const NotionCarousel = ({
     if (isTransitioning) return;
     
     setIsTransitioning(true);
-    // If we're on the last real slide, seamlessly move to the first clone
-    // and then jump back to first real slide after transition completes
-    if (activeIndex === images.length - 1) {
-      setActiveIndex(activeIndex + 1);
-    } else {
-      // Normal forward movement
-      setActiveIndex((prev) => (prev + 1) % (images.length + 1));
-    }
-  }, [activeIndex, images.length, isTransitioning]);
+    setActiveIndex(prev => {
+      // When we're at the last real slide, go to the clone of the first slide
+      if (prev === images.length - 1) {
+        return images.length;
+      }
+      // Otherwise just go to the next slide
+      return prev + 1;
+    });
+  }, [images.length, isTransitioning]);
   
   // Handle previous slide action
   const goToPrev = useCallback(() => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
-    // If we're on the first real slide, move to the first clone (of the last slide)
-    // and then jump back to the last real slide after transition
-    if (activeIndex === 0) {
-      setActiveIndex(-1);
-    } else {
-      // Normal backward movement
-      setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
-    }
-  }, [activeIndex, images.length, isTransitioning]);
+    setActiveIndex(prev => {
+      // When we're at the first real slide, go to the clone of the last slide
+      if (prev === 0) {
+        return -1;
+      }
+      // Otherwise just go to the previous slide
+      return prev - 1;
+    });
+  }, [isTransitioning]);
   
   // Setup autoplay functionality
   const startAutoplay = useCallback(() => {
+    // Clear any existing interval
     if (autoplayRef.current) {
       clearInterval(autoplayRef.current);
       autoplayRef.current = null;
     }
     
+    // Start a new interval if autoplay is enabled and there's more than one image
     if (autoplay && images.length > 1) {
       autoplayRef.current = window.setInterval(() => {
         goToNext();
@@ -91,7 +94,7 @@ const NotionCarousel = ({
     }
   }, [autoplay, goToNext, images.length, interval]);
   
-  // Initialize autoplay
+  // Initialize autoplay on mount and cleanup on unmount
   useEffect(() => {
     startAutoplay();
     return () => {
@@ -101,25 +104,40 @@ const NotionCarousel = ({
     };
   }, [startAutoplay]);
   
-  // Handle transition end to enable infinite scrolling
+  // Handle transition end to reset transition state and handle loop jumps
   const handleTransitionEnd = useCallback(() => {
+    // First, mark that the transition is complete
     setIsTransitioning(false);
     
-    // If we transitioned to the clone at the end (beyond last real slide)
+    // If we're at the clone beyond the last slide,
+    // jump back to the first real slide without animation
     if (activeIndex === images.length) {
-      // Jump to the first real slide without animation
-      setTimeout(() => {
-        setActiveIndex(0);
-      }, 0);
+      skipTransitionRef.current = true;
+      setActiveIndex(0);
+      // Restart autoplay to ensure it continues properly
+      startAutoplay();
     } 
-    // If we transitioned to the clone at the start (before first real slide)
+    // If we're at the clone before the first slide,
+    // jump to the last real slide without animation
     else if (activeIndex === -1) {
-      // Jump to the last real slide without animation
-      setTimeout(() => {
-        setActiveIndex(images.length - 1);
-      }, 0);
+      skipTransitionRef.current = true;
+      setActiveIndex(images.length - 1);
+      // Restart autoplay to ensure it continues properly
+      startAutoplay();
     }
-  }, [activeIndex, images.length]);
+  }, [activeIndex, images.length, startAutoplay]);
+  
+  // Reset the transition skip flag after the state has been updated
+  useEffect(() => {
+    if (skipTransitionRef.current) {
+      // Use RAF to ensure the DOM has updated before clearing the flag
+      const rafId = requestAnimationFrame(() => {
+        skipTransitionRef.current = false;
+      });
+      
+      return () => cancelAnimationFrame(rafId);
+    }
+  }, [activeIndex]);
   
   // Listen for transition end events
   useEffect(() => {
@@ -134,6 +152,13 @@ const NotionCarousel = ({
       }
     };
   }, [handleTransitionEnd]);
+  
+  // Reset autoplay when active index changes manually
+  useEffect(() => {
+    if (!isTransitioning) {
+      startAutoplay();
+    }
+  }, [activeIndex, isTransitioning, startAutoplay]);
   
   // Handle manual navigation to a specific slide
   const goToSlide = useCallback((index: number) => {
@@ -173,7 +198,7 @@ const NotionCarousel = ({
   // Determine whether transitions should be enabled
   const getTransitionStyle = () => {
     // Disable transitions for immediate jumps between clones and real slides
-    if (activeIndex < 0 || activeIndex >= images.length) {
+    if (skipTransitionRef.current) {
       return 'none';
     }
     return 'transform 500ms ease-in-out';
