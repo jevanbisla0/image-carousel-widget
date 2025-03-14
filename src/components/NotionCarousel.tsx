@@ -29,8 +29,22 @@ const NotionCarousel = ({
   const [enableTransition, setEnableTransition] = useState(true);
   // Reference to the interval for autoplay
   const autoplayRef = useRef<number | null>(null);
-  // Reference to track if we're in the middle of a transition
-  const isTransitioning = useRef(false);
+  // Reference to the carousel container for transition detection
+  const carouselRef = useRef<HTMLDivElement>(null);
+  
+  // Navigation functions
+  const goToNext = useCallback(() => {
+    const nextIndex = (currentIndex + 1) % images.length;
+    setCurrentIndex(nextIndex);
+    setEnableTransition(true);
+    // Mark that we're in a transition
+  }, [currentIndex, images.length]);
+  
+  const goToPrev = useCallback(() => {
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    setCurrentIndex(prevIndex);
+    setEnableTransition(true);
+  }, [currentIndex, images.length]);
 
   // Clear any existing intervals and reset them if needed
   const resetAutoplay = useCallback(() => {
@@ -40,11 +54,11 @@ const NotionCarousel = ({
     }
     
     if (autoplay && images.length > 1) {
-      autoplayRef.current = setInterval(() => {
+      autoplayRef.current = window.setInterval(() => {
         goToNext();
       }, interval);
     }
-  }, [autoplay, interval, images.length]);
+  }, [autoplay, interval, images.length, goToNext]);
   
   // Initialize autoplay
   useEffect(() => {
@@ -54,7 +68,7 @@ const NotionCarousel = ({
         clearInterval(autoplayRef.current);
       }
     };
-  }, [resetAutoplay, images.length]);
+  }, [resetAutoplay]);
   
   // Update offsetIndex whenever currentIndex changes
   useEffect(() => {
@@ -62,9 +76,7 @@ const NotionCarousel = ({
   }, [currentIndex]);
   
   // Handle the slide transition and infinite loop logic
-  const handleSlideTransitionEnd = useCallback(() => {
-    if (!isTransitioning.current) return;
-    
+  const handleTransitionEnd = useCallback(() => {
     // If we're at a clone slide, jump to the corresponding real slide without animation
     if (offsetIndex === 0) {
       // We're at the clone of the last slide (index -1)
@@ -75,21 +87,18 @@ const NotionCarousel = ({
       setEnableTransition(false);
       setOffsetIndex(1); // Jump to the real first slide
     }
-    
-    isTransitioning.current = false;
   }, [offsetIndex, images.length]);
   
-  // Listen for transition end to handle the loop
+  // Listen for transition end on the carousel element directly
   useEffect(() => {
-    const handleTransitionEnd = () => {
-      handleSlideTransitionEnd();
-    };
+    const carouselElement = carouselRef.current;
+    if (!carouselElement) return;
     
-    document.addEventListener('transitionend', handleTransitionEnd);
+    carouselElement.addEventListener('transitionend', handleTransitionEnd);
     return () => {
-      document.removeEventListener('transitionend', handleTransitionEnd);
+      carouselElement.removeEventListener('transitionend', handleTransitionEnd);
     };
-  }, [handleSlideTransitionEnd]);
+  }, [handleTransitionEnd]);
   
   // Re-enable transitions after they've been disabled
   useEffect(() => {
@@ -102,27 +111,12 @@ const NotionCarousel = ({
     }
   }, [enableTransition]);
   
-  // Navigation functions
+  // Handle manual navigation
   const goToSlide = useCallback((index: number) => {
-    // Update the real index
     setCurrentIndex(index);
-    // Enable transitions for user navigation
     setEnableTransition(true);
-    // Reset autoplay
-    resetAutoplay();
-    // Mark that we're in a transition
-    isTransitioning.current = true;
+    resetAutoplay(); // Reset autoplay when manually navigating
   }, [resetAutoplay]);
-  
-  const goToNext = useCallback(() => {
-    const nextIndex = (currentIndex + 1) % images.length;
-    goToSlide(nextIndex);
-  }, [currentIndex, images.length, goToSlide]);
-  
-  const goToPrev = useCallback(() => {
-    const prevIndex = (currentIndex - 1 + images.length) % images.length;
-    goToSlide(prevIndex);
-  }, [currentIndex, images.length, goToSlide]);
   
   if (images.length === 0) {
     return (
@@ -165,7 +159,10 @@ const NotionCarousel = ({
             UI_STYLES.button.icon,
             "mr-2"
           )}
-          onClick={goToPrev}
+          onClick={() => {
+            goToPrev();
+            resetAutoplay();
+          }}
         >
           <ChevronLeft className={UI_STYLES.iconSize} />
         </Button>
@@ -177,6 +174,7 @@ const NotionCarousel = ({
         >
           {/* Sliding track */}
           <div 
+            ref={carouselRef}
             className="w-full h-full flex"
             style={{ 
               width: `${allSlides.length * 100}%`,
@@ -210,7 +208,10 @@ const NotionCarousel = ({
             UI_STYLES.button.icon,
             "ml-2"
           )}
-          onClick={goToNext}
+          onClick={() => {
+            goToNext();
+            resetAutoplay();
+          }}
         >
           <ChevronRight className={UI_STYLES.iconSize} />
         </Button>
