@@ -144,7 +144,7 @@ const Index = () => {
         </div>
 
         {isConfiguring && (
-          <div className={cn("p-4", UI_STYLES.panel, UI_STYLES.space.md)}>
+          <div className={cn("p-4 max-w-[800px] mx-auto", UI_STYLES.panel, UI_STYLES.space.md)}>
             <div className={UI_STYLES.space.md}>
               <div>
                 <h2 className={cn("text-xl font-semibold mb-4", UI_STYLES.textHeading)}>Configure Images</h2>
