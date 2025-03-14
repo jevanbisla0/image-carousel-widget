@@ -82,7 +82,7 @@ const NotionCarousel = ({
     // Update the current index
     setCurrentIndex(index);
     
-    // Update loading state
+    // Update loading state for the new image
     setIsLoading(true);
     setImageError(false);
     setLoadAttempts(0);
@@ -193,21 +193,29 @@ const NotionCarousel = ({
                 {processedImages.map((image, index) => (
                   <div 
                     key={`slide-${index}`}
-                    className="relative h-full"
+                    className="relative h-full flex-shrink-0"
                     style={{ width: `${100 / processedImages.length}%` }}
                   >
-                    <img
-                      key={index === currentIndex ? `${image}?attempt=${loadAttempts}` : image}
-                      src={`${image}${index === currentIndex && loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
-                      alt={`Slide ${index + 1}`}
-                      className={cn(
-                        "h-full w-full object-cover transition-opacity duration-300",
-                        index === currentIndex && isLoading ? "opacity-0" : "opacity-100"
-                      )}
-                      onLoad={index === currentIndex ? handleImageLoad : undefined}
-                      onError={index === currentIndex ? handleImageError : undefined}
-                      style={{ background: 'none' }}
-                    />
+                    {index === currentIndex ? (
+                      <img
+                        key={`${image}?attempt=${loadAttempts}`}
+                        src={`${image}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+                        alt={`Slide ${index + 1}`}
+                        className={cn("h-full w-full object-cover", 
+                          isLoading ? "opacity-0 transition-opacity duration-300" : "opacity-100 transition-opacity duration-300"
+                        )}
+                        style={{ background: 'none' }}
+                        onLoad={handleImageLoad}
+                        onError={handleImageError}
+                      />
+                    ) : (
+                      <img
+                        src={image}
+                        alt={`Slide ${index + 1}`}
+                        className="h-full w-full object-cover"
+                        style={{ background: 'none' }}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
