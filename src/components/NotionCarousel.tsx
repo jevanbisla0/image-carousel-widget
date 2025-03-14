@@ -97,7 +97,7 @@ const NotionCarousel = ({
       variant="outline"
       size="icon"
       className={cn(
-        "h-8 w-8 rounded-full notion-transparent flex-shrink-0",
+        "h-8 w-8 rounded-full notion-transparent flex-shrink-0 bg-white/20",
         UI_STYLES.button.icon,
         direction === 'prev' ? "mr-2" : "ml-2"
       )}
@@ -183,7 +183,7 @@ const NotionCarousel = ({
       </div>
       
       <div className="mt-4 flex justify-center w-full notion-transparent">
-        <div className={cn("flex items-center justify-center gap-2 notion-transparent", UI_STYLES.actionBar)}>
+        <div className={cn("flex items-center justify-center gap-2 notion-transparent bg-white/10 px-3 py-2 rounded-full", UI_STYLES.actionBar)}>
           {processedImages.map((_, index) => (
             <button
               key={index}
@@ -207,7 +207,7 @@ const NotionCarousel = ({
             <Button 
               variant="outline"
               onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
-              className={cn("h-7 px-2", UI_STYLES.button.subtle)}
+              className={cn("h-7 px-2 bg-white/20", UI_STYLES.button.subtle)}
               size="sm"
             >
               <ChevronDown className={UI_STYLES.iconSizeSmall + " mr-1"} />
