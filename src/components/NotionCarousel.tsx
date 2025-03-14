@@ -37,7 +37,6 @@ const NotionCarousel = ({
     const nextIndex = (currentIndex + 1) % images.length;
     setCurrentIndex(nextIndex);
     setEnableTransition(true);
-    // Mark that we're in a transition
   }, [currentIndex, images.length]);
   
   const goToPrev = useCallback(() => {
@@ -77,15 +76,19 @@ const NotionCarousel = ({
   
   // Handle the slide transition and infinite loop logic
   const handleTransitionEnd = useCallback(() => {
-    // If we're at a clone slide, jump to the corresponding real slide without animation
-    if (offsetIndex === 0) {
-      // We're at the clone of the last slide (index -1)
-      setEnableTransition(false);
-      setOffsetIndex(images.length); // Jump to the real last slide
-    } else if (offsetIndex === images.length + 1) {
+    // If we're at the end clone (index images.length + 1), jump to the first slide without animation
+    if (offsetIndex === images.length + 1) {
       // We're at the clone of the first slide (index images.length)
       setEnableTransition(false);
       setOffsetIndex(1); // Jump to the real first slide
+      setCurrentIndex(0); // Update the current index to match
+    }
+    // If we're at the start clone (index 0), jump to the last slide without animation
+    else if (offsetIndex === 0) {
+      // We're at the clone of the last slide (index -1)
+      setEnableTransition(false);
+      setOffsetIndex(images.length); // Jump to the real last slide
+      setCurrentIndex(images.length - 1); // Update the current index to match
     }
   }, [offsetIndex, images.length]);
   
