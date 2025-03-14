@@ -22,32 +22,63 @@ const NotionCarousel = ({
   isGoogleDrive = false,
   height = 480,
 }: NotionCarouselProps) => {
-  // Real slide index (in the range of actual images)
-  const [currentIndex, setCurrentIndex] = useState(0);
-  // Offset index for the infinite scroll effect (includes clones)
-  const [offsetIndex, setOffsetIndex] = useState(1); // Start at 1 (first real slide)
-  // Track if transitions should be enabled
-  const [enableTransition, setEnableTransition] = useState(true);
+  // Current displayed slide index
+  const [activeIndex, setActiveIndex] = useState(0);
+  // For tracking transition state
+  const [isTransitioning, setIsTransitioning] = useState(false);
   // Reference to the interval for autoplay
   const autoplayRef = useRef<number | null>(null);
-  // Reference to the carousel container for transition detection
+  // Reference to the carousel container
   const carouselRef = useRef<HTMLDivElement>(null);
   
-  // Navigation functions
-  const goToNext = useCallback(() => {
-    // Always move forward (next slide)
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    setEnableTransition(true);
-  }, [images.length]);
+  // Total number of slides including clones
+  const totalSlides = images.length + 2; // Original slides + 2 clones (one at each end)
   
+  // Calculate slide width as percentage
+  const slideWidth = 100 / totalSlides;
+  
+  // Prepare the slides array with clones for infinite scrolling
+  const allSlides = [
+    // Last image as first slide (for seamless backward transition)
+    images[images.length - 1],
+    // All original images in the middle
+    ...images,
+    // First image as last slide (for seamless forward transition)
+    images[0]
+  ];
+  
+  // Handle next slide action
+  const goToNext = useCallback(() => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    // If we're on the last real slide, seamlessly move to the first clone
+    // and then jump back to first real slide after transition completes
+    if (activeIndex === images.length - 1) {
+      setActiveIndex(activeIndex + 1);
+    } else {
+      // Normal forward movement
+      setActiveIndex((prev) => (prev + 1) % (images.length + 1));
+    }
+  }, [activeIndex, images.length, isTransitioning]);
+  
+  // Handle previous slide action
   const goToPrev = useCallback(() => {
-    // Always move backward (previous slide)
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-    setEnableTransition(true);
-  }, [images.length]);
-
-  // Clear any existing intervals and reset them if needed
-  const resetAutoplay = useCallback(() => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    // If we're on the first real slide, move to the first clone (of the last slide)
+    // and then jump back to the last real slide after transition
+    if (activeIndex === 0) {
+      setActiveIndex(-1);
+    } else {
+      // Normal backward movement
+      setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  }, [activeIndex, images.length, isTransitioning]);
+  
+  // Setup autoplay functionality
+  const startAutoplay = useCallback(() => {
     if (autoplayRef.current) {
       clearInterval(autoplayRef.current);
       autoplayRef.current = null;
@@ -58,70 +89,60 @@ const NotionCarousel = ({
         goToNext();
       }, interval);
     }
-  }, [autoplay, interval, images.length, goToNext]);
+  }, [autoplay, goToNext, images.length, interval]);
   
   // Initialize autoplay
   useEffect(() => {
-    resetAutoplay();
+    startAutoplay();
     return () => {
       if (autoplayRef.current) {
         clearInterval(autoplayRef.current);
       }
     };
-  }, [resetAutoplay]);
+  }, [startAutoplay]);
   
-  // Update offsetIndex whenever currentIndex changes
-  useEffect(() => {
-    setOffsetIndex(currentIndex + 1); // +1 because we have a clone at the beginning
-  }, [currentIndex]);
-  
-  // Handle the slide transition and infinite loop logic
+  // Handle transition end to enable infinite scrolling
   const handleTransitionEnd = useCallback(() => {
-    // If we're at the end clone (after the last real slide)
-    if (offsetIndex === images.length + 1) {
-      // Instantly jump to the first real slide without animation
-      setEnableTransition(false);
-      setOffsetIndex(1);
-      setCurrentIndex(0);
+    setIsTransitioning(false);
+    
+    // If we transitioned to the clone at the end (beyond last real slide)
+    if (activeIndex === images.length) {
+      // Jump to the first real slide without animation
+      setTimeout(() => {
+        setActiveIndex(0);
+      }, 0);
+    } 
+    // If we transitioned to the clone at the start (before first real slide)
+    else if (activeIndex === -1) {
+      // Jump to the last real slide without animation
+      setTimeout(() => {
+        setActiveIndex(images.length - 1);
+      }, 0);
     }
-    // If we're at the start clone (before the first real slide)
-    else if (offsetIndex === 0) {
-      // Instantly jump to the last real slide without animation
-      setEnableTransition(false);
-      setOffsetIndex(images.length);
-      setCurrentIndex(images.length - 1);
-    }
-  }, [offsetIndex, images.length]);
+  }, [activeIndex, images.length]);
   
-  // Listen for transition end on the carousel element directly
+  // Listen for transition end events
   useEffect(() => {
     const carouselElement = carouselRef.current;
-    if (!carouselElement) return;
+    if (carouselElement) {
+      carouselElement.addEventListener('transitionend', handleTransitionEnd);
+    }
     
-    carouselElement.addEventListener('transitionend', handleTransitionEnd);
     return () => {
-      carouselElement.removeEventListener('transitionend', handleTransitionEnd);
+      if (carouselElement) {
+        carouselElement.removeEventListener('transitionend', handleTransitionEnd);
+      }
     };
   }, [handleTransitionEnd]);
   
-  // Re-enable transitions after they've been disabled
-  useEffect(() => {
-    if (!enableTransition) {
-      // Re-enable transitions after the next render cycle
-      const timer = setTimeout(() => {
-        setEnableTransition(true);
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [enableTransition]);
-  
-  // Handle manual navigation
+  // Handle manual navigation to a specific slide
   const goToSlide = useCallback((index: number) => {
-    setCurrentIndex(index);
-    setEnableTransition(true);
-    resetAutoplay(); // Reset autoplay when manually navigating
-  }, [resetAutoplay]);
+    if (isTransitioning) return;
+    setActiveIndex(index);
+    startAutoplay(); // Reset autoplay timer
+  }, [isTransitioning, startAutoplay]);
   
+  // Early return for empty images array
   if (images.length === 0) {
     return (
       <div className={cn("relative max-w-[880px] mx-auto notion-transparent", className)}>
@@ -142,14 +163,21 @@ const NotionCarousel = ({
     );
   }
   
-  // Create an array with clones at both ends for infinite scroll effect
-  const allSlides = [
-    images[images.length - 1], // Clone of last slide at the beginning
-    ...images,
-    images[0] // Clone of first slide at the end
-  ];
+  // Calculate the transform position based on active index
+  const getTransformValue = () => {
+    // Add 1 to include the first clone slide
+    const translateX = -(activeIndex + 1) * slideWidth;
+    return `translateX(${translateX}%)`;
+  };
   
-  const slideWidth = 100 / allSlides.length;
+  // Determine whether transitions should be enabled
+  const getTransitionStyle = () => {
+    // Disable transitions for immediate jumps between clones and real slides
+    if (activeIndex < 0 || activeIndex >= images.length) {
+      return 'none';
+    }
+    return 'transform 500ms ease-in-out';
+  };
   
   return (
     <div className={cn("relative max-w-[880px] mx-auto notion-transparent", className)}>
@@ -165,7 +193,7 @@ const NotionCarousel = ({
           )}
           onClick={() => {
             goToPrev();
-            resetAutoplay();
+            startAutoplay();
           }}
         >
           <ChevronLeft className={UI_STYLES.iconSize} />
@@ -181,9 +209,9 @@ const NotionCarousel = ({
             ref={carouselRef}
             className="w-full h-full flex"
             style={{ 
-              width: `${allSlides.length * 100}%`,
-              transform: `translateX(-${offsetIndex * slideWidth}%)`,
-              transition: enableTransition ? 'transform 500ms ease-in-out' : 'none'
+              width: `${totalSlides * 100}%`,
+              transform: getTransformValue(),
+              transition: getTransitionStyle()
             }}
           >
             {/* All slides including clones */}
@@ -214,7 +242,7 @@ const NotionCarousel = ({
           )}
           onClick={() => {
             goToNext();
-            resetAutoplay();
+            startAutoplay();
           }}
         >
           <ChevronRight className={UI_STYLES.iconSize} />
@@ -229,7 +257,7 @@ const NotionCarousel = ({
               key={index}
               className={cn(
                 "rounded-full transition-all shadow-md notion-transparent",
-                index === currentIndex 
+                index === activeIndex 
                   ? "w-5 h-5 bg-white" 
                   : "w-3 h-3 bg-white/60 hover:bg-white/80"
               )}
