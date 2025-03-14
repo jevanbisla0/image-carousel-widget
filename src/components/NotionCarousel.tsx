@@ -27,12 +27,12 @@ const NotionCarousel = ({
   const [processedImages, setProcessedImages] = useState<string[]>([]);
   const [imageError, setImageError] = useState(false);
   const [loadAttempts, setLoadAttempts] = useState(0);
-  const [transitionEnabled, setTransitionEnabled] = useState(true);
-
-  // Track if we're in a special jump
-  const isJumping = useRef(false);
-  const jumpTimeout = useRef<number | null>(null);
-
+  
+  // Container for slides
+  const slidesContainerRef = useRef<HTMLDivElement>(null);
+  // Keep track of autoplay interval
+  const autoplayIntervalRef = useRef<number | null>(null);
+  
   useEffect(() => {
     if (!images || images.length === 0) {
       setProcessedImages([]);
@@ -48,178 +48,55 @@ const NotionCarousel = ({
   useEffect(() => {
     setCurrentIndex(0);
   }, [processedImages]);
-
-  useEffect(() => {
-    if (!autoplay || processedImages.length <= 1) return;
-    
-    const timer = setInterval(() => {
-      moveNext();
-    }, interval);
-    
-    return () => clearInterval(timer);
-  }, [autoplay, interval, processedImages.length, currentIndex]);
-
-  // Clean up timeouts
-  useEffect(() => {
-    return () => {
-      if (jumpTimeout.current) {
-        clearTimeout(jumpTimeout.current);
-      }
-    };
-  }, []);
-
-  // Get actual slide array with clones for infinite scrolling
-  const getSlides = useCallback(() => {
-    if (processedImages.length <= 1) return processedImages;
-
-    // Note: We don't actually clone the array items, just use indices to reference
-    // the real slides in a virtual way
-    const totalSlides = processedImages.length;
-    
-    // Create an array representing the slides in display order
-    // [last, 0, 1, 2, ..., last-1, last, 0]
-    const virtualIndices = [
-      totalSlides - 1, // Clone of last slide at the beginning
-      ...Array.from({ length: totalSlides }, (_, i) => i), // All real slides
-      0 // Clone of first slide at the end
-    ];
-    
-    return virtualIndices;
-  }, [processedImages]);
-
-  // Get the real image source for a virtual slide index
-  const getImageSrc = useCallback((virtualIndex: number) => {
-    if (processedImages.length === 0) return '';
-    
-    // Map virtual index to real index
-    const totalSlides = processedImages.length;
-    
-    // First item is clone of last slide
-    if (virtualIndex === 0) return processedImages[totalSlides - 1];
-    
-    // Last item is clone of first slide
-    if (virtualIndex === totalSlides + 1) return processedImages[0];
-    
-    // Regular slides
-    return processedImages[virtualIndex - 1];
-  }, [processedImages]);
-
-  // Convert real index to virtual index (1-based in virtual array)
-  const getRealToVirtualIndex = useCallback((realIndex: number) => {
-    return realIndex + 1; // +1 because first virtual slide is last real slide
-  }, []);
   
-  // Convert virtual index to real index
-  const getVirtualToRealIndex = useCallback((virtualIndex: number) => {
-    const totalRealSlides = processedImages.length;
+  // Start or stop autoplay
+  useEffect(() => {
+    const startAutoplay = () => {
+      if (autoplayIntervalRef.current) clearInterval(autoplayIntervalRef.current);
+      autoplayIntervalRef.current = window.setInterval(() => {
+        moveToSlide((currentIndex + 1) % processedImages.length);
+      }, interval);
+    };
     
-    // Handle clone slides
-    if (virtualIndex === 0) return totalRealSlides - 1;
-    if (virtualIndex === totalRealSlides + 1) return 0;
+    if (autoplay && processedImages.length > 1) {
+      startAutoplay();
+    }
     
-    // Regular slides
-    return virtualIndex - 1;
-  }, [processedImages.length]);
-
+    return () => {
+      if (autoplayIntervalRef.current) clearInterval(autoplayIntervalRef.current);
+    };
+  }, [autoplay, interval, processedImages.length, currentIndex]);
+  
+  // Move to a specific slide with animation
+  const moveToSlide = useCallback((index: number) => {
+    if (processedImages.length <= 1) return;
+    
+    // Restart autoplay timer to prevent interruptions
+    if (autoplay && autoplayIntervalRef.current) {
+      clearInterval(autoplayIntervalRef.current);
+      autoplayIntervalRef.current = window.setInterval(() => {
+        moveToSlide((currentIndex + 1) % processedImages.length);
+      }, interval);
+    }
+    
+    // Update the current index
+    setCurrentIndex(index);
+    
+    // Update loading state
+    setIsLoading(true);
+    setImageError(false);
+    setLoadAttempts(0);
+  }, [processedImages.length, autoplay, interval, currentIndex]);
+  
   const moveNext = useCallback(() => {
-    if (processedImages.length <= 1) return;
-    
-    setTransitionEnabled(true);
-    
-    const virtualSlides = getSlides();
-    const currentVirtualIndex = getRealToVirtualIndex(currentIndex);
-    const nextVirtualIndex = currentVirtualIndex + 1;
-    
-    // If we're at the clone of first slide, we need to jump back to the real first slide
-    if (nextVirtualIndex >= virtualSlides.length) {
-      // First go to the clone with animation
-      setCurrentIndex(getVirtualToRealIndex(nextVirtualIndex));
-      
-      // Then immediately jump back to the real slide without animation
-      isJumping.current = true;
-      
-      // Wait for transition to complete, then jump
-      if (jumpTimeout.current) clearTimeout(jumpTimeout.current);
-      jumpTimeout.current = setTimeout(() => {
-        setTransitionEnabled(false);
-        setCurrentIndex(0);
-        isJumping.current = false;
-      }, 500); // Match transition duration
-    } else {
-      // Regular case - just go to next slide
-      setCurrentIndex(getVirtualToRealIndex(nextVirtualIndex));
-    }
-    
-    // Set loading state
-    setIsLoading(true);
-    setImageError(false);
-    setLoadAttempts(0);
-  }, [currentIndex, getSlides, getRealToVirtualIndex, getVirtualToRealIndex, processedImages.length]);
-
+    const nextIndex = (currentIndex + 1) % processedImages.length;
+    moveToSlide(nextIndex);
+  }, [currentIndex, processedImages.length, moveToSlide]);
+  
   const movePrev = useCallback(() => {
-    if (processedImages.length <= 1) return;
-    
-    setTransitionEnabled(true);
-    
-    const virtualSlides = getSlides();
-    const currentVirtualIndex = getRealToVirtualIndex(currentIndex);
-    const prevVirtualIndex = currentVirtualIndex - 1;
-    
-    // If we're at the clone of last slide, we need to jump back to the real last slide
-    if (prevVirtualIndex < 0) {
-      // First go to the clone with animation
-      setCurrentIndex(getVirtualToRealIndex(prevVirtualIndex));
-      
-      // Then immediately jump back to the real slide without animation
-      isJumping.current = true;
-      
-      // Wait for transition to complete, then jump
-      if (jumpTimeout.current) clearTimeout(jumpTimeout.current);
-      jumpTimeout.current = setTimeout(() => {
-        setTransitionEnabled(false);
-        setCurrentIndex(processedImages.length - 1);
-        isJumping.current = false;
-      }, 500); // Match transition duration
-    } else {
-      // Regular case - just go to previous slide
-      setCurrentIndex(getVirtualToRealIndex(prevVirtualIndex));
-    }
-    
-    // Set loading state
-    setIsLoading(true);
-    setImageError(false);
-    setLoadAttempts(0);
-  }, [currentIndex, getSlides, getRealToVirtualIndex, getVirtualToRealIndex, processedImages.length]);
-
-  const getSlidePosition = useCallback((realIndex: number) => {
-    if (processedImages.length <= 1) return 0;
-    
-    // Get the current slide's virtual index
-    const currentVirtualIndex = getRealToVirtualIndex(currentIndex);
-    
-    // Get this slide's virtual index
-    const thisVirtualIndex = getRealToVirtualIndex(realIndex);
-    
-    // Calculate position relative to current
-    return (thisVirtualIndex - currentVirtualIndex) * 100;
-  }, [currentIndex, getRealToVirtualIndex, processedImages.length]);
-
-  const isSlideVisible = useCallback((realIndex: number) => {
-    if (processedImages.length <= 1) return true;
-    
-    // Current slide is always visible
-    if (realIndex === currentIndex) return true;
-    
-    // During a jump, keep both slides visible
-    if (isJumping.current) {
-      if (currentIndex === 0 && realIndex === processedImages.length - 1) return true;
-      if (currentIndex === processedImages.length - 1 && realIndex === 0) return true;
-    }
-    
-    // Show nearby slides (performance optimization)
-    const position = Math.abs(getSlidePosition(realIndex));
-    return position <= 100;
-  }, [currentIndex, getSlidePosition, processedImages.length]);
+    const prevIndex = (currentIndex - 1 + processedImages.length) % processedImages.length;
+    moveToSlide(prevIndex);
+  }, [currentIndex, processedImages.length, moveToSlide]);
 
   const carouselHeight = height;
 
@@ -302,42 +179,38 @@ const NotionCarousel = ({
               </div>
             </div>
           ) : (
-            <div className="h-full w-full relative">
-              {processedImages.map((image, index) => (
-                <div 
-                  key={`slide-${index}`}
-                  className={`absolute inset-0 w-full h-full ${
-                    transitionEnabled ? 'transition-all duration-500 ease-in-out' : ''
-                  }`}
-                  style={{ 
-                    transform: `translateX(${getSlidePosition(index)}%)`,
-                    opacity: index === currentIndex ? 1 : Math.abs(getSlidePosition(index)) <= 100 ? 0.5 : 0,
-                    zIndex: index === currentIndex ? 10 : 5,
-                    visibility: isSlideVisible(index) ? "visible" : "hidden"
-                  }}
-                >
-                  {index === currentIndex && (
+            <div 
+              ref={slidesContainerRef}
+              className="h-full w-full overflow-hidden"
+            >
+              <div 
+                className="h-full w-full relative flex transition-transform duration-500 ease-in-out"
+                style={{ 
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                  width: `${processedImages.length * 100}%`
+                }}
+              >
+                {processedImages.map((image, index) => (
+                  <div 
+                    key={`slide-${index}`}
+                    className="relative h-full"
+                    style={{ width: `${100 / processedImages.length}%` }}
+                  >
                     <img
-                      key={`${image}?attempt=${loadAttempts}`}
-                      src={`${image}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+                      key={index === currentIndex ? `${image}?attempt=${loadAttempts}` : image}
+                      src={`${image}${index === currentIndex && loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
                       alt={`Slide ${index + 1}`}
-                      className="h-full w-full object-cover"
-                      onLoad={handleImageLoad}
-                      onError={handleImageError}
+                      className={cn(
+                        "h-full w-full object-cover transition-opacity duration-300",
+                        index === currentIndex && isLoading ? "opacity-0" : "opacity-100"
+                      )}
+                      onLoad={index === currentIndex ? handleImageLoad : undefined}
+                      onError={index === currentIndex ? handleImageError : undefined}
                       style={{ background: 'none' }}
                     />
-                  )}
-                  
-                  {index !== currentIndex && (
-                    <img
-                      src={image}
-                      alt={`Slide ${index + 1}`}
-                      className="h-full w-full object-cover"
-                      style={{ background: 'none' }}
-                    />
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           
@@ -365,21 +238,7 @@ const NotionCarousel = ({
                   ? "w-5 h-5 bg-white" 
                   : "w-3 h-3 bg-white/60 hover:bg-white/80"
               )}
-              onClick={() => {
-                if (index > currentIndex) {
-                  // Go forward by selecting next slide repeatedly
-                  let steps = index - currentIndex;
-                  for (let i = 0; i < steps; i++) {
-                    setTimeout(() => moveNext(), i * 200);
-                  }
-                } else if (index < currentIndex) {
-                  // Go backward by selecting prev slide repeatedly
-                  let steps = currentIndex - index;
-                  for (let i = 0; i < steps; i++) {
-                    setTimeout(() => movePrev(), i * 200);
-                  }
-                }
-              }}
+              onClick={() => moveToSlide(index)}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
