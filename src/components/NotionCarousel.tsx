@@ -155,18 +155,31 @@ const NotionCarousel = ({
               </div>
             </div>
           ) : (
-            <img
-              key={`${processedImages[currentIndex]}?attempt=${loadAttempts}`}
-              src={`${processedImages[currentIndex]}${loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
-              alt={`Slide ${currentIndex + 1}`}
-              className={cn(
-                "h-full w-full object-cover transition-opacity duration-500",
-                isLoading ? "opacity-0" : "opacity-100"
-              )}
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              style={{ background: 'none' }}
-            />
+            <div className="h-full w-full relative">
+              {processedImages.map((image, index) => (
+                <div 
+                  key={`slide-${index}`}
+                  className="absolute inset-0 transition-transform duration-500 ease-in-out w-full h-full"
+                  style={{ 
+                    transform: `translateX(${(index - currentIndex) * 100}%)`,
+                    zIndex: index === currentIndex ? 10 : 5
+                  }}
+                >
+                  <img
+                    key={`${image}?attempt=${index === currentIndex ? loadAttempts : 0}`}
+                    src={`${image}${index === currentIndex && loadAttempts > 0 ? `&cb=${Date.now()}` : ''}`}
+                    alt={`Slide ${index + 1}`}
+                    className={cn(
+                      "h-full w-full object-cover transition-opacity duration-300",
+                      isLoading && index === currentIndex ? "opacity-0" : "opacity-100"
+                    )}
+                    onLoad={index === currentIndex ? handleImageLoad : undefined}
+                    onError={index === currentIndex ? handleImageError : undefined}
+                    style={{ background: 'none' }}
+                  />
+                </div>
+              ))}
+            </div>
           )}
           
           {isLoading && !imageError && (
