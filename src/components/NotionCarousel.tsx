@@ -117,8 +117,8 @@ const NotionCarousel = ({
       <div className={cn("relative max-w-[880px] mx-auto", className)}>
         <div className="flex items-center">
           <div className="h-8 w-8 mr-2 flex-shrink-0" />
-          <div className={cn("relative w-full flex items-center justify-center", UI_STYLES.panel)} style={{ height: `${height}px` }}>
-            <div className="text-center p-4 space-y-2 rounded-md bg-gray-50 border border-gray-200 shadow-md">
+          <div className={cn("relative w-full flex items-center justify-center allow-bg", UI_STYLES.panel)} style={{ height: `${height}px` }}>
+            <div className="text-center p-4 space-y-2 rounded-md bg-gray-50 border border-gray-200 shadow-md allow-bg">
               <ImageIcon className={cn("mx-auto", UI_STYLES.iconSizeMedium, UI_STYLES.textMuted)} />
               <p className={UI_STYLES.textBody}>No images to display</p>
             </div>
@@ -136,7 +136,7 @@ const NotionCarousel = ({
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 flex-shrink-0 mr-2",
+            "h-8 w-8 flex-shrink-0 mr-2 allow-bg",
             UI_STYLES.button.icon
           )}
           onClick={() => {
@@ -148,8 +148,8 @@ const NotionCarousel = ({
           <ChevronLeft className={UI_STYLES.iconSize} />
         </Button>
         
-        <div className={cn("relative overflow-hidden rounded-lg w-full", UI_STYLES.panel)} style={{ height: `${height}px` }}>
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-[-1]" />
+        <div className={cn("relative overflow-hidden rounded-lg w-full allow-bg", UI_STYLES.panel)} style={{ height: `${height}px` }}>
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-[-1] allow-bg" />
           <div 
             ref={carouselRef}
             className="w-full h-full flex"
@@ -180,7 +180,7 @@ const NotionCarousel = ({
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 flex-shrink-0 ml-2",
+            "h-8 w-8 flex-shrink-0 ml-2 allow-bg",
             UI_STYLES.button.icon
           )}
           onClick={() => {
@@ -194,7 +194,7 @@ const NotionCarousel = ({
       </div>
       
       <div className="mt-4 flex justify-center w-full">
-        <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full", UI_STYLES.actionBar)}>
+        <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full allow-bg", UI_STYLES.actionBar)}>
           {images.map((_, index) => (
             <CarouselDot
               key={index}
@@ -208,7 +208,7 @@ const NotionCarousel = ({
             <Button 
               variant="outline"
               onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
-              className={cn("h-7 px-2", UI_STYLES.button.secondary)}
+              className={cn("h-7 px-2 allow-bg", UI_STYLES.button.secondary)}
               size="sm"
             >
               <ChevronDown className={cn(UI_STYLES.iconSizeSmall, "mr-1")} />

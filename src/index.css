@@ -106,17 +106,48 @@
   }
 }
 
-.notion-embed,
-.notion-transparent {
-  background: none;
-  background-color: transparent;
-}
-
-[class*="bg-"] {
+/* Replace the overly aggressive selectors with more targeted ones */
+.notion-container {
   background: none !important;
   background-color: transparent !important;
 }
 
+/* Keep for backward compatibility */
+.notion-embed,
+.notion-transparent {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Remove the global bg- selector that's causing all the problems */
+/* 
+[class*="bg-"] {
+  background: none !important;
+  background-color: transparent !important;
+}
+*/
+
+/* Create a class to enable backgrounds when needed */
+.allow-bg {
+  background: initial !important;
+  background-color: initial !important;
+}
+
+/* Let Tailwind utility classes work on elements with allow-bg */
+.allow-bg[class*="bg-"] {
+  background: initial !important;
+}
+
+/* A mechanism to specify explicit background colors */
+.bg-blue-50 {
+  background-color: rgb(239 246 255) !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+/* Keep your existing override */
 .my-specific-selector.bg-blue-500 {
   background-color: #3b82f6 !important;
 }

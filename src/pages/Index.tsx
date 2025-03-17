@@ -186,11 +186,11 @@ const Index = () => {
   };
 
   return (
-    <div className="notion-transparent">
-      <div className="notion-transparent">
+    <div className="notion-container">
+      <div className="notion-container">
         <NotionCarousel 
           images={images} 
-          className="notion-transparent"
+          className="notion-container"
           height={480}
         />
       </div>
@@ -198,11 +198,11 @@ const Index = () => {
       {isConfiguring && (
         <div className="mt-4">
           <div className={cn(
-            "max-w-[800px] mx-auto p-5 rounded-xl",
+            "max-w-[800px] mx-auto p-5 rounded-xl allow-bg",
             UI_STYLES.panel
           )}>
             <div className="space-y-5">
-              <Alert className="!bg-blue-50 border-blue-200">
+              <Alert className="!bg-blue-50 border-blue-200 allow-bg">
                 <Info className={cn("text-blue-800", UI_STYLES.iconSize)} />
                 <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
                 <AlertDescription className="text-blue-700">
@@ -221,14 +221,14 @@ const Index = () => {
                     value={tempImageId}
                     onChange={(e) => setTempImageId(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddImage()}
-                    className="bg-white border-gray-300"
+                    className="bg-white border-gray-300 allow-bg"
                     maxLength={200}
                   />
                   <Button 
                     variant="outline"
                     size="icon"
                     onClick={handleAddImage}
-                    className={UI_STYLES.button.secondary}
+                    className={cn(UI_STYLES.button.secondary, "allow-bg")}
                     aria-label="Add image"
                   >
                     <Plus className={UI_STYLES.iconSize} />
@@ -243,7 +243,7 @@ const Index = () => {
                     <Button 
                       variant="outline"
                       size="sm" 
-                      className={cn("h-8", UI_STYLES.button.danger)}
+                      className={cn("h-8 allow-bg", UI_STYLES.button.danger)}
                       onClick={handleClearAllImages}
                     >
                       <Trash2 className={cn(UI_STYLES.iconSize, "mr-2")} />
@@ -252,16 +252,16 @@ const Index = () => {
                   )}
                 </div>
 
-                <div className={cn("divide-y rounded-md overflow-hidden", UI_STYLES.card)}>
+                <div className={cn("divide-y rounded-md overflow-hidden allow-bg", UI_STYLES.card)}>
                   {imageIds.length === 0 ? (
-                    <div className={cn("p-4 text-center text-sm", UI_STYLES.textMuted, UI_STYLES.bgPanel)}>
+                    <div className={cn("p-4 text-center text-sm allow-bg", UI_STYLES.textMuted, UI_STYLES.bgPanel)}>
                       No images added yet
                     </div>
                   ) : (
                     imageIds.map((id, index) => (
                       <div 
                         key={index} 
-                        className={cn("p-3 flex items-center justify-between", UI_STYLES.bgPanel)}
+                        className={cn("p-3 flex items-center justify-between allow-bg", UI_STYLES.bgPanel)}
                       >
                         <div className={cn("text-sm truncate max-w-[200px]", UI_STYLES.textSubtle)}>
                           {id}
@@ -271,7 +271,7 @@ const Index = () => {
                             href={`https://drive.google.com/uc?export=view&id=${id}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
+                            className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 allow-bg"
                             aria-label="View image"
                           >
                             <ExternalLink className={UI_STYLES.iconSize} />
@@ -279,7 +279,7 @@ const Index = () => {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-6 w-6 rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
+                            className="h-6 w-6 rounded-full text-red-500 hover:bg-red-50 hover:text-red-700 allow-bg"
                             onClick={() => handleRemoveImage(index)}
                             aria-label="Remove image"
                           >
@@ -296,14 +296,14 @@ const Index = () => {
                 <Button
                   variant="outline"
                   onClick={() => setIsConfiguring(false)}
-                  className={cn("mr-2", UI_STYLES.button.secondary)}
+                  className={cn("mr-2 allow-bg", UI_STYLES.button.secondary)}
                 >
                   Cancel
                 </Button>
                 <Button 
                   variant="outline"
                   onClick={handleSaveConfig}
-                  className={UI_STYLES.button.secondary}
+                  className={cn("allow-bg", UI_STYLES.button.secondary)}
                 >
                   <Save className={cn(UI_STYLES.iconSize, "mr-2")} />
                   Save Configuration
