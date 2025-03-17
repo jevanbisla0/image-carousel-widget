@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { CarouselDot } from "@/components/ui/carousel-dot"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -250,6 +251,54 @@ const CarouselNext = React.forwardRef<
 })
 CarouselNext.displayName = "CarouselNext"
 
+const CarouselDots = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  const { api } = useCarousel()
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [slideCount, setSlideCount] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) return
+
+    setSlideCount(api.scrollSnapList().length)
+    
+    const onSelect = () => {
+      setSelectedIndex(api.selectedScrollSnap())
+    }
+
+    api.on("select", onSelect)
+    onSelect()
+
+    return () => {
+      api.off("select", onSelect)
+    }
+  }, [api])
+
+  if (slideCount <= 1) {
+    return null
+  }
+
+  return (
+    <div 
+      ref={ref}
+      className={cn("flex justify-center items-center gap-2 py-2", className)}
+      {...props}
+    >
+      {Array.from({ length: slideCount }).map((_, index) => (
+        <CarouselDot
+          key={index}
+          active={index === selectedIndex}
+          onClick={() => api?.scrollTo(index)}
+          aria-label={`Go to slide ${index + 1}`}
+        />
+      ))}
+    </div>
+  )
+})
+CarouselDots.displayName = "CarouselDots"
+
 export {
   type CarouselApi,
   Carousel,
@@ -257,4 +306,5 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  CarouselDots,
 }

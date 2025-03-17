@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { CarouselDot } from '@/components/ui/carousel-dot';
 import { UI_STYLES } from '@/lib/styles';
 
 interface NotionCarouselProps {
@@ -195,14 +196,9 @@ const NotionCarousel = ({
       <div className="mt-4 flex justify-center w-full">
         <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full", UI_STYLES.actionBar)}>
           {images.map((_, index) => (
-            <button
+            <CarouselDot
               key={index}
-              className={cn(
-                "rounded-full transition-all shadow-md",
-                index === activeIndex 
-                  ? "w-5 h-5 bg-gray-800" 
-                  : "w-3 h-3 bg-gray-400 hover:bg-gray-600"
-              )}
+              active={index === activeIndex}
               onClick={() => goToSlide(index)}
               aria-label={`Go to slide ${index + 1}`}
             />

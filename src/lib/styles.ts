@@ -69,8 +69,8 @@ export const UI_STYLES = {
   
   // Status indicators
   indicator: {
-    active: "bg-green-500",
-    inactive: "bg-gray-300",
+    active: "bg-blue-600",
+    inactive: "bg-gray-400 hover:bg-gray-500",
     warning: "bg-yellow-500",
     error: "bg-red-500",
   },
