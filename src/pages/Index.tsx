@@ -196,10 +196,10 @@ const Index = () => {
       </div>
 
       {isConfiguring && (
-        <div className="notion-transparent mt-4">
+        <div className="mt-4">
           <div className={cn(
             "max-w-[800px] mx-auto p-5 rounded-xl",
-            "bg-white shadow-lg border border-gray-200"
+            "bg-white border border-gray-200"
           )}>
             <div className="space-y-5">
               <Alert className="bg-blue-50 border-blue-200">
