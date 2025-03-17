@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X, AlertCircle } from 'lucide-react';
+import { ExternalLink, Plus, Save, Trash2, X, Info } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { 
   extractGoogleDriveFileId, 
@@ -203,7 +203,7 @@ const Index = () => {
           )}>
             <div className="space-y-5">
               <Alert className="bg-blue-50 border-blue-200">
-                <AlertCircle className={cn(UI_STYLES.iconSize)} />
+                <Info className={cn("text-blue-800", UI_STYLES.iconSize)} />
                 <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
                 <AlertDescription className="text-blue-700">
                   <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
