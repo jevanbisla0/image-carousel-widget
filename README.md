@@ -2,32 +2,51 @@
 
 A simple, elegant image carousel widget designed specifically for Notion embeds. Display your Google Drive images in a beautiful, automatically scrolling carousel directly in your Notion pages.
 
-## What is this app?
+## Features
 
-This widget allows you to:
-- Display Google Drive images in a smooth, infinitely scrolling carousel
-- Configure which images to display through a simple interface
-- Easily embed the carousel in any Notion page via an embed block
-- Customize the height and appearance of the carousel
+- **Google Drive Integration**: Display images stored in Google Drive
+- **Infinite Scrolling**: Smooth, continuous image transitions
+- **Customizable**: Configure image selection and carousel height
+- **Configuration UI**: Add/remove images directly in the interface
+- **Responsive Design**: Works well in Notion embeds
 
-## How to use this app
+## Usage Instructions
 
-1. **Setup your images in Google Drive**:
-   - Upload images to Google Drive
-   - Make sure your images are shared with **"Anyone with the link can view"** permission
-   - Copy either the image ID or sharing URL for each image
+1. **Setup Google Drive Images**:
+   - Upload images and ensure they're shared with "Anyone with the link can view"
+   - Copy either the image ID or sharing URL
 
-2. **Configure the carousel**:
-   - Click the "Configure" button at the bottom of the carousel
-   - Paste Google Drive image IDs or URLs
-   - Use the buttons to add, remove, or preview images
-   - Click "Save Configuration" when done
+2. **Configure the Carousel**:
+   - Click the "Configure" button in the carousel
+   - Paste Google Drive image IDs or URLs and save
 
 3. **Embed in Notion**:
-   - Copy the deployed URL of this widget
-   - Create an "Embed" block in Notion
-   - Paste the URL into the embed block
-   - Resize the embed to your preferred dimensions
+   - Paste the deployed URL into a Notion embed block
+   - Adjust the embed dimensions as needed
+
+## Development
+
+This project is built with:
+- Vite + React + TypeScript
+- shadcn-ui components
+- Tailwind CSS
+
+### Running Locally
+
+```sh
+# Clone the repository
+git clone <YOUR_GIT_URL>
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+
+### Deployment
+
+Deploy using the [Lovable](https://lovable.dev/projects/09040ec7-3a91-42d5-b673-192ba10f4c2a) platform or export to your preferred hosting service.
 
 ## Project info
 
@@ -78,20 +97,6 @@ npm run dev
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/09040ec7-3a91-42d5-b673-192ba10f4c2a) and click on Share -> Publish.
 
 ## I want to use a custom domain - is that possible?
 

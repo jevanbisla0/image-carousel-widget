@@ -38,24 +38,18 @@ const NotionCarousel = ({
     if (isTransitioning) return;
     
     setIsTransitioning(true);
-    setActiveIndex(prev => {
-      if (prev === images.length - 1) {
-        return images.length;
-      }
-      return prev + 1;
-    });
+    setActiveIndex(prev => 
+      prev === images.length - 1 ? images.length : prev + 1
+    );
   }, [images.length, isTransitioning]);
   
   const goToPrev = useCallback(() => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
-    setActiveIndex(prev => {
-      if (prev === 0) {
-        return -1;
-      }
-      return prev - 1;
-    });
+    setActiveIndex(prev => 
+      prev === 0 ? -1 : prev - 1
+    );
   }, [isTransitioning]);
   
   const startAutoplay = useCallback(() => {
@@ -72,9 +66,7 @@ const NotionCarousel = ({
   useEffect(() => {
     startAutoplay();
     return () => {
-      if (autoplayRef.current) {
-        clearInterval(autoplayRef.current);
-      }
+      if (autoplayRef.current) clearInterval(autoplayRef.current);
     };
   }, [startAutoplay]);
   
@@ -95,31 +87,22 @@ const NotionCarousel = ({
   
   useEffect(() => {
     if (skipTransitionRef.current) {
-      const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
         skipTransitionRef.current = false;
       });
-      
-      return () => cancelAnimationFrame(rafId);
     }
   }, [activeIndex]);
   
   useEffect(() => {
-    const carouselElement = carouselRef.current;
-    if (carouselElement) {
-      carouselElement.addEventListener('transitionend', handleTransitionEnd);
-    }
+    const element = carouselRef.current;
+    if (!element) return;
     
-    return () => {
-      if (carouselElement) {
-        carouselElement.removeEventListener('transitionend', handleTransitionEnd);
-      }
-    };
+    element.addEventListener('transitionend', handleTransitionEnd);
+    return () => element.removeEventListener('transitionend', handleTransitionEnd);
   }, [handleTransitionEnd]);
   
   useEffect(() => {
-    if (!isTransitioning) {
-      startAutoplay();
-    }
+    if (!isTransitioning) startAutoplay();
   }, [activeIndex, isTransitioning, startAutoplay]);
   
   const goToSlide = useCallback((index: number) => {
@@ -128,7 +111,7 @@ const NotionCarousel = ({
     startAutoplay();
   }, [isTransitioning, startAutoplay]);
   
-  if (images.length === 0) {
+  if (!images.length) {
     return (
       <div className={cn("relative max-w-[880px] mx-auto notion-transparent", className)}>
         <div className="flex items-center notion-transparent">
@@ -163,6 +146,7 @@ const NotionCarousel = ({
             goToPrev();
             startAutoplay();
           }}
+          aria-label="Previous slide"
         >
           <ChevronLeft className={UI_STYLES.iconSize} />
         </Button>
@@ -188,8 +172,9 @@ const NotionCarousel = ({
               >
                 <img 
                   src={src} 
-                  alt={`Slide ${index}`} 
+                  alt={`Slide ${index === 0 || index === allSlides.length - 1 ? 'clone' : index}`}
                   className="w-full h-full object-cover"
+                  loading={index === activeIndex + 1 ? "eager" : "lazy"}
                 />
               </div>
             ))}
@@ -208,6 +193,7 @@ const NotionCarousel = ({
             goToNext();
             startAutoplay();
           }}
+          aria-label="Next slide"
         >
           <ChevronRight className={UI_STYLES.iconSize} />
         </Button>

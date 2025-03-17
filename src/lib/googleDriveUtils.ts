@@ -27,9 +27,7 @@ export function extractGoogleDriveFileId(url: string): string | null {
   
   for (const pattern of patterns) {
     const match = cleanUrl.match(pattern);
-    if (match && match[1]) {
-      return match[1];
-    }
+    if (match?.[1]) return match[1];
   }
   
   // Additional check for direct file ID format
@@ -44,17 +42,13 @@ export function extractGoogleDriveFileId(url: string): string | null {
  * Fetch all image files from a Google Drive folder using localStorage
  */
 export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<string[]> {
-  if (!folderIdOrUrl || folderIdOrUrl.trim() === '') {
-    return [];
-  }
+  if (!folderIdOrUrl?.trim()) return [];
   
   const folderId = folderIdOrUrl.startsWith('http') 
     ? extractGoogleDriveFileId(folderIdOrUrl) 
     : folderIdOrUrl;
     
-  if (!folderId) {
-    return [];
-  }
+  if (!folderId) return [];
   
   try {
     const storedImagesKey = `drive_folder_${folderId}`;
@@ -66,43 +60,35 @@ export async function fetchImagesFromFolder(folderIdOrUrl: string): Promise<stri
         if (Array.isArray(imageIds) && imageIds.length > 0) {
           return imageIds.map(id => getGoogleDriveImageUrl(id));
         }
-      } catch (parseError) {
+      } catch {
         // Clear invalid data
         localStorage.removeItem(storedImagesKey);
       }
     }
-    
-    return [];
-  } catch (error) {
-    return [];
+  } catch {
+    // Silently handle errors
   }
+  
+  return [];
 }
 
 /**
  * Store image IDs for a folder in localStorage
  */
 export function storeImagesForFolder(folderId: string, imageIds: string[]): void {
-  if (!folderId || typeof folderId !== 'string' || folderId.trim() === '') {
-    return;
-  }
-  
-  if (!imageIds || !Array.isArray(imageIds) || imageIds.length === 0) {
-    return;
-  }
+  if (!folderId?.trim() || !Array.isArray(imageIds) || imageIds.length === 0) return;
   
   // Clean the image IDs
   const cleanedIds = imageIds
     .map(id => typeof id === 'string' ? id.trim() : '')
-    .filter(id => id !== '');
+    .filter(Boolean);
   
-  if (cleanedIds.length === 0) {
-    return;
-  }
+  if (cleanedIds.length === 0) return;
   
   try {
     const storageKey = `drive_folder_${folderId.trim()}`;
     localStorage.setItem(storageKey, JSON.stringify(cleanedIds));
-  } catch (error) {
+  } catch {
     // Silent fail
   }
 }
@@ -111,8 +97,6 @@ export function storeImagesForFolder(folderId: string, imageIds: string[]): void
  * Clear stored images for a folder
  */
 export function clearStoredImagesForFolder(folderId: string): void {
-  if (!folderId || folderId.trim() === '') {
-    return;
-  }
+  if (!folderId?.trim()) return;
   localStorage.removeItem(`drive_folder_${folderId.trim()}`);
 }
