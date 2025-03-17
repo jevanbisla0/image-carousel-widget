@@ -199,7 +199,7 @@ const Index = () => {
         <div className="mt-4">
           <div className={cn(
             "max-w-[800px] mx-auto p-5 rounded-xl",
-            "bg-white border border-gray-200"
+            "bg-white border-gray-200"
           )}>
             <div className="space-y-5">
               <Alert className="bg-blue-50 border-blue-200">
@@ -225,6 +225,7 @@ const Index = () => {
                     maxLength={200}
                   />
                   <Button 
+                    variant="outline"
                     size="icon"
                     onClick={handleAddImage}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -300,6 +301,7 @@ const Index = () => {
                   Cancel
                 </Button>
                 <Button 
+                  variant="outline"
                   onClick={handleSaveConfig}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
