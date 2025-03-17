@@ -194,12 +194,17 @@ const Index = () => {
       />
 
       {isConfiguring && (
-        <div className={cn("p-4 max-w-[800px] mx-auto mt-4", UI_STYLES.panel, UI_STYLES.space.md)}>
-          <div className={UI_STYLES.space.md}>
-            <Alert className={cn("mb-4", UI_STYLES.bgPanel)}>
-              <AlertCircle className={UI_STYLES.iconSize} />
-              <AlertTitle>Configure Images</AlertTitle>
-              <AlertDescription>
+        <div className={cn(
+          "p-4 max-w-[800px] mx-auto mt-4 rounded-lg",
+          "bg-white/60 backdrop-blur-sm border border-white/40 shadow-md"
+        )}>
+          <div className="space-y-4">
+            <Alert className={cn(
+              "mb-4 bg-blue-50/80 border-blue-200/80 text-blue-800"
+            )}>
+              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
+              <AlertDescription className="text-blue-700">
                 <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
               </AlertDescription>
             </Alert>
@@ -214,47 +219,50 @@ const Index = () => {
                 value={tempImageId}
                 onChange={(e) => setTempImageId(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddImage()}
-                className={UI_STYLES.bgCard}
+                className="bg-white border-gray-300"
                 maxLength={200}
               />
               <Button 
                 size="icon"
                 onClick={handleAddImage}
-                className={UI_STYLES.button.add}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
                 aria-label="Add image"
               >
-                <Plus className={UI_STYLES.iconSize} />
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
 
-            <div className={UI_STYLES.space.sm}>
+            <div className="space-y-2">
               <div className="text-sm font-medium flex justify-between items-center text-gray-700">
                 <span>Selected Images ({imageIds.length})</span>
                 {imageIds.length > 0 && (
                   <Button 
                     variant="outline"
                     size="sm" 
-                    className={`h-8 ${UI_STYLES.button.danger}`}
+                    className="h-8 bg-white/80 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
                     onClick={handleClearAllImages}
                   >
-                    <Trash2 className={`${UI_STYLES.iconSize} mr-2`} />
+                    <Trash2 className="h-4 w-4 mr-2" />
                     Clear All
                   </Button>
                 )}
               </div>
 
-              <div className={cn("divide-y", UI_STYLES.card)}>
+              <div className={cn(
+                "divide-y rounded-md overflow-hidden", 
+                "border border-gray-200 bg-white/80"
+              )}>
                 {imageIds.length === 0 ? (
-                  <div className={cn("p-4 text-center text-sm", UI_STYLES.textMuted)}>
+                  <div className="p-4 text-center text-sm text-gray-500">
                     No images added yet
                   </div>
                 ) : (
                   imageIds.map((id, index) => (
                     <div 
                       key={index} 
-                      className="p-2 flex items-center justify-between"
+                      className="p-2 flex items-center justify-between bg-white/80"
                     >
-                      <div className={cn("text-sm truncate max-w-[200px]", UI_STYLES.textSubtle)}>
+                      <div className="text-sm truncate max-w-[200px] text-gray-600">
                         {id}
                       </div>
                       <div className="flex gap-1">
@@ -262,19 +270,19 @@ const Index = () => {
                           href={`https://drive.google.com/uc?export=view&id=${id}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-500 hover:text-blue-600 p-1 rounded hover:bg-white/20"
+                          className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
                           aria-label="View image"
                         >
-                          <ExternalLink className={UI_STYLES.iconSize} />
+                          <ExternalLink className="h-4 w-4" />
                         </a>
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className={cn(`h-6 w-6 rounded-full`, UI_STYLES.button.danger)}
+                          className="h-6 w-6 rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
                           onClick={() => handleRemoveImage(index)}
                           aria-label="Remove image"
                         >
-                          <X className={UI_STYLES.iconSize} />
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -287,15 +295,15 @@ const Index = () => {
               <Button
                 variant="outline"
                 onClick={() => setIsConfiguring(false)}
-                className={cn("mr-2", UI_STYLES.button.transparent)}
+                className="mr-2 bg-white/80 border-gray-300 text-gray-700 hover:bg-gray-100"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleSaveConfig}
-                className={UI_STYLES.button.primary}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                <Save className={`${UI_STYLES.iconSize} mr-2`} />
+                <Save className="h-4 w-4 mr-2" />
                 Save Configuration
               </Button>
             </div>

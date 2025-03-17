@@ -138,8 +138,9 @@ const NotionCarousel = ({
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 rounded-full notion-transparent flex-shrink-0 bg-white/20",
-            UI_STYLES.button.icon,
+            "h-8 w-8 rounded-full notion-transparent flex-shrink-0",
+            "bg-white/40 backdrop-blur-sm border-white/30 shadow-sm",
+            "hover:bg-white/60 hover:border-white/50",
             "mr-2"
           )}
           onClick={() => {
@@ -148,7 +149,7 @@ const NotionCarousel = ({
           }}
           aria-label="Previous slide"
         >
-          <ChevronLeft className={UI_STYLES.iconSize} />
+          <ChevronLeft className="h-4 w-4 text-gray-800" />
         </Button>
         
         <div 
@@ -185,8 +186,9 @@ const NotionCarousel = ({
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 rounded-full notion-transparent flex-shrink-0 bg-white/20",
-            UI_STYLES.button.icon,
+            "h-8 w-8 rounded-full notion-transparent flex-shrink-0",
+            "bg-white/40 backdrop-blur-sm border-white/30 shadow-sm",
+            "hover:bg-white/60 hover:border-white/50",
             "ml-2"
           )}
           onClick={() => {
@@ -195,34 +197,42 @@ const NotionCarousel = ({
           }}
           aria-label="Next slide"
         >
-          <ChevronRight className={UI_STYLES.iconSize} />
+          <ChevronRight className="h-4 w-4 text-gray-800" />
         </Button>
       </div>
       
       <div className="mt-4 flex justify-center w-full notion-transparent">
-        <div className={cn("flex items-center justify-center gap-2 notion-transparent bg-white/10 px-3 py-2 rounded-full", UI_STYLES.actionBar)}>
+        <div className={cn(
+          "flex items-center justify-center gap-2 notion-transparent",
+          "bg-white/30 backdrop-blur-sm px-3 py-2 rounded-full shadow-sm",
+          "border border-white/30"
+        )}>
           {images.map((_, index) => (
             <button
               key={index}
               className={cn(
                 "rounded-full transition-all shadow-md notion-transparent",
                 index === activeIndex 
-                  ? "w-5 h-5 bg-white" 
-                  : "w-3 h-3 bg-white/60 hover:bg-white/80"
+                  ? "w-5 h-5 bg-gray-800" 
+                  : "w-3 h-3 bg-gray-600/60 hover:bg-gray-700"
               )}
               onClick={() => goToSlide(index)}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
           
-          <div className={cn(`ml-2 pl-2 border-l ${UI_STYLES.border}`)}>
+          <div className={cn(`ml-2 pl-2 border-l border-white/40`)}>
             <Button 
               variant="outline"
               onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
-              className={cn("h-7 px-2 bg-white/20", UI_STYLES.button.subtle)}
+              className={cn(
+                "h-7 px-2 bg-white/40 backdrop-blur-sm shadow-sm",
+                "border-white/30 hover:bg-white/60 hover:border-white/50",
+                "text-gray-800"
+              )}
               size="sm"
             >
-              <ChevronDown className={UI_STYLES.iconSizeSmall + " mr-1"} />
+              <ChevronDown className="h-3 w-3 mr-1 text-gray-800" />
               Configure
             </Button>
           </div>
