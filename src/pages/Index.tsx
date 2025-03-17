@@ -203,7 +203,7 @@ const Index = () => {
           )}>
             <div className="space-y-5">
               <Alert className="bg-blue-50 border-blue-200">
-                <AlertCircle className={cn("fill-current text-blue-600", UI_STYLES.iconSize)} />
+                <AlertCircle className={cn(UI_STYLES.iconSize)} />
                 <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
                 <AlertDescription className="text-blue-700">
                   <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
