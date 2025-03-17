@@ -187,125 +187,126 @@ const Index = () => {
 
   return (
     <div className="notion-transparent">
-      <NotionCarousel 
-        images={images} 
-        className="notion-transparent"
-        height={480}
-      />
+      <div className="notion-transparent">
+        <NotionCarousel 
+          images={images} 
+          className="notion-transparent"
+          height={480}
+        />
+      </div>
 
       {isConfiguring && (
-        <div className={cn(
-          "p-4 max-w-[800px] mx-auto mt-4 rounded-lg",
-          "bg-white/60 backdrop-blur-sm border border-gray-200 shadow-md"
-        )}>
-          <div className="space-y-4">
-            <Alert className={cn(
-              "mb-4 bg-blue-100 border-blue-200 text-blue-800"
-            )}>
-              <AlertCircle className="h-4 w-4 border-blue-700 text-blue-600" />
-              <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
-              <AlertDescription className="text-blue-800">
-                <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
-              </AlertDescription>
-            </Alert>
-            
-            <label htmlFor="image-input" className="text-sm font-medium mb-1 block text-gray-700">
-              Add Google Drive Images
-            </label>
-            <div className="flex gap-2">
-              <Input
-                id="image-input"
-                placeholder="Paste Google Drive image ID or URL"
-                value={tempImageId}
-                onChange={(e) => setTempImageId(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddImage()}
-                className="bg-white border-gray-300"
-                maxLength={200}
-              />
-              <Button 
-                size="icon"
-                onClick={handleAddImage}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                aria-label="Add image"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-sm font-medium flex justify-between items-center text-gray-700">
-                <span>Selected Images ({imageIds.length})</span>
-                {imageIds.length > 0 && (
+        <div className="notion-transparent mt-4">
+          <div className={cn(
+            "max-w-[800px] mx-auto p-5 rounded-xl",
+            "bg-white shadow-lg border border-gray-200"
+          )}>
+            <div className="space-y-5">
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertCircle className="h-4 w-4 text-blue-600" />
+                <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
+                <AlertDescription className="text-blue-700">
+                  <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
+                </AlertDescription>
+              </Alert>
+              
+              <div>
+                <label htmlFor="image-input" className="text-sm font-medium mb-2 block text-gray-700">
+                  Add Google Drive Images
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    id="image-input"
+                    placeholder="Paste Google Drive image ID or URL"
+                    value={tempImageId}
+                    onChange={(e) => setTempImageId(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddImage()}
+                    className="bg-white border-gray-300"
+                    maxLength={200}
+                  />
                   <Button 
-                    variant="outline"
-                    size="sm" 
-                    className="h-8 bg-white/80 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-                    onClick={handleClearAllImages}
+                    size="icon"
+                    onClick={handleAddImage}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    aria-label="Add image"
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Clear All
+                    <Plus className="h-4 w-4" />
                   </Button>
-                )}
+                </div>
               </div>
 
-              <div className={cn(
-                "divide-y rounded-md overflow-hidden", 
-                "border border-gray-200 bg-white/80"
-              )}>
-                {imageIds.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-gray-500">
-                    No images added yet
-                  </div>
-                ) : (
-                  imageIds.map((id, index) => (
-                    <div 
-                      key={index} 
-                      className="p-2 flex items-center justify-between bg-white/80"
+              <div className="space-y-3">
+                <div className="text-sm font-medium flex justify-between items-center text-gray-700">
+                  <span>Selected Images ({imageIds.length})</span>
+                  {imageIds.length > 0 && (
+                    <Button 
+                      variant="outline"
+                      size="sm" 
+                      className="h-8 bg-white border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={handleClearAllImages}
                     >
-                      <div className="text-sm truncate max-w-[200px] text-gray-600">
-                        {id}
-                      </div>
-                      <div className="flex gap-1">
-                        <a 
-                          href={`https://drive.google.com/uc?export=view&id=${id}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
-                          aria-label="View image"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6 rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
-                          onClick={() => handleRemoveImage(index)}
-                          aria-label="Remove image"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Clear All
+                    </Button>
+                  )}
+                </div>
 
-            <div className="flex justify-end pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setIsConfiguring(false)}
-                className="mr-2 bg-white/80 border-gray-300 text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSaveConfig}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Configuration
-              </Button>
+                <div className="divide-y rounded-md overflow-hidden border border-gray-200 bg-white">
+                  {imageIds.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-gray-500 bg-white">
+                      No images added yet
+                    </div>
+                  ) : (
+                    imageIds.map((id, index) => (
+                      <div 
+                        key={index} 
+                        className="p-3 flex items-center justify-between bg-white"
+                      >
+                        <div className="text-sm truncate max-w-[200px] text-gray-600">
+                          {id}
+                        </div>
+                        <div className="flex gap-1">
+                          <a 
+                            href={`https://drive.google.com/uc?export=view&id=${id}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
+                            aria-label="View image"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6 rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => handleRemoveImage(index)}
+                            aria-label="Remove image"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsConfiguring(false)}
+                  className="mr-2 bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSaveConfig}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Configuration
+                </Button>
+              </div>
             </div>
           </div>
         </div>

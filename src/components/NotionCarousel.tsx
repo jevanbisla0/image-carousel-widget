@@ -113,34 +113,34 @@ const NotionCarousel = ({
   
   if (!images.length) {
     return (
-      <div className={cn("relative max-w-[880px] mx-auto notion-transparent", className)}>
-        <div className="flex items-center notion-transparent">
-          <div className="h-8 w-8 mr-2 flex-shrink-0 notion-transparent" />
+      <div className={cn("relative max-w-[880px] mx-auto", className)}>
+        <div className="flex items-center">
+          <div className="h-8 w-8 mr-2 flex-shrink-0" />
           <div 
-            className={cn(`relative w-full notion-transparent flex items-center justify-center rounded-lg border backdrop-blur-sm bg-white/20 ${UI_STYLES.border}`)}
+            className="relative w-full flex items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm"
             style={{ height: `${height}px` }}
           >
-            <div className="text-center p-4 space-y-2 notion-transparent rounded-md bg-black/20 backdrop-blur-sm border border-white/10 shadow-lg">
-              <ImageIcon className={cn(`mx-auto h-10 w-10 text-white/70`)} />
-              <p className="text-white/80 font-medium">No images to display</p>
+            <div className="text-center p-4 space-y-2 rounded-md bg-gray-50 border border-gray-200 shadow-md">
+              <ImageIcon className="mx-auto h-10 w-10 text-gray-500" />
+              <p className="text-gray-600 font-medium">No images to display</p>
             </div>
           </div>
-          <div className="h-8 w-8 ml-2 flex-shrink-0 notion-transparent" />
+          <div className="h-8 w-8 ml-2 flex-shrink-0" />
         </div>
       </div>
     );
   }
   
   return (
-    <div className={cn("relative max-w-[880px] mx-auto notion-transparent", className)}>
-      <div className="flex items-center notion-transparent">
+    <div className={cn("relative max-w-[880px] mx-auto", className)}>
+      <div className="flex items-center">
         <Button
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 rounded-full notion-transparent flex-shrink-0",
-            "bg-white/40 backdrop-blur-sm border-white/30 shadow-sm",
-            "hover:bg-white/60 hover:border-white/50",
+            "h-8 w-8 rounded-full flex-shrink-0",
+            "bg-white shadow-sm border border-gray-200",
+            "hover:bg-gray-100 hover:border-gray-300",
             "mr-2"
           )}
           onClick={() => {
@@ -153,7 +153,7 @@ const NotionCarousel = ({
         </Button>
         
         <div 
-          className={cn(`relative overflow-hidden rounded-lg w-full notion-transparent border ${UI_STYLES.border}`)}
+          className="relative overflow-hidden rounded-lg w-full border border-gray-200 bg-white/70"
           style={{ height: `${height}px` }}
         >
           <div 
@@ -186,9 +186,9 @@ const NotionCarousel = ({
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 rounded-full notion-transparent flex-shrink-0",
-            "bg-white/40 backdrop-blur-sm border-white/30 shadow-sm",
-            "hover:bg-white/60 hover:border-white/50",
+            "h-8 w-8 rounded-full flex-shrink-0",
+            "bg-white shadow-sm border border-gray-200",
+            "hover:bg-gray-100 hover:border-gray-300",
             "ml-2"
           )}
           onClick={() => {
@@ -201,35 +201,27 @@ const NotionCarousel = ({
         </Button>
       </div>
       
-      <div className="mt-4 flex justify-center w-full notion-transparent">
-        <div className={cn(
-          "flex items-center justify-center gap-2 notion-transparent",
-          "bg-white/30 backdrop-blur-sm px-3 py-2 rounded-full shadow-sm",
-          "border border-white/30"
-        )}>
+      <div className="mt-4 flex justify-center w-full">
+        <div className="flex items-center justify-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm border border-gray-200">
           {images.map((_, index) => (
             <button
               key={index}
               className={cn(
-                "rounded-full transition-all shadow-md notion-transparent",
+                "rounded-full transition-all shadow-md",
                 index === activeIndex 
                   ? "w-5 h-5 bg-gray-800" 
-                  : "w-3 h-3 bg-gray-600/60 hover:bg-gray-700"
+                  : "w-3 h-3 bg-gray-400 hover:bg-gray-600"
               )}
               onClick={() => goToSlide(index)}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
           
-          <div className={cn(`ml-2 pl-2 border-l border-white/40`)}>
+          <div className="ml-2 pl-2 border-l border-gray-300">
             <Button 
               variant="outline"
               onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
-              className={cn(
-                "h-7 px-2 bg-white/40 backdrop-blur-sm shadow-sm",
-                "border-white/30 hover:bg-white/60 hover:border-white/50",
-                "text-gray-800"
-              )}
+              className="h-7 px-2 bg-white shadow-sm border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-800"
               size="sm"
             >
               <ChevronDown className="h-3 w-3 mr-1 text-gray-800" />
