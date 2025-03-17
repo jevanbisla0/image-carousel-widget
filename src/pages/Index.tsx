@@ -199,11 +199,11 @@ const Index = () => {
         <div className="mt-4">
           <div className={cn(
             "max-w-[800px] mx-auto p-5 rounded-xl",
-            "bg-white border-gray-200"
+            UI_STYLES.panel
           )}>
             <div className="space-y-5">
               <Alert className="bg-blue-50 border-blue-200">
-                <AlertCircle className="h-4 w-4 text-blue-600" />
+                <AlertCircle className={cn("text-blue-600", UI_STYLES.iconSize)} />
                 <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
                 <AlertDescription className="text-blue-700">
                   <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
@@ -228,10 +228,10 @@ const Index = () => {
                     variant="outline"
                     size="icon"
                     onClick={handleAddImage}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className={UI_STYLES.button.primary}
                     aria-label="Add image"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className={UI_STYLES.iconSize} />
                   </Button>
                 </div>
               </div>
@@ -243,27 +243,27 @@ const Index = () => {
                     <Button 
                       variant="outline"
                       size="sm" 
-                      className="h-8 bg-white border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      className={cn("h-8", UI_STYLES.button.danger)}
                       onClick={handleClearAllImages}
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      <Trash2 className={cn(UI_STYLES.iconSize, "mr-2")} />
                       Clear All
                     </Button>
                   )}
                 </div>
 
-                <div className="divide-y rounded-md overflow-hidden border border-gray-200 bg-white">
+                <div className={cn("divide-y rounded-md overflow-hidden", UI_STYLES.card)}>
                   {imageIds.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-gray-500 bg-white">
+                    <div className={cn("p-4 text-center text-sm", UI_STYLES.textMuted, UI_STYLES.bgPanel)}>
                       No images added yet
                     </div>
                   ) : (
                     imageIds.map((id, index) => (
                       <div 
                         key={index} 
-                        className="p-3 flex items-center justify-between bg-white"
+                        className={cn("p-3 flex items-center justify-between", UI_STYLES.bgPanel)}
                       >
-                        <div className="text-sm truncate max-w-[200px] text-gray-600">
+                        <div className={cn("text-sm truncate max-w-[200px]", UI_STYLES.textSubtle)}>
                           {id}
                         </div>
                         <div className="flex gap-1">
@@ -274,7 +274,7 @@ const Index = () => {
                             className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
                             aria-label="View image"
                           >
-                            <ExternalLink className="h-4 w-4" />
+                            <ExternalLink className={UI_STYLES.iconSize} />
                           </a>
                           <Button 
                             variant="ghost" 
@@ -283,7 +283,7 @@ const Index = () => {
                             onClick={() => handleRemoveImage(index)}
                             aria-label="Remove image"
                           >
-                            <X className="h-4 w-4" />
+                            <X className={UI_STYLES.iconSize} />
                           </Button>
                         </div>
                       </div>
@@ -296,16 +296,16 @@ const Index = () => {
                 <Button
                   variant="outline"
                   onClick={() => setIsConfiguring(false)}
-                  className="mr-2 bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+                  className={cn("mr-2", UI_STYLES.button.secondary)}
                 >
                   Cancel
                 </Button>
                 <Button 
                   variant="outline"
                   onClick={handleSaveConfig}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className={UI_STYLES.button.primary}
                 >
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className={cn(UI_STYLES.iconSize, "mr-2")} />
                   Save Configuration
                 </Button>
               </div>

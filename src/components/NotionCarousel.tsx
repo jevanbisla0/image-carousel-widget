@@ -116,13 +116,10 @@ const NotionCarousel = ({
       <div className={cn("relative max-w-[880px] mx-auto", className)}>
         <div className="flex items-center">
           <div className="h-8 w-8 mr-2 flex-shrink-0" />
-          <div 
-            className="relative w-full flex items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm"
-            style={{ height: `${height}px` }}
-          >
+          <div className={cn("relative w-full flex items-center justify-center", UI_STYLES.panel)} style={{ height: `${height}px` }}>
             <div className="text-center p-4 space-y-2 rounded-md bg-gray-50 border border-gray-200 shadow-md">
-              <ImageIcon className="mx-auto h-10 w-10 text-gray-500" />
-              <p className="text-gray-600 font-medium">No images to display</p>
+              <ImageIcon className={cn("mx-auto", UI_STYLES.iconSizeMedium, UI_STYLES.textMuted)} />
+              <p className={UI_STYLES.textBody}>No images to display</p>
             </div>
           </div>
           <div className="h-8 w-8 ml-2 flex-shrink-0" />
@@ -138,10 +135,8 @@ const NotionCarousel = ({
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 rounded-full flex-shrink-0",
-            "bg-white shadow-sm border border-gray-200",
-            "hover:bg-gray-100 hover:border-gray-300",
-            "mr-2"
+            "h-8 w-8 flex-shrink-0 mr-2",
+            UI_STYLES.button.icon
           )}
           onClick={() => {
             goToPrev();
@@ -149,13 +144,10 @@ const NotionCarousel = ({
           }}
           aria-label="Previous slide"
         >
-          <ChevronLeft className="h-4 w-4 text-gray-800" />
+          <ChevronLeft className={UI_STYLES.iconSize} />
         </Button>
         
-        <div 
-          className="relative overflow-hidden rounded-lg w-full border border-gray-200 bg-white/70"
-          style={{ height: `${height}px` }}
-        >
+        <div className={cn("relative overflow-hidden rounded-lg w-full", UI_STYLES.panel)} style={{ height: `${height}px` }}>
           <div 
             ref={carouselRef}
             className="w-full h-full flex"
@@ -186,10 +178,8 @@ const NotionCarousel = ({
           variant="outline"
           size="icon"
           className={cn(
-            "h-8 w-8 rounded-full flex-shrink-0",
-            "bg-white shadow-sm border border-gray-200",
-            "hover:bg-gray-100 hover:border-gray-300",
-            "ml-2"
+            "h-8 w-8 flex-shrink-0 ml-2",
+            UI_STYLES.button.icon
           )}
           onClick={() => {
             goToNext();
@@ -197,12 +187,12 @@ const NotionCarousel = ({
           }}
           aria-label="Next slide"
         >
-          <ChevronRight className="h-4 w-4 text-gray-800" />
+          <ChevronRight className={UI_STYLES.iconSize} />
         </Button>
       </div>
       
       <div className="mt-4 flex justify-center w-full">
-        <div className="flex items-center justify-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm border border-gray-200">
+        <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full", UI_STYLES.actionBar)}>
           {images.map((_, index) => (
             <button
               key={index}
@@ -217,14 +207,14 @@ const NotionCarousel = ({
             />
           ))}
           
-          <div className="ml-2 pl-2 border-l border-gray-300">
+          <div className={cn("ml-2 pl-2 border-l", UI_STYLES.border)}>
             <Button 
               variant="outline"
               onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
-              className="h-7 px-2 bg-white shadow-sm border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-800"
+              className={cn("h-7 px-2", UI_STYLES.button.secondary)}
               size="sm"
             >
-              <ChevronDown className="h-3 w-3 mr-1 text-gray-800" />
+              <ChevronDown className={cn(UI_STYLES.iconSizeSmall, "mr-1")} />
               Configure
             </Button>
           </div>
