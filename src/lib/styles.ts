@@ -37,10 +37,10 @@ export const UI_STYLES = {
   // Button styles - Consolidated for easier maintenance
   button: {
     // Primary button - Used for main actions (Save, Submit)
-    primary: "bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 shadow-sm rounded-md",
+    primary: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md",
     
     // Secondary button - Used for secondary actions (Cancel, Back)
-    secondary: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md",
+    secondary: "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 shadow-sm rounded-md",
     
     // Icon button - Used for icon-only buttons (navigation, toggles)
     icon: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm rounded-full",
@@ -49,7 +49,7 @@ export const UI_STYLES = {
     danger: "bg-white hover:bg-red-50 text-red-600 border border-red-300 shadow-sm rounded-md",
     
     // Legacy styles - kept for backward compatibility
-    add: "bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 shadow-sm rounded-md",
+    add: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md",
     transparent: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md",
     subtle: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm rounded-md"
   },

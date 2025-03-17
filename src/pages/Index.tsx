@@ -228,7 +228,7 @@ const Index = () => {
                     variant="outline"
                     size="icon"
                     onClick={handleAddImage}
-                    className={UI_STYLES.button.primary}
+                    className={UI_STYLES.button.secondary}
                     aria-label="Add image"
                   >
                     <Plus className={UI_STYLES.iconSize} />
@@ -303,7 +303,7 @@ const Index = () => {
                 <Button 
                   variant="outline"
                   onClick={handleSaveConfig}
-                  className={UI_STYLES.button.primary}
+                  className={UI_STYLES.button.secondary}
                 >
                   <Save className={cn(UI_STYLES.iconSize, "mr-2")} />
                   Save Configuration
