@@ -196,15 +196,15 @@ const Index = () => {
       {isConfiguring && (
         <div className={cn(
           "p-4 max-w-[800px] mx-auto mt-4 rounded-lg",
-          "bg-white/60 backdrop-blur-sm border border-white/40 shadow-md"
+          "bg-white/60 backdrop-blur-sm border border-gray-200 shadow-md"
         )}>
           <div className="space-y-4">
             <Alert className={cn(
-              "mb-4 bg-blue-50/80 border-blue-200/80 text-blue-800"
+              "mb-4 bg-blue-100 border-blue-200 text-blue-800"
             )}>
-              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <AlertCircle className="h-4 w-4 border-blue-700 text-blue-600" />
               <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
-              <AlertDescription className="text-blue-700">
+              <AlertDescription className="text-blue-800">
                 <p>Add Google Drive image IDs or sharing URLs. Make sure images are shared with <strong>"Anyone with the link can view"</strong> permission.</p>
               </AlertDescription>
             </Alert>
