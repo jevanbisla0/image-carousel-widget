@@ -202,7 +202,7 @@ const Index = () => {
             UI_STYLES.panel
           )}>
             <div className="space-y-5">
-              <Alert className="bg-blue-50 border-blue-200">
+              <Alert className="!bg-blue-50 border-blue-200">
                 <Info className={cn("text-blue-800", UI_STYLES.iconSize)} />
                 <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
                 <AlertDescription className="text-blue-700">

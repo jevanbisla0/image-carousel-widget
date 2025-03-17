@@ -148,6 +148,7 @@ const NotionCarousel = ({
         </Button>
         
         <div className={cn("relative overflow-hidden rounded-lg w-full", UI_STYLES.panel)} style={{ height: `${height}px` }}>
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-[-1]" />
           <div 
             ref={carouselRef}
             className="w-full h-full flex"

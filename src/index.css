@@ -100,21 +100,23 @@
     background-color: transparent !important;
   }
 
-  #root,
-  [class*="bg-"],
-  [class*="background"] {
-    background: none !important;
-    background-color: transparent !important;
+  #root {
+    background: none;
+    background-color: transparent;
   }
 }
 
 .notion-embed,
 .notion-transparent {
-  background: none !important;
-  background-color: transparent !important;
+  background: none;
+  background-color: transparent;
 }
 
 [class*="bg-"] {
   background: none !important;
   background-color: transparent !important;
+}
+
+.my-specific-selector.bg-blue-500 {
+  background-color: #3b82f6 !important;
 }
