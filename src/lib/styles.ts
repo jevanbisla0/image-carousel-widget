@@ -46,7 +46,7 @@ export const UI_STYLES = {
     icon: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm rounded-full",
     
     // Danger button - Used for destructive actions
-    danger: "bg-white hover:bg-red-50 text-red-600 border border-red-300 shadow-sm rounded-md",
+    danger: "bg-white hover:bg-red-50 text-red-600 hover:text-red-700 border border-red-300 shadow-sm rounded-md",
     
     // Legacy styles - kept for backward compatibility
     add: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md",
