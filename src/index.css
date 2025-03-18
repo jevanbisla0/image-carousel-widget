@@ -106,20 +106,20 @@
   }
 }
 
-/* Replace the overly aggressive selectors with more targeted ones */
+/* Top-level container for Notion embedding */
 .notion-container {
   background: none !important;
   background-color: transparent !important;
 }
 
-/* Keep for backward compatibility */
+/* Backward compatibility */
 .notion-embed,
 .notion-transparent {
   background: none !important;
   background-color: transparent !important;
 }
 
-/* Remove the global bg- selector that's causing all the problems */
+/* IMPORTANT: This was causing all bg- classes to be transparent */
 /* 
 [class*="bg-"] {
   background: none !important;
@@ -127,27 +127,79 @@
 }
 */
 
-/* Create a class to enable backgrounds when needed */
-.allow-bg {
-  background: initial !important;
+/* NEW APPROACH: Stronger overrides with higher specificity */
+/* Add this class to elements that should have backgrounds */
+.force-bg {
   background-color: initial !important;
+  background-image: initial !important;
+  background-blend-mode: initial !important;
+  background-position: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-attachment: initial !important;
 }
 
-/* Let Tailwind utility classes work on elements with allow-bg */
-.allow-bg[class*="bg-"] {
-  background: initial !important;
-}
-
-/* A mechanism to specify explicit background colors */
-.bg-blue-50 {
-  background-color: rgb(239 246 255) !important;
-}
-
-.bg-white {
+/* Tailwind background utility overrides */
+.force-bg.bg-white {
   background-color: #ffffff !important;
 }
 
-/* Keep your existing override */
+.force-bg.bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+.force-bg.bg-gray-100 {
+  background-color: #f3f4f6 !important;
+}
+
+.force-bg.bg-blue-50 {
+  background-color: #eff6ff !important;
+}
+
+.force-bg.bg-red-50 {
+  background-color: #fef2f2 !important;
+}
+
+.force-bg.bg-yellow-50 {
+  background-color: #fffbeb !important;
+}
+
+.force-bg.bg-green-50 {
+  background-color: #f0fdf4 !important;
+}
+
+/* Add more background colors as needed */
+
+/* Extra important overrides for common component types */
+button.force-bg, 
+.button.force-bg,
+.btn.force-bg {
+  background-color: initial !important;
+}
+
+.card.force-bg, 
+.panel.force-bg,
+.alert.force-bg,
+.container.force-bg {
+  background-color: initial !important;
+}
+
+/* Support for hover states */
+.force-bg.hover\:bg-gray-50:hover {
+  background-color: #f9fafb !important;
+}
+
+.force-bg.hover\:bg-blue-50:hover {
+  background-color: #eff6ff !important;
+}
+
+.force-bg.hover\:bg-red-50:hover {
+  background-color: #fef2f2 !important;
+}
+
+/* Keep existing override */
 .my-specific-selector.bg-blue-500 {
   background-color: #3b82f6 !important;
 }

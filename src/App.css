@@ -36,23 +36,29 @@
 
 .card {
   padding: 2em;
-  background: none !important;
 }
 
 .read-the-docs {
   color: #888;
 }
 
+/* These classes should have transparent backgrounds for Notion */
 .notion-transparent,
-.notion-embed {
-  /* REMOVE THESE */
-  /* body, */
-  /* #root, */
-  /* [class*="bg-"], */
-  /* [class*="background"] */
-  /* { */
-  /*   background: none !important; */
-  /*   background-color: transparent !important; */
-  /* } */
+.notion-embed,
+.notion-container {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Override specificity to allow backgrounds on elements that need them */
+.force-bg[class] {
+  background-color: initial !important;
+  background-image: initial !important;
+}
+
+/* Make sure card components can have backgrounds when needed */
+.card.force-bg {
+  background: initial !important;
+  background-color: initial !important;
 }
 
