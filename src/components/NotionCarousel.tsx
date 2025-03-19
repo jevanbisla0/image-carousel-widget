@@ -211,8 +211,7 @@ const NotionCarousel = ({
               className={cn("h-7 px-2 force-bg", UI_STYLES.button.secondary)}
               size="sm"
             >
-              <ChevronDown className={cn(UI_STYLES.iconSizeSmall, "mr-1")} />
-              
+              <ChevronDown className={cn(UI_STYLES.iconSizeSmall)} />
             </Button>
           </div>
         </div>
