@@ -102,11 +102,7 @@ const Index = () => {
       localStorage.setItem(FOLDER_ID_KEY, finalFolderId);
       storeImagesForFolder(finalFolderId, imageIds);
       
-      // Generate the actual image URLs to display
-      const updatedImages = imageIds.map(id => getGoogleDriveImageUrl(id));
-      console.log("Generated image URLs:", updatedImages);
-      
-      setImages(updatedImages);
+      setImages(imageIds.map(id => getGoogleDriveImageUrl(id)));
       setIsConfiguring(false);
       
       toast({
@@ -127,15 +123,9 @@ const Index = () => {
       const input = tempImageId.trim();
       if (!input) return;
       
-      // Log the input for debugging
-      console.log("Input URL/ID:", input);
-      
       const id = input.startsWith('http') 
         ? extractGoogleDriveFileId(input) || ""
         : input;
-      
-      // Log the extracted ID
-      console.log("Extracted file ID:", id);
       
       if (!id) {
         toast({
@@ -157,10 +147,6 @@ const Index = () => {
       
       setImageIds(prev => [...prev, id]);
       setTempImageId("");
-      
-      // Log the full Google Drive URL being used
-      console.log("Using Google Drive URL:", getGoogleDriveImageUrl(id));
-      
       toast({ 
         title: "Image added", 
         description: "Image added to carousel" 

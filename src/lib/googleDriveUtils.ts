@@ -6,11 +6,7 @@
  * Convert a Google Drive file ID to a direct image URL
  */
 export function getGoogleDriveImageUrl(fileId: string): string {
-  // Using the more reliable export=view format that works with Google Drive's security policies
-  return `https://drive.google.com/uc?export=view&id=${fileId}`;
-  
-  // Previous format that might be blocked by security policies:
-  // return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
 
 /**
