@@ -7,10 +7,10 @@ export const UI_STYLES = {
   border: "border-gray-200",
   
   // Panel and card styles
-  panel: "bg-white border border-gray-200 rounded-lg shadow-sm force-bg",
-  card: "bg-white border border-gray-200 rounded-md force-bg",
-  bgPanel: "bg-white force-bg",
-  bgCard: "bg-white force-bg",
+  panel: "bg-white/40 border border-gray-200 rounded-lg shadow-sm force-bg",
+  card: "bg-surface border border-gray-200 rounded-md force-bg",
+  bgPanel: "bg-surface force-bg",
+  bgCard: "bg-surface force-bg",
   bgMuted: "bg-gray-50 force-bg",
   
   // Text styles
@@ -37,7 +37,7 @@ export const UI_STYLES = {
   // Button styles - Consolidated for easier maintenance
   button: {
     // Primary button - Used for main actions (Save, Submit)
-    primary: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md force-bg",
+    primary: "bg-surface hover:bg-gray-50/20 text-gray-700 border border-gray-300 shadow-sm rounded-md force-bg",
     
     // Secondary button - Used for secondary actions (Cancel, Back)
     secondary: "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 shadow-sm rounded-md force-bg",
@@ -51,7 +51,9 @@ export const UI_STYLES = {
     // Legacy styles - kept for backward compatibility
     add: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md force-bg",
     transparent: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md force-bg",
-    subtle: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm rounded-md force-bg"
+    subtle: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm rounded-md force-bg",
+    active: "bg-blue-600 force-bg bg-opacity-40",
+    inactive: "bg-gray-400 hover:bg-gray-500 force-bg bg-opacity-40",
   },
   
   // Transitions
@@ -73,5 +75,9 @@ export const UI_STYLES = {
     inactive: "bg-gray-400 hover:bg-gray-500 force-bg",
     warning: "bg-yellow-500 force-bg",
     error: "bg-red-500 force-bg",
+  },
+  
+  containers: {
+    default: "bg-white force-bg bg-opacity-40",
   },
 }; 

@@ -26,27 +26,28 @@ const BackgroundFixStyleInjector = () => {
     styleEl.innerHTML = `
       /* Force backgrounds to work in all contexts */
       .force-bg {
-        background-color: initial !important;
+        background-color: rgba(255, 255, 255, 0.4) !important;
         background-image: initial !important;
-        background-position: initial !important;
-        background-size: initial !important;
-        background-repeat: initial !important;
-        background-origin: initial !important;
-        background-clip: initial !important;
-        background-attachment: initial !important;
+      }
+      
+      /* Specific color overrides with opacity */
+      body .force-bg.bg-white {
+        background-color: rgba(255, 255, 255, 0.4) !important;
+        background-image: initial !important;
+      }
+      
+      /* Update button overrides */
+      body button.force-bg,
+      body .button.force-bg,
+      body .btn.force-bg {
+        background-color: rgba(255, 255, 255, 0.4) !important;
       }
       
       /* Specific color overrides with higher specificity */
-      body .force-bg.bg-white { background-color: #ffffff !important; }
       body .force-bg.bg-gray-50 { background-color: #f9fafb !important; }
       body .force-bg.bg-gray-100 { background-color: #f3f4f6 !important; }
       body .force-bg.bg-blue-50 { background-color: #eff6ff !important; }
       body .force-bg.bg-red-50 { background-color: #fef2f2 !important; }
-      
-      /* Force backgrounds on buttons with higher specificity */
-      body button.force-bg { background-color: initial !important; }
-      body .button.force-bg { background-color: initial !important; }
-      body .btn.force-bg { background-color: initial !important; }
       
       /* Force backgrounds on hover with higher specificity */
       body .force-bg.hover\\:bg-gray-50:hover { background-color: #f9fafb !important; }

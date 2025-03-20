@@ -17,23 +17,18 @@ import { cn } from "@/lib/utils";
 const FOLDER_ID_DEFAULT = "google_drive_images";
 const FOLDER_ID_KEY = "google_drive_folder_id";
 
-// Sample images to use if nothing is loaded from localStorage
-const SAMPLE_IMAGES = [
-  "https://picsum.photos/id/1018/1000/600",
-  "https://picsum.photos/id/1015/1000/600",
-  "https://picsum.photos/id/1019/1000/600"
-];
-
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [folderId, setFolderId] = useState(FOLDER_ID_DEFAULT);
   const [imageIds, setImageIds] = useState<string[]>([]);
   const [tempImageId, setTempImageId] = useState("");
-  const [images, setImages] = useState<string[]>(SAMPLE_IMAGES); // Initialize with sample images
+  const [images, setImages] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Load saved images on component mount
   useEffect(() => {
+    console.log("Index component mounted");
+    
     const loadImages = async () => {
       try {
         let storedFolderId = localStorage.getItem(FOLDER_ID_KEY) || FOLDER_ID_DEFAULT;
@@ -59,10 +54,7 @@ const Index = () => {
               // Filter out empty strings
               const validIds = parsedIds.filter(id => id.trim());
               setImageIds(validIds);
-              
-              if (validIds.length > 0) {
-                setImages(validIds.map(id => getGoogleDriveImageUrl(id)));
-              } // If no valid IDs, keep the sample images
+              setImages(validIds.map(id => getGoogleDriveImageUrl(id)));
             } else {
               // Invalid data structure - reset
               localStorage.removeItem(storageKey);
@@ -80,12 +72,18 @@ const Index = () => {
     
     loadImages();
     
-    // Handle config toggle event
+    // Handle config toggle event for backward compatibility
     const handleToggleConfig = () => setIsConfiguring(prev => !prev);
     window.addEventListener('toggleCarouselConfig', handleToggleConfig);
     
     return () => window.removeEventListener('toggleCarouselConfig', handleToggleConfig);
   }, []);
+
+  // Direct toggle handler
+  const toggleConfigPanel = () => {
+    console.log("Config panel toggled");
+    setIsConfiguring(prev => !prev);
+  };
 
   const handleSaveConfig = () => {
     try {
@@ -180,7 +178,7 @@ const Index = () => {
     try {
       setImageIds([]);
       clearStoredImagesForFolder(folderId);
-      setImages(SAMPLE_IMAGES);
+      setImages([]);
       
       toast({
         title: "All images cleared",
@@ -202,6 +200,7 @@ const Index = () => {
           images={images} 
           className="notion-container"
           height={480}
+          onConfigureClick={toggleConfigPanel}
         />
       </div>
 
@@ -209,10 +208,10 @@ const Index = () => {
         <div className="mt-4">
           <div className={cn(
             "max-w-[800px] mx-auto p-5 rounded-xl force-bg",
-            UI_STYLES.panel
+            UI_STYLES.actionBar
           )}>
             <div className="space-y-5">
-              <Alert className="!bg-blue-50 border-blue-200 force-bg">
+              <Alert className="!bg-blue-50 border-blue-200 force-bg text-left">
                 <Info className={cn("text-blue-800", UI_STYLES.iconSize)} />
                 <AlertTitle className="text-blue-800 font-medium">Configure Images</AlertTitle>
                 <AlertDescription className="text-blue-700">
@@ -264,7 +263,7 @@ const Index = () => {
 
                 <div className={cn("divide-y rounded-md overflow-hidden force-bg", UI_STYLES.card)}>
                   {imageIds.length === 0 ? (
-                    <div className={cn("p-4 text-center text-sm force-bg", UI_STYLES.textMuted, UI_STYLES.bgPanel)}>
+                    <div className={cn("p-4 text-left text-sm force-bg", UI_STYLES.textMuted, UI_STYLES.bgPanel)}>
                       No images added yet
                     </div>
                   ) : (

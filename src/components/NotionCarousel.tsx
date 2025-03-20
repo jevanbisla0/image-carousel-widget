@@ -11,6 +11,7 @@ interface NotionCarouselProps {
   autoplay?: boolean;
   interval?: number;
   height?: number;
+  onConfigureClick?: () => void;
 }
 
 const NotionCarousel = ({ 
@@ -19,6 +20,7 @@ const NotionCarousel = ({
   autoplay = true, 
   interval = 5000,
   height = 480,
+  onConfigureClick,
 }: NotionCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -125,6 +127,19 @@ const NotionCarousel = ({
           </div>
           <div className="h-8 w-8 ml-2 flex-shrink-0" />
         </div>
+        
+        <div className="mt-4 flex justify-center w-full">
+          <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full force-bg", UI_STYLES.actionBar)}>
+            <Button 
+              variant="outline"
+              onClick={onConfigureClick || (() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig')))}
+              className={cn("h-7 px-2 force-bg", UI_STYLES.button.secondary)}
+              size="sm"
+            >
+              <ChevronDown className={cn(UI_STYLES.iconSizeSmall)} />
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -207,7 +222,7 @@ const NotionCarousel = ({
           <div className={cn("ml-2 pl-2 border-l", UI_STYLES.border)}>
             <Button 
               variant="outline"
-              onClick={() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig'))}
+              onClick={onConfigureClick || (() => window.dispatchEvent(new CustomEvent('toggleCarouselConfig')))}
               className={cn("h-7 px-2 force-bg", UI_STYLES.button.secondary)}
               size="sm"
             >
