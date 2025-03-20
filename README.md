@@ -39,17 +39,22 @@ npm run build
 
 ## Architecture
 
-This app is built with a clean, minimal architecture:
+This app has been simplified for maximum readability and maintainability:
 
 - **React + TypeScript**: Type-safe and maintainable code
 - **TailwindCSS**: Utility-first styling 
 - **Local Storage**: Simple persistence without backend requirements
-- **Module Structure**:
-  - `lib/`: Utilities, types, and shared functions
-  - `components/`: Reusable UI components
-  - `pages/`: Main application views
+- **Simplified Component Structure**:
+  - `lib/`: Core utilities with clear documentation
+  - `components/`: Consolidated UI components with clear responsibilities
+  - `pages/`: Minimal page components that rely on smart components
 
-The code is intentionally kept simple, avoiding unnecessary abstractions and dependencies.
+The codebase has been intentionally simplified by:
+- Combining related components and functionality
+- Reducing prop drilling and state management complexity
+- Adding comprehensive documentation
+- Removing unnecessary abstractions
+- Using sensible defaults to reduce configuration boilerplate
 
 ## Technologies
 

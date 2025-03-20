@@ -1,18 +1,26 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+/**
+ * Combines multiple class names using clsx and tailwind-merge
+ * @param inputs Class names to combine
+ * @returns Merged class names string
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// UI styling constants
+/**
+ * UI styling constants used throughout the application
+ * Makes it easy to maintain a consistent look and feel
+ */
 export const UI_STYLES = {
-  // Common styles
+  // Layout styles
   border: "border-gray-200",
   panel: "bg-white/40 border border-gray-200 rounded-lg shadow-sm",
   actionBar: "bg-white border border-gray-200",
   
-  // Text styles
+  // Typography
   textBody: "text-gray-700",
   textMuted: "text-gray-500",
   
@@ -21,7 +29,7 @@ export const UI_STYLES = {
   iconSizeSmall: "h-3 w-3",
   iconSizeMedium: "h-5 w-5",
   
-  // Button styles
+  // Button variations
   button: {
     primary: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md",
     secondary: "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 shadow-sm rounded-md",

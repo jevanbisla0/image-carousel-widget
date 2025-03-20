@@ -14,6 +14,9 @@ const basename = window.location.hostname.includes('github.io')
   ? `/${window.location.pathname.split('/')[1]}` 
   : '/';
 
+/**
+ * Main App component with routing and providers
+ */
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
