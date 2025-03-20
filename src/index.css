@@ -96,7 +96,7 @@
 }
 
 .force-bg.bg-white {
-  --tw-bg-opacity: 0.4 !important;
+  --tw-bg-opacity: 1 !important;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
 }
 
@@ -165,4 +165,10 @@ button.force-bg,
 /* Add to the end of the file */
 .bg-surface {
   background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Configuration panel specific override - ensure solid white background */
+div[class*="max-w-[800px]"][class*="rounded-xl"].force-bg {
+  background-color: rgb(255, 255, 255) !important;
+  --tw-bg-opacity: 1 !important;
 }

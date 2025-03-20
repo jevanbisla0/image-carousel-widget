@@ -32,7 +32,7 @@ export const UI_STYLES = {
   iconSizeMedium: "h-5 w-5",
   
   // Action bar
-  actionBar: "bg-white border border-gray-200 force-bg",
+  actionBar: "bg-white !bg-opacity-100 border border-gray-200 force-bg",
   
   // Button styles - Consolidated for easier maintenance
   button: {
