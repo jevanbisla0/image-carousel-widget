@@ -188,14 +188,14 @@ const NotionCarousel = ({
     return (
       <div className={cn("relative max-w-[880px] mx-auto", className)}>
         <div className="flex items-center">
-          <div className="h-8 w-8 mr-2 hidden lg:block" />
+          <div className="h-8 w-8 mr-2" />
           <div className={cn("relative w-full flex items-center justify-center", UI_STYLES.panel)} style={{ height: `${height}px` }}>
             <div className="text-center p-4 space-y-2 rounded-md bg-gray-50 border border-gray-200 shadow-md">
               <ImageIcon className={cn("mx-auto", UI_STYLES.iconSizeMedium, UI_STYLES.textMuted)} />
               <p className={UI_STYLES.textBody}>No images to display</p>
             </div>
           </div>
-          <div className="h-8 w-8 ml-2 hidden lg:block" />
+          <div className="h-8 w-8 ml-2" />
         </div>
         
         <div className="mt-4 flex justify-center">
@@ -220,7 +220,7 @@ const NotionCarousel = ({
         <Button
           variant="ghost"
           size="icon"
-          className={cn("h-8 w-8 mr-2 hidden lg:flex")}
+          className={cn("h-8 w-8 mr-2")}
           onClick={goToPrev}
           aria-label="Previous slide"
         >
@@ -259,7 +259,7 @@ const NotionCarousel = ({
         <Button
           variant="ghost"
           size="icon"
-          className={cn("h-8 w-8 ml-2 hidden lg:flex")}
+          className={cn("h-8 w-8 ml-2")}
           onClick={goToNext}
           aria-label="Next slide"
         >
