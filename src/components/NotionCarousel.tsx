@@ -170,6 +170,13 @@ const NotionCarousel = ({
                   alt={`Slide ${index === 0 || index === allSlides.length - 1 ? 'clone' : index}`}
                   className="w-full h-full object-cover"
                   loading={index === activeIndex + 1 ? "eager" : "lazy"}
+                  onError={(e) => {
+                    console.error(`Failed to load image: ${src}`);
+                    // Set a fallback image
+                    e.currentTarget.src = "https://picsum.photos/1000/600?grayscale&blur=2";
+                    // Add a visible error indicator
+                    e.currentTarget.style.border = "2px solid red";
+                  }}
                 />
               </div>
             ))}

@@ -17,12 +17,19 @@ import { cn } from "@/lib/utils";
 const FOLDER_ID_DEFAULT = "google_drive_images";
 const FOLDER_ID_KEY = "google_drive_folder_id";
 
+// Sample images to use if nothing is loaded from localStorage
+const SAMPLE_IMAGES = [
+  "https://picsum.photos/id/1018/1000/600",
+  "https://picsum.photos/id/1015/1000/600",
+  "https://picsum.photos/id/1019/1000/600"
+];
+
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [folderId, setFolderId] = useState(FOLDER_ID_DEFAULT);
   const [imageIds, setImageIds] = useState<string[]>([]);
   const [tempImageId, setTempImageId] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>(SAMPLE_IMAGES); // Initialize with sample images
   const { toast } = useToast();
 
   // Load saved images on component mount
@@ -52,7 +59,10 @@ const Index = () => {
               // Filter out empty strings
               const validIds = parsedIds.filter(id => id.trim());
               setImageIds(validIds);
-              setImages(validIds.map(id => getGoogleDriveImageUrl(id)));
+              
+              if (validIds.length > 0) {
+                setImages(validIds.map(id => getGoogleDriveImageUrl(id)));
+              } // If no valid IDs, keep the sample images
             } else {
               // Invalid data structure - reset
               localStorage.removeItem(storageKey);
@@ -92,7 +102,11 @@ const Index = () => {
       localStorage.setItem(FOLDER_ID_KEY, finalFolderId);
       storeImagesForFolder(finalFolderId, imageIds);
       
-      setImages(imageIds.map(id => getGoogleDriveImageUrl(id)));
+      // Generate the actual image URLs to display
+      const updatedImages = imageIds.map(id => getGoogleDriveImageUrl(id));
+      console.log("Generated image URLs:", updatedImages);
+      
+      setImages(updatedImages);
       setIsConfiguring(false);
       
       toast({
@@ -113,9 +127,15 @@ const Index = () => {
       const input = tempImageId.trim();
       if (!input) return;
       
+      // Log the input for debugging
+      console.log("Input URL/ID:", input);
+      
       const id = input.startsWith('http') 
         ? extractGoogleDriveFileId(input) || ""
         : input;
+      
+      // Log the extracted ID
+      console.log("Extracted file ID:", id);
       
       if (!id) {
         toast({
@@ -137,6 +157,10 @@ const Index = () => {
       
       setImageIds(prev => [...prev, id]);
       setTempImageId("");
+      
+      // Log the full Google Drive URL being used
+      console.log("Using Google Drive URL:", getGoogleDriveImageUrl(id));
+      
       toast({ 
         title: "Image added", 
         description: "Image added to carousel" 
@@ -170,7 +194,7 @@ const Index = () => {
     try {
       setImageIds([]);
       clearStoredImagesForFolder(folderId);
-      setImages([]);
+      setImages(SAMPLE_IMAGES);
       
       toast({
         title: "All images cleared",
