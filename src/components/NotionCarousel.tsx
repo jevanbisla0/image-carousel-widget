@@ -218,13 +218,13 @@ const NotionCarousel = ({
       <div className="flex items-center">
         {/* Previous button */}
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className={cn("h-8 w-8 mr-2", UI_STYLES.button.icon)}
+          className={cn("h-8 w-8 mr-2")}
           onClick={goToPrev}
           aria-label="Previous slide"
         >
-          <ChevronLeft className={UI_STYLES.iconSize} />
+          <ChevronLeft className={cn(UI_STYLES.iconSize, "text-blue-600")} />
         </Button>
         
         {/* Slides container */}
@@ -257,13 +257,13 @@ const NotionCarousel = ({
         
         {/* Next button */}
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className={cn("h-8 w-8 ml-2", UI_STYLES.button.icon)}
+          className={cn("h-8 w-8 ml-2")}
           onClick={goToNext}
           aria-label="Next slide"
         >
-          <ChevronRight className={UI_STYLES.iconSize} />
+          <ChevronRight className={cn(UI_STYLES.iconSize, "text-blue-600")} />
         </Button>
       </div>
       
