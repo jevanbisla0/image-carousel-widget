@@ -3,7 +3,6 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  background: none !important;
 }
 
 .logo {
@@ -42,12 +41,11 @@
   color: #888;
 }
 
-/* These classes should have transparent backgrounds for Notion */
-.notion-transparent,
+/* Notion integration styles */
+.notion-container,
 .notion-embed,
-.notion-container {
-  background: none !important;
-  background-color: transparent !important;
+.notion-transparent {
+  background: transparent !important;
 }
 
 /* Override specificity to allow backgrounds on elements that need them */

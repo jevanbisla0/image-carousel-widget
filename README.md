@@ -1,52 +1,61 @@
-# Notion Image Carousel Widget
+# Google Drive Image Carousel
 
-A simple, elegant image carousel widget designed specifically for Notion embeds. Display your Google Drive images in a beautiful, automatically scrolling carousel directly in your Notion pages.
+A lightweight, clean React carousel widget for displaying Google Drive images in Notion pages.
 
 ## Features
 
-- **Google Drive Integration**: Display images stored in Google Drive
-- **Infinite Scrolling**: Smooth, continuous image transitions
-- **Customizable**: Configure image selection and carousel height
-- **Configuration UI**: Add/remove images directly in the interface
-- **Responsive Design**: Works well in Notion embeds
+- Simple, responsive design with infinite scrolling effect
+- Display images stored in Google Drive 
+- User-friendly configuration interface
+- Effortless integration with Notion embeds
 
-## Usage Instructions
+## Usage
 
-1. **Setup Google Drive Images**:
-   - Upload images and ensure they're shared with "Anyone with the link can view"
-   - Copy either the image ID or sharing URL
+1. **Prepare your Google Drive images**:
+   - Upload images to Google Drive
+   - Set sharing to "Anyone with the link can view"
 
-2. **Configure the Carousel**:
-   - Click the "Configure" button in the carousel
-   - Paste Google Drive image IDs or URLs and save
+2. **Configure the carousel**:
+   - Click the button at the bottom of the carousel
+   - Paste Google Drive image IDs or sharing URLs
+   - Click "Save Configuration"
 
 3. **Embed in Notion**:
-   - Paste the deployed URL into a Notion embed block
-   - Adjust the embed dimensions as needed
+   - Add the app URL to a Notion embed block
+   - Adjust the embed height as needed
 
 ## Development
 
-This project is built with:
-- Vite + React + TypeScript
-- shadcn-ui components
-- Tailwind CSS
-
-### Running Locally
-
 ```sh
-# Clone the repository
-git clone <YOUR_GIT_URL>
-
 # Install dependencies
 npm install
 
-# Start the development server
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
 ```
 
-### Deployment
+## Architecture
 
-Deploy using the [Lovable](https://lovable.dev/projects/09040ec7-3a91-42d5-b673-192ba10f4c2a) platform or export to your preferred hosting service.
+This app is built with a clean, minimal architecture:
+
+- **React + TypeScript**: Type-safe and maintainable code
+- **TailwindCSS**: Utility-first styling 
+- **Local Storage**: Simple persistence without backend requirements
+- **Module Structure**:
+  - `lib/`: Utilities, types, and shared functions
+  - `components/`: Reusable UI components
+  - `pages/`: Main application views
+
+The code is intentionally kept simple, avoiding unnecessary abstractions and dependencies.
+
+## Technologies
+
+- React + TypeScript
+- Tailwind CSS
+- Vite
 
 ## Project info
 

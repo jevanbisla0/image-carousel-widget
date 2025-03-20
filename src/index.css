@@ -58,8 +58,7 @@
   }
 
   body {
-    background: none !important;
-    background-color: transparent !important;
+    background: transparent !important;
   }
 
   #root {
@@ -70,15 +69,13 @@
 
 /* Top-level container for Notion embedding */
 .notion-container {
-  background: none !important;
-  background-color: transparent !important;
+  background: transparent !important;
 }
 
 /* Backward compatibility */
 .notion-embed,
 .notion-transparent {
-  background: none !important;
-  background-color: transparent !important;
+  background: transparent !important;
 }
 
 /* IMPORTANT: This was causing all bg- classes to be transparent */
