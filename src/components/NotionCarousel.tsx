@@ -82,11 +82,21 @@ const NotionCarousel = ({
   }, [carouselImages.length, isTransitioning]);
   
   const startAutoplay = useCallback(() => {
-    if (autoplayRef.current) clearInterval(autoplayRef.current);
-    if (autoplay && carouselImages.length > 1) {
-      autoplayRef.current = window.setInterval(goToNext, interval);
+    // Always clear any existing interval first
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current);
+      autoplayRef.current = null;
     }
-  }, [autoplay, goToNext, carouselImages.length, interval]);
+    
+    // Only start a new interval if autoplay is enabled and we have multiple images
+    if (autoplay && carouselImages.length > 1) {
+      autoplayRef.current = window.setInterval(() => {
+        if (!isTransitioning) {
+          goToNext();
+        }
+      }, interval);
+    }
+  }, [autoplay, goToNext, carouselImages.length, interval, isTransitioning]);
   
   const handleTransitionEnd = useCallback(() => {
     setIsTransitioning(false);
@@ -166,10 +176,16 @@ const NotionCarousel = ({
   useEffect(() => {
     const element = document.getElementById('carousel-container');
     if (element) {
+      // Make sure any previous listeners are removed
+      element.removeEventListener('transitionend', handleTransitionEnd);
+      // Add the listener
       element.addEventListener('transitionend', handleTransitionEnd);
-      return () => element.removeEventListener('transitionend', handleTransitionEnd);
+      
+      return () => {
+        element.removeEventListener('transitionend', handleTransitionEnd);
+      };
     }
-  }, [handleTransitionEnd]);
+  }, [handleTransitionEnd, carouselImages]); // Also depend on carouselImages to reattach on image changes
   
   // Reset transition when it's skipped
   useEffect(() => {
@@ -180,8 +196,24 @@ const NotionCarousel = ({
   
   // Restart autoplay when not transitioning
   useEffect(() => {
-    if (!isTransitioning) startAutoplay();
-  }, [activeIndex, isTransitioning, startAutoplay]);
+    if (!isTransitioning) {
+      // Ensure autoplay is restarted properly
+      if (autoplay && carouselImages.length > 1) {
+        startAutoplay();
+      }
+    }
+  }, [activeIndex, isTransitioning, startAutoplay, autoplay, carouselImages.length]);
+  
+  // Force restart autoplay after component mounts completely
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (autoplay && carouselImages.length > 1) {
+        startAutoplay();
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [carouselImages, autoplay, startAutoplay]);
   
   // Empty state - no images
   if (!carouselImages.length) {
