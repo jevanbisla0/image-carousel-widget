@@ -178,7 +178,7 @@ const NotionCarousel = ({
       
       {/* Dots and config button */}
       <div className="mt-4 flex justify-center">
-        <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full", UI_STYLES.actionBar)}>
+        <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full")}>
           {/* Dots navigation */}
           {images.map((_, index) => (
             <CarouselDot
@@ -195,7 +195,7 @@ const NotionCarousel = ({
           ))}
           
           {/* Config button */}
-          <div className={cn("ml-2 pl-2 border-l", UI_STYLES.border)}>
+          <div>
             <Button 
               variant="outline"
               onClick={handleConfigClick}

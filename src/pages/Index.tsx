@@ -129,7 +129,7 @@ const Index = () => {
               
               {/* Image Input */}
               <div>
-                <label htmlFor="image-input" className="text-sm font-medium mb-2 block text-gray-700">
+                <label htmlFor="image-input" className="text-sm font-medium mb-2 block text-left text-gray-700">
                   Add Google Drive Images
                 </label>
                 <div className="flex gap-2">
@@ -146,7 +146,7 @@ const Index = () => {
                     variant="outline"
                     size="icon"
                     onClick={handleAddImage}
-                    className={UI_STYLES.button.secondary}
+                    className={UI_STYLES.button.primary}
                     aria-label="Add image"
                   >
                     <Plus className={UI_STYLES.iconSize} />
@@ -185,7 +185,7 @@ const Index = () => {
                         </div>
                         <div className="flex gap-2">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
                             className="h-6 w-6"
                             onClick={() => window.open(getGoogleDriveImageUrl(id), '_blank')}
