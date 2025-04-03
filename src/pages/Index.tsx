@@ -1,38 +1,32 @@
 import { useState, useEffect } from "react";
 import NotionCarousel from "@/components/NotionCarousel";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Plus, Save, Trash2, X, Info } from 'lucide-react';
+import { ExternalLink, Plus, Save, Trash2, X, Info, Copy, Link } from 'lucide-react';
 import { Input } from "@/components/ui/input";
-import { extractGoogleDriveFileId, getGoogleDriveImageUrl, imageStorage } from "@/lib/googleDriveUtils";
+import { extractGoogleDriveFileId, getGoogleDriveImageUrl, urlStorage } from "@/lib/googleDriveUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn, UI_STYLES } from "@/lib/utils";
 import { StorageOptions } from "@/lib/types";
 
-// Storage constants
-const STORAGE = {
-  folderKey: "google_drive_folder_id",
-  defaultFolder: "google_drive_images"
-};
-
 const Index = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
-  const [folderId, setFolderId] = useState(STORAGE.defaultFolder);
   const [imageIds, setImageIds] = useState<string[]>([]);
   const [tempImageId, setTempImageId] = useState("");
   const [carouselImages, setCarouselImages] = useState<string[]>([]);
+  const [shareableUrl, setShareableUrl] = useState("");
   const { toast } = useToast();
 
-  // Load saved configuration on mount
+  // Load configuration from URL parameters on mount
   useEffect(() => {
-    // Initialize from localStorage
-    const storedFolderId = localStorage.getItem(STORAGE.folderKey) || STORAGE.defaultFolder;
-    setFolderId(storedFolderId);
+    // Get images from URL parameters
+    const urlImageIds = urlStorage.getImagesFromUrl();
     
-    // Load stored images
-    const loadedIds = imageStorage.loadImages(storedFolderId);
-    setImageIds(loadedIds);
-    setCarouselImages(loadedIds.map(getGoogleDriveImageUrl));
+    if (urlImageIds.length > 0) {
+      setImageIds(urlImageIds);
+      setCarouselImages(urlImageIds.map(getGoogleDriveImageUrl));
+      setShareableUrl(urlStorage.generateUrlWithImages(urlImageIds));
+    }
     
     // Setup config panel toggle event
     const handleToggleConfig = () => setIsConfiguring(prev => !prev);
@@ -66,7 +60,16 @@ const Index = () => {
       return;
     }
     
-    setImageIds(prev => [...prev, id]);
+    // Add the new image ID to state
+    const updatedImageIds = [...imageIds, id];
+    setImageIds(updatedImageIds);
+    
+    // Update carousel images immediately
+    setCarouselImages(updatedImageIds.map(getGoogleDriveImageUrl));
+    
+    // Also update the shareable URL immediately
+    setShareableUrl(urlStorage.generateUrlWithImages(updatedImageIds));
+    
     setTempImageId("");
     toast({ title: "Image added" });
   };
@@ -80,24 +83,45 @@ const Index = () => {
       });
       return;
     }
-
-    // Save config to localStorage
-    localStorage.setItem(STORAGE.folderKey, folderId.trim() || STORAGE.defaultFolder);
-    imageStorage.saveImages(folderId, imageIds);
     
-    // Update carousel
+    // Just regenerate the shareable URL
+    const newShareableUrl = urlStorage.generateUrlWithImages(imageIds);
+    setShareableUrl(newShareableUrl);
+    
+    // Update carousel images
     setCarouselImages(imageIds.map(getGoogleDriveImageUrl));
-    setIsConfiguring(false);
     
-    toast({ title: "Configuration saved" });
+    toast({ 
+      title: "Configuration saved",
+      description: "Copy the shareable URL to update your Notion embed." 
+    });
   };
 
-  const handleRemoveImage = (index: number) => setImageIds(prev => prev.filter((_, i) => i !== index));
+  const copyShareableUrl = () => {
+    if (shareableUrl) {
+      navigator.clipboard.writeText(shareableUrl);
+      toast({ 
+        title: "URL copied",
+        description: "Shareable URL copied to clipboard" 
+      });
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const updatedImageIds = imageIds.filter((_, i) => i !== index);
+    setImageIds(updatedImageIds);
+    
+    // Update carousel images immediately
+    setCarouselImages(updatedImageIds.map(getGoogleDriveImageUrl));
+    
+    // Also update the shareable URL immediately
+    setShareableUrl(urlStorage.generateUrlWithImages(updatedImageIds));
+  };
   
   const handleClearAllImages = () => {
     setImageIds([]);
-    imageStorage.clearImages(folderId);
     setCarouselImages([]);
+    setShareableUrl("");
     toast({ title: "All images cleared" });
   };
   
@@ -213,7 +237,40 @@ const Index = () => {
                 )}
               </div>
 
-              {/* Save Button */}
+              {/* Shareable URL Section - Always show when configuring */}
+              <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                <div className="flex items-start mb-2">
+                  <Link className="text-green-800 h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-medium text-green-800">Share Your Carousel</h3>
+                    <p className="text-xs text-green-700 mt-1 mb-3">
+                      {imageIds.length > 0 
+                        ? "Copy this URL and update your Notion embed to share this configuration with others."
+                        : "Add images above to generate a shareable URL for your Notion embed."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={shareableUrl}
+                    readOnly
+                    className="text-xs bg-white"
+                    placeholder="URL will appear after adding images"
+                    onClick={(e) => shareableUrl && e.currentTarget.select()}
+                  />
+                  <Button 
+                    variant="outline"
+                    className={cn(UI_STYLES.button.secondary, "flex-shrink-0")}
+                    onClick={copyShareableUrl}
+                    disabled={!shareableUrl}
+                  >
+                    <Copy className="h-4 w-4 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+              </div>
+
+              {/* Save Button - Note: Save is now primarily for updating the shareable URL */}
               {imageIds.length > 0 && (
                 <div className="pt-2 flex justify-end">
                   <Button

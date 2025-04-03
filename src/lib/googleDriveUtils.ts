@@ -30,46 +30,30 @@ export function extractGoogleDriveFileId(url: string): string | null {
   return null;
 }
 
-// Manage image storage in localStorage
-export const imageStorage = {
-  // Save images for a folder
-  saveImages: (folderId: string, imageIds: string[]): void => {
-    if (!folderId?.trim() || !Array.isArray(imageIds) || imageIds.length === 0) return;
+// URL parameter storage mechanism for sharing
+export const urlStorage = {
+  // Get images from URL query parameters
+  getImagesFromUrl: (): string[] => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const imagesParam = urlParams.get('images');
     
-    const cleanedIds = imageIds
-      .map(id => typeof id === 'string' ? id.trim() : '')
-      .filter(Boolean);
-    
-    if (cleanedIds.length === 0) return;
-    
-    const storageKey = `drive_folder_${folderId.trim()}`;
-    localStorage.setItem(storageKey, JSON.stringify(cleanedIds));
-  },
-  
-  // Clear images for a folder
-  clearImages: (folderId: string): void => {
-    if (!folderId?.trim()) return;
-    localStorage.removeItem(`drive_folder_${folderId.trim()}`);
-  },
-  
-  // Load images for a folder
-  loadImages: (folderId: string): string[] => {
-    if (!folderId?.trim()) return [];
-    
-    const storageKey = `drive_folder_${folderId.trim()}`;
-    const storedData = localStorage.getItem(storageKey);
-    
-    if (!storedData) return [];
+    if (!imagesParam) return [];
     
     try {
-      const imageIds = JSON.parse(storedData);
-      if (Array.isArray(imageIds) && imageIds.length > 0) {
-        return imageIds.filter(id => typeof id === 'string' && id.trim());
-      }
+      return imagesParam.split(',').filter(Boolean);
     } catch {
-      localStorage.removeItem(storageKey);
+      return [];
     }
+  },
+  
+  // Generate a URL with image IDs as parameters
+  generateUrlWithImages: (imageIds: string[]): string => {
+    if (!imageIds.length) return window.location.pathname;
     
-    return [];
+    const baseUrl = window.location.origin + window.location.pathname;
+    const queryParams = new URLSearchParams();
+    queryParams.set('images', imageIds.join(','));
+    
+    return `${baseUrl}?${queryParams.toString()}`;
   }
 };
