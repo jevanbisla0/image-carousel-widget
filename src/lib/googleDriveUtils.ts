@@ -15,7 +15,6 @@ export function extractGoogleDriveFileId(url: string): string | null {
   const patterns = [
     /\/file\/d\/([^\/\?]+)/,  // /file/d/ URLs
     /id=([^&]+)/,            // ?id= parameter
-    /\/folders\/([^\/\?]+)/, // folder URLs
     /^([a-zA-Z0-9_-]{25,})$/ // Direct file ID
   ];
   
@@ -36,14 +35,7 @@ export const urlStorage = {
   getImagesFromUrl: (): string[] => {
     const urlParams = new URLSearchParams(window.location.search);
     const imagesParam = urlParams.get('images');
-    
-    if (!imagesParam) return [];
-    
-    try {
-      return imagesParam.split(',').filter(Boolean);
-    } catch {
-      return [];
-    }
+    return imagesParam ? imagesParam.split(',').filter(Boolean) : [];
   },
   
   // Generate a URL with image IDs as parameters

@@ -11,15 +11,3 @@ export interface CarouselProps {
   height?: number;
   onConfigureClick?: () => void;
 }
-
-// Google Drive related types
-export interface GoogleDriveImage {
-  id: string;
-  url: string;
-}
-
-// Storage options
-export interface StorageOptions {
-  folderId: string;
-  storageKey?: string;
-} 

@@ -8,7 +8,6 @@ export function cn(...inputs: ClassValue[]) {
 // UI styling constants
 export const UI_STYLES = {
   // Common styles
-  border: "border-gray-200",
   panel: "bg-white/40 border border-gray-200 rounded-lg shadow-sm",
   actionBar: "bg-white border border-gray-200",
   
@@ -25,7 +24,6 @@ export const UI_STYLES = {
   button: {
     primary: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-md",
     secondary: "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 shadow-sm rounded-md",
-    icon: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm rounded-full",
     danger: "bg-white hover:bg-red-50 text-red-600 hover:text-red-700 border border-red-300 shadow-sm rounded-md",
   }
 };

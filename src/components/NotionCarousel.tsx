@@ -29,7 +29,6 @@ const NotionCarousel = ({
   const totalSlides = allSlides.length;
   const slideWidth = totalSlides ? 100 / totalSlides : 100;
   
-  // Navigation handlers
   const goToNext = useCallback(() => {
     if (isTransitioning || images.length <= 1) return;
     setIsTransitioning(true);
@@ -68,7 +67,6 @@ const NotionCarousel = ({
     }
   }, [onConfigureClick]);
   
-  // Setup effects
   useEffect(() => {
     startAutoplay();
     return () => { if (autoplayRef.current) clearInterval(autoplayRef.current); };
@@ -99,7 +97,7 @@ const NotionCarousel = ({
         <div className="flex items-center">
           <div className="h-8 w-8 mr-2" />
           <div className={cn("relative w-full flex items-center justify-center", UI_STYLES.panel)} style={{ height: `${height}px` }}>
-            <div className="text-center p-4 space-y-2 rounded-md bg-gray-50 border border-gray-200 shadow-md">
+            <div className="text-center p-4">
               <ImageIcon className={cn("mx-auto", UI_STYLES.iconSizeMedium, UI_STYLES.textMuted)} />
               <p className={UI_STYLES.textBody}>No images to display</p>
             </div>
@@ -129,7 +127,6 @@ const NotionCarousel = ({
         <Button
           variant="ghost"
           size="icon"
-          className={cn("h-8 w-8 mr-2")}
           onClick={goToPrev}
           aria-label="Previous slide"
         >
@@ -168,7 +165,6 @@ const NotionCarousel = ({
         <Button
           variant="ghost"
           size="icon"
-          className={cn("h-8 w-8 ml-2")}
           onClick={goToNext}
           aria-label="Next slide"
         >
@@ -178,7 +174,7 @@ const NotionCarousel = ({
       
       {/* Dots and config button */}
       <div className="mt-4 flex justify-center">
-        <div className={cn("flex items-center justify-center gap-2 px-3 py-2 rounded-full")}>
+        <div className="flex items-center justify-center gap-2">
           {/* Dots navigation */}
           {images.map((_, index) => (
             <CarouselDot
@@ -190,21 +186,18 @@ const NotionCarousel = ({
                   startAutoplay();
                 }
               }}
-              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
           
           {/* Config button */}
-          <div>
-            <Button 
-              variant="outline"
-              onClick={handleConfigClick}
-              className={cn("h-7 px-2", UI_STYLES.button.secondary)}
-              size="sm"
-            >
-              <ChevronDown className={UI_STYLES.iconSizeSmall} />
-            </Button>
-          </div>
+          <Button 
+            variant="outline"
+            onClick={handleConfigClick}
+            className={cn("ml-2", UI_STYLES.button.secondary)}
+            size="sm"
+          >
+            <ChevronDown className={UI_STYLES.iconSizeSmall} />
+          </Button>
         </div>
       </div>
     </div>
